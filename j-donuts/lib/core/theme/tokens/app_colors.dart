@@ -24,6 +24,11 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.tierColors,
     required this.offlineBanner,
     required this.onOfflineBanner,
+    required this.headerWash,
+    required this.headerDecor,
+    required this.avatarGlow,
+    required this.promoViolet,
+    required this.promoSky,
   });
 
   static const AppColors light = AppColors(
@@ -55,6 +60,11 @@ class AppColors extends ThemeExtension<AppColors> {
     ],
     offlineBanner: AppPalette.ink,
     onOfflineBanner: AppPalette.white,
+    headerWash: AppPalette.cream,
+    headerDecor: AppPalette.peach,
+    avatarGlow: AppPalette.peachDeep,
+    promoViolet: AppPalette.violet,
+    promoSky: AppPalette.skyBlue,
   );
 
   final Color primary;
@@ -79,8 +89,30 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color offlineBanner;
   final Color onOfflineBanner;
 
+  /// Cream plane behind the Home member header.
+  final Color headerWash;
+
+  /// Soft peach organic shapes in the Home header.
+  final Color headerDecor;
+
+  /// Warm halo behind the member avatar.
+  final Color avatarGlow;
+
+  /// Purple promo banner shell.
+  final Color promoViolet;
+
+  /// Cyan promo banner shell.
+  final Color promoSky;
+
   Color tierColor(int sortOrder) =>
       tierColors[sortOrder.clamp(0, tierColors.length - 1)];
+
+  /// Resolves a seed `cardTone` key to a banner shell color.
+  Color bannerShell(String? tone) => switch (tone) {
+    'sky' => promoSky,
+    'violet' => promoViolet,
+    _ => promoViolet,
+  };
 
   @override
   AppColors copyWith({Color? primary, Color? accent}) => AppColors(
@@ -103,6 +135,11 @@ class AppColors extends ThemeExtension<AppColors> {
     tierColors: tierColors,
     offlineBanner: offlineBanner,
     onOfflineBanner: onOfflineBanner,
+    headerWash: headerWash,
+    headerDecor: headerDecor,
+    avatarGlow: avatarGlow,
+    promoViolet: promoViolet,
+    promoSky: promoSky,
   );
 
   @override

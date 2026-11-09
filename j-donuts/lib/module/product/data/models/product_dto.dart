@@ -15,6 +15,7 @@ abstract class ProductDto with _$ProductDto {
     required String imageAsset,
     required String description,
     String? imageUrl,
+    String? subtitle,
   }) = _ProductDto;
 
   factory ProductDto.fromJson(Map<String, Object?> json) =>

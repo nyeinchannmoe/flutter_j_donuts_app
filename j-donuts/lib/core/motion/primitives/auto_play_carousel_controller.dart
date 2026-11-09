@@ -13,11 +13,13 @@ class AutoPlayCarouselController {
     required this.pageCount,
     this.interval = MotionTokens.carouselInterval,
     this.resumeDelay = MotionTokens.carouselResumeDelay,
-  }) : pageController = PageController();
+    this.viewportFraction = 1,
+  }) : pageController = PageController(viewportFraction: viewportFraction);
 
   final int pageCount;
   final Duration interval;
   final Duration resumeDelay;
+  final double viewportFraction;
   final PageController pageController;
 
   Timer? _timer;

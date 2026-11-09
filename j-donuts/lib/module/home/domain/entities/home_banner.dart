@@ -10,5 +10,6 @@ abstract class HomeBanner with _$HomeBanner {
     required String imageAsset,
     String? tag,
     String? imageUrl,
+    String? cardTone,
   }) = _HomeBanner;
 }

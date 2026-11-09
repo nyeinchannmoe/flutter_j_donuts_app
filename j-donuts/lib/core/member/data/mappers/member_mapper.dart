@@ -29,7 +29,9 @@ extension MemberRowMapper on MemberWithTier {
     tierRank: tier.sortOrder,
     totalPoints: member.totalPoints,
     pointsToNextTier: member.pointsToNextTier,
+    currentTierMinPoints: tier.minPoints,
     nextTierName: nextTier?.name,
+    nextTierMinPoints: nextTier?.minPoints,
     notificationsCount: member.notificationsCount,
     pendingRewardsCount: member.pendingRewardsCount,
   );

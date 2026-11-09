@@ -13,6 +13,7 @@ abstract class SectionProduct with _$SectionProduct {
     required int priceMmk,
     required String imageAsset,
     String? imageUrl,
+    String? subtitle,
     int? discountPercent,
   }) = _SectionProduct;
 }

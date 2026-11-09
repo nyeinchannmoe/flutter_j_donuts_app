@@ -11,6 +11,10 @@ abstract final class AppPalette {
   static const Color blushBottom = Color(0xFFFFF5F9);
   static const Color orange = Color(0xFFFF7F22);
   static const Color peach = Color(0xFFFFE3D3);
+  /// Soft cream used behind the Home member header.
+  static const Color cream = Color(0xFFFDF0E4);
+  /// Stronger peach tint for avatar glow and organic header shapes.
+  static const Color peachDeep = Color(0xFFFFD4B8);
   static const Color coolGray = Color(0xFFEBF0F0);
   static const Color mist = Color(0xFFF5F7F8);
   static const Color stone = Color(0xFFD5DADD);

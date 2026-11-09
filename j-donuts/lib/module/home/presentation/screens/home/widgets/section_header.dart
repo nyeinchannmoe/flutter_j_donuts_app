@@ -14,16 +14,45 @@ class SectionHeader extends StatelessWidget {
         Expanded(
           child: Semantics(
             header: true,
-            child: Text(title, style: context.typography.title),
+            child: Text(
+              title,
+              style: context.typography.title.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ),
-        Icon(
-          Icons.arrow_forward,
-          size: context.iconSizes.md,
-          color: context.colors.textPrimary,
-          semanticLabel: context.l10n.sectionSeeAll,
-        ),
+        const _SeeAllChevron(),
       ],
     ),
   );
+}
+
+class _SeeAllChevron extends StatelessWidget {
+  const _SeeAllChevron();
+
+  @override
+  Widget build(BuildContext context) {
+    final extent = context.iconSizes.lg;
+    return Semantics(
+      label: context.l10n.sectionSeeAll,
+      button: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          shape: BoxShape.circle,
+          boxShadow: context.shadows.card,
+          border: Border.all(color: context.colors.border),
+        ),
+        child: SizedBox.square(
+          dimension: extent,
+          child: Icon(
+            Icons.chevron_right_rounded,
+            size: context.iconSizes.md,
+            color: context.colors.textPrimary,
+          ),
+        ),
+      ),
+    );
+  }
 }

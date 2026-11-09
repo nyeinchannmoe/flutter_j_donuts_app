@@ -8,6 +8,8 @@ class Banners extends Table {
   TextColumn get title => text()();
   TextColumn get imageUrl => text().nullable()();
   TextColumn get imageAsset => text()();
+  /// Named theme tone key for the colored promo shell (e.g. violet, sky).
+  TextColumn get cardTone => text().nullable()();
   IntColumn get sortOrder => integer()();
 
   @override

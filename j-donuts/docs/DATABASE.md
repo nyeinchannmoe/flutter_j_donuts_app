@@ -4,7 +4,7 @@ Drift over SQLite. `AppDatabase` (`lib/core/database/app_database.dart`)
 opens through `drift_flutter` on a background isolate. Tests use
 `NativeDatabase.memory` through `test/helpers/test_database.dart`.
 
-## Schema version 1
+## Schema version 3
 
 | Table | Key | Notes |
 | --- | --- | --- |
@@ -12,13 +12,15 @@ opens through `drift_flutter` on a background isolate. Tests use
 | `local_users` | `id` | Fake auth accounts, unique `phone_e164` |
 | `tiers` | `id` | Membership tiers from the catalog |
 | `member_profiles` | `id` | Single row, `id` checked against `MemberProfiles.singletonId`; references `tiers` |
-| `products` | `id` | Unique `code` |
-| `banners` | `id` | Home carousel |
+| `products` | `id` | Unique `code`; nullable `subtitle` (v3) |
+| `banners` | `id` | Home carousel; nullable `card_tone` theme key (v2) |
 | `home_sections` | `id` | Product rails, unique `kind` |
 | `home_section_items` | `section_id, product_id` | Cascades from `home_sections` and `products` |
 | `shops` | `id` | Nearby shops |
 | `challenges` | `id` | `claimed` is user-owned and survives reseeds |
 | `cart_items` | `product_id` | Cascades from `products`, `quantity > 0` |
+
+Migration 1→2 adds nullable `banners.card_tone`. Migration 2→3 adds nullable `products.subtitle`.
 
 Every DAO lives in `lib/core/database/daos`, one per aggregate. DateTimes
 are stored as Unix integers (`store_date_time_values_as_text: false` in

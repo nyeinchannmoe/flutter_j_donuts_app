@@ -13,6 +13,7 @@ extension ProductDtoMapper on ProductDto {
     imageUrl: Value(imageUrl),
     imageAsset: imageAsset,
     description: description,
+    subtitle: Value(subtitle),
   );
 }
 
@@ -26,5 +27,6 @@ extension ProductRowMapper on ProductRow {
     imageAsset: imageAsset,
     imageUrl: imageUrl,
     description: description,
+    subtitle: subtitle,
   );
 }

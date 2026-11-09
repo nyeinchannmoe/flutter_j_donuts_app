@@ -12,6 +12,7 @@ abstract class BannerDto with _$BannerDto {
     required int sortOrder,
     String? tag,
     String? imageUrl,
+    String? cardTone,
   }) = _BannerDto;
 
   factory BannerDto.fromJson(Map<String, Object?> json) =>
