@@ -1,0 +1,35 @@
+---
+description: Bloc and Cubit rules for state management
+globs: lib/**/bloc/**/*.dart, lib/core/connectivity/connectivity_cubit.dart, lib/core/locale/locale_cubit.dart
+alwaysApply: false
+---
+# Bloc state management
+
+## Structure
+- One Bloc per screen or per independent section. Home uses independent Blocs for the member header, banners, each product section and shops so one failing section never affects another.
+- Files: presentation/bloc/<name>/<name>_bloc.dart with <name>_event.dart and <name>_state.dart as part files.
+- Events are sealed classes named as past-tense facts. States are sealed or freezed; use ViewState<T> for read-only sections.
+- Cubit is allowed only for trivial synchronous app-level state: ConnectivityCubit and LocaleCubit. Everything else is a Bloc with events.
+
+## Concurrency
+- Register every handler with a bloc_concurrency transformer.
+- droppable for submits and anything a double tap could repeat.
+- restartable for watch, refresh and search handlers so a new request cancels the previous one.
+- sequential for ordered work such as quantity changes.
+
+## Reactive reads
+- Watch Drift streams through use cases with emit.forEach or emit.onEach. Map each Result to a ViewState with ViewState.fromResult.
+- Emit loading first, then data, empty or failure. A retry event re-enters the same handler.
+
+## Dependencies
+- Blocs depend on use cases only. Never on repositories, DAOs, other Blocs, BuildContext or GetIt.
+- The UI coordinates between Blocs when needed, through BlocListener.
+
+## Providing and consuming
+- Create BlocProviders at route level from get_it factories inside lib/config/routes builders. App-level Blocs (SessionBloc, ConnectivityCubit, LocaleCubit) are provided in lib/app.dart.
+- Use BlocBuilder with buildWhen, BlocSelector for fine-grained rebuilds and BlocListener with listenWhen for one-shot effects.
+- Model one-shot effects as distinct state transitions (for example an AddToCartStatus moving to added), never as flags that need resetting.
+
+## Observability
+- AppBlocObserver logs transitions and errors through AppLogger in debug and profile builds only.
+- Every Bloc test uses bloc_test and covers loading, data, empty and failure paths.

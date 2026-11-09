@@ -1,0 +1,31 @@
+---
+description: What to test per layer, naming and shared helpers
+globs: test/**, integration_test/**
+alwaysApply: false
+---
+# Testing
+
+## Per layer
+- Domain: unit tests for every validator rule and every use case (with mocktail repositories).
+- Data: DAOs, repositories and SeedService against an in-memory Drift database from test/helpers/test_database.dart. Network interceptors with a fake HttpClientAdapter.
+- Core: Result, failure mapping, MotionPolicy tiers, LayoutMetrics classification, formatters, SyncCoordinator single-flight.
+- Config: resolveAuthRedirect for every session and location combination.
+- Blocs: bloc_test for loading, data, empty and failure, plus every user event.
+- Widgets: each motion primitive including the reduce-motion path, ViewStateBuilder, AppButton loading and double-tap guard, and no overflow at text scale 1.3 across the device matrix.
+- Migrations: SchemaVerifier tests for every schema version in test/core/database.
+- Integration: integration_test/app_flow_test.dart boots the real app and verifies redirects.
+
+## Naming
+- Group by the unit under test. Test names describe behaviour: "emits failure when the repository stream errors", not "test 1".
+- One behaviour per test. Arrange, act and assert are visually separated.
+
+## Helpers (test/helpers)
+- pumpApp wraps a widget with localization, theme, MotionScope and optional Bloc providers.
+- device_matrix.dart runs a test body across the reference sizes at text scale 1.0 and 1.3 and fails on overflow.
+- test_database.dart creates an in-memory AppDatabase. fake_clock.dart provides a controllable Clock.
+- Register mocktail fallback values in setUpAll when a matcher needs them.
+
+## Rules
+- Tests never touch the network, the real secure storage or real time. Inject Clock, delays and platform services.
+- Unit and widget tests construct objects directly or use GetIt.asNewInstance() in a helper; they never touch the global getIt.
+- A failing test is fixed at the cause, never skipped.

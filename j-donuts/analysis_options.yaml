@@ -1,0 +1,20 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/l10n/generated/**"
+    - "test/core/database/generated/**"
+    - "build/**"
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # Application code, not a published package: API docs are written where
+    # they explain intent instead of being forced onto every public member.
+    public_member_api_docs: false
+    # Single-method interfaces are the repository/port seams that tests fake;
+    # collapsing them into typedefs would leak implementation details.
+    one_member_abstracts: false

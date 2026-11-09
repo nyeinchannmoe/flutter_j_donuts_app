@@ -1,0 +1,269 @@
+{
+  "member": {
+    "name": "Hania",
+    "photoUrl": null,
+    "photoAsset": "assets/seed/images/m_hania.webp",
+    "tierId": "t_silver",
+    "totalPoints": 680000,
+    "pointsToNextTier": 500,
+    "notificationsCount": 2,
+    "pendingRewardsCount": 3
+  },
+  "tiers": [
+    { "id": "t_bronze", "name": "Bronze", "minPoints": 0, "sortOrder": 0 },
+    { "id": "t_silver", "name": "Silver", "minPoints": 500000, "sortOrder": 1 },
+    { "id": "t_gold", "name": "Gold", "minPoints": 680500, "sortOrder": 2 },
+    { "id": "t_platinum", "name": "Platinum", "minPoints": 1000000, "sortOrder": 3 }
+  ],
+  "products": [
+    {
+      "id": "p_coconut",
+      "code": "JD022123",
+      "name": "Coconut Donut",
+      "priceMmk": 3200,
+      "isNew": true,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_coconut.webp",
+      "description": "Enjoy our scrumptious donuts – soft, sweet, and satisfying in every bite. Choose from classic glazed, rich chocolate, or fun sprinkles. Dive into deliciousness now!"
+    },
+    {
+      "id": "p_strawberry_chocolate",
+      "code": "JD022124",
+      "name": "Strawberry Chocolate Donuts",
+      "priceMmk": 3500,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_strawberry_chocolate.webp",
+      "description": "Chocolate dough dipped in strawberry glaze and finished with dark chocolate drizzle."
+    },
+    {
+      "id": "p_dalgona_coffee",
+      "code": "JD031001",
+      "name": "Dalgona Creamy Coffee",
+      "priceMmk": 4500,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_dalgona_coffee.webp",
+      "description": "Whipped coffee cream layered over chilled fresh milk."
+    },
+    {
+      "id": "p_mistletoe_box",
+      "code": "JD090101",
+      "name": "Mistletoe Romance box",
+      "priceMmk": 18000,
+      "isNew": true,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_mistletoe_box.webp",
+      "description": "Six festive donuts in pink and green, made for sharing under the mistletoe."
+    },
+    {
+      "id": "p_christmas_family_box",
+      "code": "JD090102",
+      "name": "Christmas Family box",
+      "priceMmk": 26000,
+      "isNew": true,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_christmas_family_box.webp",
+      "description": "A dozen holiday favourites for the whole family."
+    },
+    {
+      "id": "p_santa_cookies",
+      "code": "JD090103",
+      "name": "Santa's favorite cookies set",
+      "priceMmk": 12000,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_santa_cookies.webp",
+      "description": "Butter cookies and mini donuts packed in a gift box."
+    },
+    {
+      "id": "p_glazed_classic",
+      "code": "JD022101",
+      "name": "Classic Glazed Donut",
+      "priceMmk": 2500,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_glazed_classic.webp",
+      "description": "Our original yeast donut with a thin, crackling sugar glaze."
+    },
+    {
+      "id": "p_choco_sprinkle",
+      "code": "JD022102",
+      "name": "Chocolate Sprinkle Donut",
+      "priceMmk": 2800,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_choco_sprinkle.webp",
+      "description": "Rich chocolate icing topped with rainbow sprinkles."
+    },
+    {
+      "id": "p_matcha_donut",
+      "code": "JD022125",
+      "name": "Matcha Cream Donut",
+      "priceMmk": 3400,
+      "isNew": true,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_matcha_donut.webp",
+      "description": "Japanese matcha glaze with a light vanilla cream filling."
+    },
+    {
+      "id": "p_blueberry_donut",
+      "code": "JD022126",
+      "name": "Blueberry Glaze Donut",
+      "priceMmk": 3300,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_blueberry_donut.webp",
+      "description": "Fruity blueberry glaze on a soft cake donut."
+    },
+    {
+      "id": "p_americano",
+      "code": "JD031002",
+      "name": "Iced Americano",
+      "priceMmk": 3000,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_americano.webp",
+      "description": "Double espresso over ice and cold water."
+    },
+    {
+      "id": "p_caramel_latte",
+      "code": "JD031003",
+      "name": "Caramel Latte",
+      "priceMmk": 4200,
+      "isNew": false,
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/p_caramel_latte.webp",
+      "description": "Espresso, steamed milk and house-made caramel sauce."
+    }
+  ],
+  "banners": [
+    {
+      "id": "b_central_boulevard",
+      "tag": "New shop",
+      "title": "We are now at Central Boulevard",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/b_central_boulevard.webp",
+      "sortOrder": 0
+    },
+    {
+      "id": "b_hot_drinks",
+      "tag": "Hot",
+      "title": "Hot drinks are back for the cold season",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/b_hot_drinks.webp",
+      "sortOrder": 1
+    },
+    {
+      "id": "b_holiday_boxes",
+      "tag": "Holiday",
+      "title": "Holiday boxes for every family",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/b_holiday_boxes.webp",
+      "sortOrder": 2
+    }
+  ],
+  "homeSections": [
+    {
+      "id": "sec_seasonal",
+      "kind": "seasonal",
+      "title": "Seasonal specials",
+      "sortOrder": 0,
+      "items": [
+        { "productId": "p_mistletoe_box", "sortOrder": 0, "discountPercent": 50 },
+        { "productId": "p_christmas_family_box", "sortOrder": 1, "discountPercent": null },
+        { "productId": "p_santa_cookies", "sortOrder": 2, "discountPercent": null }
+      ]
+    },
+    {
+      "id": "sec_popular",
+      "kind": "popular",
+      "title": "Popular",
+      "sortOrder": 1,
+      "items": [
+        { "productId": "p_strawberry_chocolate", "sortOrder": 0, "discountPercent": null },
+        { "productId": "p_dalgona_coffee", "sortOrder": 1, "discountPercent": null },
+        { "productId": "p_coconut", "sortOrder": 2, "discountPercent": null },
+        { "productId": "p_matcha_donut", "sortOrder": 3, "discountPercent": null }
+      ]
+    },
+    {
+      "id": "sec_order_again",
+      "kind": "orderAgain",
+      "title": "Order again",
+      "sortOrder": 2,
+      "items": [
+        { "productId": "p_santa_cookies", "sortOrder": 0, "discountPercent": 20 },
+        { "productId": "p_caramel_latte", "sortOrder": 1, "discountPercent": 20 },
+        { "productId": "p_glazed_classic", "sortOrder": 2, "discountPercent": null },
+        { "productId": "p_americano", "sortOrder": 3, "discountPercent": null }
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "id": "s_downtown",
+      "name": "J'Donuts Downtown",
+      "address": "Sule Pagoda Road, Kyauktada",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/s_downtown.webp",
+      "sortOrder": 0
+    },
+    {
+      "id": "s_junction",
+      "name": "J'Donuts Junction City",
+      "address": "Bogyoke Aung San Road, Pabedan",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/s_junction.webp",
+      "sortOrder": 1
+    },
+    {
+      "id": "s_inya_lake",
+      "name": "J'Donuts Inya Lake",
+      "address": "Kabar Aye Pagoda Road, Mayangone",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/s_inya_lake.webp",
+      "sortOrder": 2
+    },
+    {
+      "id": "s_hledan",
+      "name": "J'Donuts Hledan Center",
+      "address": "Insein Road, Kamayut",
+      "imageUrl": null,
+      "imageAsset": "assets/seed/images/s_hledan.webp",
+      "sortOrder": 3
+    }
+  ],
+  "challenges": [
+    {
+      "id": "ch_coco_complete",
+      "title": "Eat 4 Coco donuts",
+      "kind": "donut",
+      "progressCurrent": 4,
+      "progressTarget": 4,
+      "rewardPoints": 100,
+      "imageAsset": "assets/seed/images/c_coco_donut.webp",
+      "sortOrder": 0
+    },
+    {
+      "id": "ch_coco_progress",
+      "title": "Eat 4 Coco donuts",
+      "kind": "donut",
+      "progressCurrent": 1,
+      "progressTarget": 4,
+      "rewardPoints": 100,
+      "imageAsset": "assets/seed/images/c_coco_donut.webp",
+      "sortOrder": 1
+    },
+    {
+      "id": "ch_americano",
+      "title": "Drink 12 cups americano",
+      "kind": "coffee",
+      "progressCurrent": 9,
+      "progressTarget": 12,
+      "rewardPoints": 100,
+      "imageAsset": "assets/seed/images/c_americano.webp",
+      "sortOrder": 2
+    }
+  ]
+}

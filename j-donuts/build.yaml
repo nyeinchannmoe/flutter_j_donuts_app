@@ -1,0 +1,20 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        generate_for:
+          - lib/core/database/**.dart
+        options:
+          store_date_time_values_as_text: false
+      freezed:
+        generate_for:
+          - lib/**/domain/entities/**.dart
+          - lib/**/data/models/**.dart
+          - lib/**/presentation/bloc/**.dart
+          - lib/core/view_state/**.dart
+      json_serializable:
+        generate_for:
+          - lib/**/data/models/**.dart
+          - lib/core/storage/**.dart
+        options:
+          explicit_to_json: true

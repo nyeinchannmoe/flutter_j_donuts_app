@@ -1,0 +1,47 @@
+---
+description: Motion system hard rules and primitive catalog
+globs: lib/core/motion/**, lib/module/**/presentation/**, lib/core/widgets/**, lib/config/routes/**
+alwaysApply: false
+---
+# Motion and animation
+
+## Layers
+1. Tokens: lib/core/motion/motion_tokens.dart is the only file with Duration and Curve values used for motion.
+2. Policy: MotionPolicy resolves MotionTier (full, reduced, minimal) from MediaQuery.disableAnimations, the FrameBudgetMonitor (downgrades after sustained jank, never upgrades mid-session) and the app lifecycle (ambient motion pauses in background).
+3. Profile: MotionProfile exposes scaleDuration, allowsAmbient, allowsDepthEffects, maxStaggerItems and animatesEntrances. Read it with context.motion.
+4. Primitives in lib/core/motion/primitives, painters in lib/core/motion/painters, transitions in lib/core/motion/transitions.
+5. Orchestration: a screen with staggered motion owns one AnimationController and derives Intervals from StaggerSchedule.
+
+## Hard rules
+- Durations and curves come only from MotionTokens. Scale every duration with the profile.
+- Create controllers in initState and dispose them. Never create a controller in build. Never one controller per list item.
+- Never call setState on every tick. Use AnimatedBuilder with a child or transition widgets.
+- Animate only transform and opacity (FadeTransition, SlideTransition, ScaleTransition, Transform). No Opacity on large subtrees, no animated blur, BackdropFilter, saveLayer-heavy clips or animated shadows.
+- At most two ambient animations visible at once. Entrance animations run once per route entry, never on rebuild.
+- Inactive tabs and routes stop their tickers (TickerMode in the shell).
+- Shimmer uses one controller per SkeletonScope and one ShaderMask per SkeletonGroup.
+- Painters take repaint: animation, implement a precise shouldRepaint, allocate nothing in paint and sit inside a RepaintBoundary.
+- Multiply travel distances and amplitudes by LayoutMetrics.motionScale.
+- Every primitive has a minimal-tier path that skips or shortens to a fade, and a widget test covering it.
+- Lottie, Rive, 3D engines and fragment shaders need an ADR with a size budget, lazy loading, tier gating and a static fallback.
+
+## Primitive catalog
+- StaggeredEntrance and StaggerSchedule: one controller, Interval slots, capped by maxStaggerItems.
+- FadeSlideIn: one-shot fade plus slide.
+- PressableScale: press feedback by scale.
+- ShakeOnTrigger: horizontal shake when a trigger value changes.
+- CountUpText: integer count-up with a formatter.
+- AnimatedQuantityText: vertical roll when a number changes.
+- PopIn: overshoot scale entrance.
+- PulseAttention: ambient pulse, disabled when ambient motion is not allowed.
+- SlidingPillIndicator: pill that slides between equal-width slots.
+- MotionTransitions: sharedAxisHorizontal, fadeThrough and fadeScale route builders, used by lib/config/routes/route_transitions.dart.
+- FadeThroughTabStack: keeps shell tabs alive, fades through on switch and mutes inactive tickers.
+- HeroTags: the only source of Hero tags.
+- PerspectiveTilt: drag-driven Matrix4 perspective tilt with spring-back.
+- AutoPlayCarouselController: timer-driven PageController that pauses on interaction and when ambient motion is off.
+- MorphingProgressRing: steps through 25, 50, 75 and 100 percent and morphs into a check.
+- Painters: ArcSweepPainter and CheckMorphPainter.
+
+## Budgets
+- docs/PERFORMANCE_BUDGET.md defines frame, asset and size budgets enforced by tool/check_asset_budget.dart. docs/ANIMATION_GUIDE.md holds the profile-mode checklist.

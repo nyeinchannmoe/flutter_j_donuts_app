@@ -1,0 +1,30 @@
+---
+description: Code quality limits, naming and generated-file rules
+globs:
+alwaysApply: true
+---
+# Code quality
+
+## Limits (enforced by tool/quality_gate.dart)
+- Files in lib stay under 300 lines. Functions and methods target 20 lines; the gate fails above 30.
+- Raw Color values and the Colors class only in lib/core/theme (Colors.transparent excepted).
+- Curves only in lib/core/motion/motion_tokens.dart. Duration constructors in presentation and widget code are forbidden; elsewhere they must initialise a named constant.
+- No string literal passed to Text or SnackBar in presentation code. No numeric literals in EdgeInsets or SizedBox in presentation code.
+- Assets respect the budgets in docs/PERFORMANCE_BUDGET.md.
+- A rare justified exception uses the waiver comment "quality-gate: allow <rule> - <reason>" on the line or the line above. The gate logs every waiver.
+
+## Style
+- flutter analyze with very_good_analysis reports zero issues. Overrides live in analysis_options.yaml with a comment explaining each one.
+- Named constants for every number that carries meaning. No magic numbers.
+- Names say what things are. No abbreviations except well-known ones (id, url, dto, otp, mmk, dob).
+- Prefer final and const. Prefer sealed classes and exhaustive switches over flags.
+- No TODO, FIXME, commented-out code, dead code, print or debugPrint. Log through AppLogger.
+- Comments explain constraints the code cannot show, never what the next line does.
+
+## Generated files
+- *.g.dart, *.freezed.dart, lib/l10n/generated, lib/core/database/migrations/schema_versions.dart and test/core/database/generated are generated. Never edit them by hand; rerun the generator.
+- Regenerate with dart run build_runner build and flutter gen-l10n. build_runner 2.15 always replaces conflicting outputs, so the old delete-conflicting-outputs flag is not needed.
+
+## Dependencies
+- Add with flutter pub add (or --dev). Record resolved versions in docs/STACK.md and any substitution in docs/DECISIONS.md.
+- Remove a dependency as soon as nothing imports it.

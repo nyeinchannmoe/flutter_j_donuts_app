@@ -1,0 +1,38 @@
+---
+description: Offline-first data platform, Drift database, seeding, sync and connectivity
+globs: lib/core/database/**, lib/core/sync/**, lib/core/network/**, lib/core/connectivity/**, lib/core/member/**, lib/module/**/data/**
+alwaysApply: false
+---
+# Offline data platform
+
+## Single source of truth
+- The UI reads only from the local Drift database. Read paths never touch the network.
+- Repositories return Stream<Result<T>> for watched data and Future<Result<T>> for one-shot reads and writes, using guardStream and guardResult.
+- Mappers convert Drift rows and JSON DTOs into domain entities. Drift data classes and companions never leave the data layer.
+
+## Database
+- AppDatabase opens through drift_flutter in a background isolate. Tests use NativeDatabase.memory.
+- The schema version is the named constant DatabaseSchema.version. MigrationStrategy has onCreate, step-by-step upgrades from the generated schema_versions.dart, and beforeOpen enabling foreign keys and running a quick integrity check.
+- Every schema change dumps a new version to drift_schemas/, regenerates the step helpers and test schemas, and adds a migration test. Follow docs/DATABASE.md exactly.
+- One DAO per aggregate, with watch streams and transactional writes. Tables declare foreign keys and indexes.
+
+## Seeding
+- SeedService is idempotent and versioned by SeedService.seedVersion. It runs on first launch and again only after a version bump.
+- JSON is decoded in a background isolate, then every CatalogImporter writes its section inside one transaction.
+- Product, tier, challenge and member rows are upserted; banners, shops and home sections are replaced as whole lists. User-mutable state (cart, local users, challenge claimed flags, session) is preserved.
+- A seed failure returns a typed failure and the app shows a retryable full-screen error, never a crash.
+- Seed images live in assets/seed/images, are 20 KB or less and keep stable filenames so real photos can replace them.
+
+## Sync
+- SyncCoordinator is the only refresh entry point: app start, app resume, offline-to-online and pull-to-refresh.
+- It is single-flight, respects SyncPolicy TTLs for automatic triggers, writes remote data in one transaction through the same importers, exposes a status stream and treats failures as non-fatal.
+- The remote source is NoopRemoteDataSource unless AppConfig.remoteEnabled is set with --dart-define.
+
+## Network
+- Dio is created only in DioFactory with timeout constants, RetryInterceptor (GET only, exponential backoff with jitter, capped attempts) and the debug-only redacting LoggingInterceptor.
+- The /v1/ base path and the {data, error, meta} envelope are parsed by ApiEnvelope into a Result.
+
+## Connectivity, images, session
+- ConnectivityService combines connectivity_plus with a debounced DNS reachability check and re-checks on resume.
+- AppImage renders ImageRef values with the shared cache manager, a skeleton placeholder, an error state and the bundled asset fallback.
+- SessionStore wraps flutter_secure_storage; read errors are logged and treated as logged out.

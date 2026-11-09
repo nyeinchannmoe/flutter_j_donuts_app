@@ -1,0 +1,46 @@
+---
+description: Ordered checklist for adding a feature, bloc, screen, table or migration. Use when creating any of these.
+globs:
+alwaysApply: false
+---
+# New work checklist
+
+## New feature module
+1. Create lib/module/<feature>/domain/entities with freezed entities (no Flutter imports).
+2. Add the repository interface in domain/repositories returning Result or Stream<Result>.
+3. Add one use case per operation in domain/usecases.
+4. Add DTOs in data/models, mappers in data/mappers, a CatalogImporter in data/datasources if the feature owns seed data, and the repository implementation in data/repositories.
+5. Create di/<feature>_injection.dart registering repositories as lazy singletons and use cases and Blocs as factories. If the feature owns catalog data, also export a <feature>CatalogImporters(locator) list. Call both from lib/config/dependencies.dart.
+6. Add Blocs, screens and routes (see below).
+7. Add strings to both ARB files.
+8. Write unit, bloc and widget tests mirroring lib.
+9. Update docs/ARCHITECTURE.md and README.md if the folder map changes.
+
+## New Bloc
+1. Create presentation/bloc/<name>/<name>_bloc.dart with event and state part files.
+2. Sealed past-tense events; ViewState<T> or a freezed state.
+3. Pick a bloc_concurrency transformer for every handler.
+4. Inject use cases only. Register as a factory in the feature di file.
+5. Provide it at route level in lib/config/routes.
+6. Write bloc_test cases for loading, data, empty and failure.
+
+## New screen
+1. Add the path constant to route_paths.dart and the redirect rule to auth_redirect.dart if access differs.
+2. Add the GoRoute in auth_routes.dart or shell_routes.dart using a builder from route_transitions.dart. The screen takes navigation callbacks; the route builder supplies them.
+3. Create presentation/screens/<name>/<name>_screen.dart and its widgets folder.
+4. Render every section through ViewStateBuilder with a skeleton, empty and error view.
+5. Use tokens, context.l10n and LayoutMetrics. Wrap entrance motion in primitives.
+6. Add a device-matrix widget test at text scale 1.3.
+
+## New table
+1. Add the table in lib/core/database/tables with keys, foreign keys and indexes.
+2. Register it in app_database.dart and add or extend a DAO.
+3. Bump DatabaseSchema.version and follow the migration procedure below.
+4. Map rows to entities in the owning feature's data/mappers.
+5. Extend the seed JSON and importer if the table holds catalog data, and bump SeedService.seedVersion.
+
+## New migration
+1. Run the codegen, then the three drift_dev schema commands (dump, steps, generate) listed in docs/DATABASE.md.
+2. Add a case for the previous version to _runStep in lib/core/database/migrations/database_migration.dart using the generated step helper.
+3. Add the SchemaVerifier test for the new step in test/core/database.
+4. Document the change in docs/DATABASE.md and run tool/verify.sh.

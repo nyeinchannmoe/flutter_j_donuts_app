@@ -1,0 +1,30 @@
+---
+description: go_router configuration, auth redirect guard and transitions
+globs: lib/config/**
+alwaysApply: false
+---
+# Routing
+
+## Paths
+- Every path is a constant in lib/config/routes/route_paths.dart: /, /onboarding, /auth/phone, /auth/otp, /auth/name, /auth/dob, /welcome, /home, /explore, /rewards, /orders, /settings and /product/:id. Use the helper methods to build paths with parameters.
+- Never write a path string literal outside route_paths.dart.
+
+## Guard
+- SessionBloc owns the session: unknown, unauthenticated, registering, authenticated.
+- resolveAuthRedirect in auth_redirect.dart is a pure function of the session and the location. It is unit-tested for every status and location combination.
+- unknown: hold on the launch route (bootstrap restores the session before the first frame, so this is never visible).
+- unauthenticated: only onboarding, /auth/phone and /auth/otp; everything else goes to /onboarding.
+- registering: onboarding, all auth routes and /welcome; everything else goes to /auth/name.
+- authenticated: launch, onboarding and auth routes go to /welcome right after registration and to /home otherwise.
+- RouterRefreshStream adapts the SessionBloc stream into the refresh listenable.
+
+## Structure
+- The five-tab shell is a StatefulShellRoute.indexedStack. Inactive branches are wrapped in TickerMode so their animations stop.
+- /product/:id is a top-level route above the shell. An unknown id renders the not-found state inside the route.
+- Registration name and date of birth share one RegistrationBloc provided by a ShellRoute so entered data survives back navigation.
+- Route builders resolve Blocs from get_it and provide them with BlocProvider. Screens never resolve dependencies themselves.
+
+## Transitions
+- Build every page through route_transitions.dart. Durations and curves come from MotionTokens and are scaled by the MotionProfile.
+- Auth steps use the shared-axis horizontal transition, tab switches use fade-through, product detail uses a fade-scale transition that keeps Hero animations working.
+- With the minimal motion tier transitions collapse to a short fade.

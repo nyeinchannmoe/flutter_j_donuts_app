@@ -1,0 +1,36 @@
+---
+description: Layering, dependency rule, folder map, naming and where new code goes
+globs:
+alwaysApply: true
+---
+# Architecture
+
+## Dependency rule
+- Presentation depends on domain. Data implements domain interfaces. Domain depends only on pure Dart, freezed_annotation, lib/core/result and lib/core/error.
+- Domain files never import package:flutter, Drift, Dio, get_it or any data or presentation file.
+- Core is the shared kernel. It contains no feature code and never imports lib/module.
+- A feature never imports another feature's data or presentation. Shared needs go through core contracts (for example lib/core/member for the single member record).
+- Config (lib/config) is the composition root for navigation and may import any layer. get_it is referenced only in lib/bootstrap.dart, lib/config/dependencies.dart (the registration aggregator), lib/core/di, lib/module/*/di and route builders in lib/config/routes.
+
+## Folder map
+- lib/main.dart calls bootstrap only. lib/bootstrap.dart installs error handlers, initialises DI, opens and seeds the database, restores the session and runs the app. lib/app.dart builds MaterialApp.router with locale, theme, global BlocProviders, MotionScope and the offline banner host.
+- lib/config: app_config.dart, app_environment.dart, routes/ (routes.dart, route_paths.dart, auth_redirect.dart, route_transitions.dart, router_refresh.dart, app_shell_scaffold.dart).
+- lib/core: result, error, di, logging, database (tables, daos, migrations, seed), network (interceptors, envelope, remote source), sync, connectivity, storage, images, theme, responsive, motion (tokens, profile, policy, scope, frame budget, primitives, painters, transitions), view_state, widgets (skeleton, state_views, buttons, inputs, scaffold, offline banner), extensions, utils, locale, member.
+- lib/l10n: app_en.arb, app_my.arb and generated output in lib/l10n/generated.
+- lib/module/<feature> for auth, home, product, rewards, each with di/, domain/ (entities, repositories, usecases), data/ (datasources, models, mappers, repositories) and presentation/ (bloc/<name>/, screens/<name>/ with a widgets/ subfolder, widgets/).
+- test mirrors lib. Shared helpers live in test/helpers. integration_test, tool, docs, drift_schemas and assets/seed sit at the root.
+
+## Naming
+- Files snake_case; one public type per file except a Bloc with its part files.
+- Use cases are verb phrases with a single call method: WatchBanners, GetProduct, AddToCart.
+- Repository interfaces are nouns (ProductRepository); implementations end with Impl, fakes start with Fake.
+- Drift tables are plural nouns; DAOs end with Dao; mappers are extensions named <Source>Mapper.
+- Bloc events are past-tense facts (HomeStarted, ProductQuantityIncremented). States describe what is (ViewState, ProductDetailState).
+
+## Where new code goes
+- New table: lib/core/database/tables, register in app_database.dart, bump the schema version and follow docs/DATABASE.md.
+- New use case: the owning feature's domain/usecases, registered in that feature's di file.
+- New reusable widget: lib/core/widgets if it is feature-agnostic, otherwise the feature's presentation/widgets.
+- New animation primitive: lib/core/motion/primitives with a widget test and a reduce-motion path.
+- New string: both ARB files, then flutter gen-l10n.
+- Use the checklist in 95-new-feature-checklist.mdc for anything that spans layers.

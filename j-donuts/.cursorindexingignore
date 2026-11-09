@@ -1,0 +1,23 @@
+# Build outputs
+build/
+.dart_tool/
+dist/
+symbols/
+debug-info/
+android/.gradle/
+android/.kotlin/
+android/app/build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+
+# Generated sources (read the source annotations instead)
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
+lib/l10n/generated/
+lib/core/database/migrations/schema_versions.dart
+test/core/database/generated/
+
+# Client design material
+design_refs/

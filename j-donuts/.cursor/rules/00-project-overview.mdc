@@ -1,0 +1,44 @@
+---
+description: J'Donuts mission, stack, source of truth, forbidden actions and chat behaviour
+globs:
+alwaysApply: true
+---
+# J'Donuts project overview
+
+## Mission
+- Build the J'Donuts customer app for the Madivizion Senior Flutter code test: fake login and registration with real validation, an offline-first Home and Product detail, and an animated Rewards screen.
+- Targets: Android and iOS, portrait phones from 4.7 to 6.9 inches, text scale up to 1.3 without overflow.
+- No backend. All data is local; the remote layer exists but is disabled by default.
+- Senior is the floor: every line must be explainable in a code walkthrough.
+
+## Stack (versions are recorded in docs/STACK.md)
+- Flutter stable and Dart 3 as installed; SDK constraints follow the installed toolchain.
+- State: flutter_bloc and bloc_concurrency only. DI: get_it with manual registration.
+- Navigation: go_router with a pure redirect function. Database: Drift with versioned migrations.
+- Session: flutter_secure_storage. Network: Dio (prepared, disabled). Models: freezed and json_serializable.
+- Images: cached_network_image with a custom cache manager and bundled seed assets.
+- Connectivity: connectivity_plus plus a DNS reachability check. Transitions: the animations package.
+- Lint: very_good_analysis. Tests: flutter_test, bloc_test, mocktail, integration_test.
+
+## Source of truth, in priority order
+1. The Phase prompt that is currently being executed.
+2. The code test PDF (kept outside version control in design_refs/ or the workspace root).
+3. Framework defaults.
+- Decisions not covered by these are recorded as ADR entries in docs/DECISIONS.md before or with the code.
+
+## Forbidden actions
+- Never run any git command or git-based tool: init, add, commit, status, diff, log, stash, branch, checkout, reset, restore, clean, tag, push, pull, remote, gh. Never read or modify the .git directory.
+- Never add riverpod, provider (directly), get, mobx, flutter_screenutil, google_fonts, any 3D engine or model viewer. Lottie and Rive require an ADR first.
+- Never copy the PDF or any design screenshot into tracked folders. References live only in the git-ignored design_refs/ folder.
+- Never leave TODO, FIXME, commented-out code, dead code, unused dependencies, print or debugPrint. Use AppLogger.
+- Never type package versions from memory. Add packages with flutter pub add.
+- Never edit generated files (*.g.dart, *.freezed.dart, lib/l10n/generated, drift schema output) by hand.
+
+## Chat behaviour
+- Do not print code, diffs, file contents or snippets in chat. Edit files directly.
+- Final message of a task: at most 20 lines covering what was built, commands run with pass or fail, decisions and deviations, and manual steps left for the owner.
+- State assumptions briefly; do not ask for approval on decisions this rule set already covers.
+
+## Definition of done (every task)
+- Code generation, flutter gen-l10n, flutter analyze (zero issues), flutter test, tool/quality_gate.dart and tool/check_asset_budget.dart all pass. tool/verify.sh runs them in order.
+- Docs, rules and AGENTS.md still agree with the code.

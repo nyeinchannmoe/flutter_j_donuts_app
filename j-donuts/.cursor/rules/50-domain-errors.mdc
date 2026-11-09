@@ -1,0 +1,24 @@
+---
+description: Domain purity, Result usage and typed failures
+globs: lib/module/**/domain/**, lib/core/error/**, lib/core/result/**, lib/core/member/domain/**
+alwaysApply: false
+---
+# Domain and errors
+
+## Domain purity
+- Domain files import only dart: libraries, freezed_annotation, meta, lib/core/result and lib/core/error.
+- No package:flutter, no Drift, no Dio, no get_it, no l10n.
+- Entities are immutable freezed classes or sealed classes. Images are described with plain url and asset strings; presentation turns them into ImageRef.
+- Validators are pure top-level functions or const classes in domain/validators with unit tests for every rule.
+- Use cases are single classes with one call method and constructor-injected repositories.
+
+## Result
+- Every repository method returns Result<T> (or a stream of Result<T>). Use cases pass the Result through or combine with map, flatMap and fold.
+- Never throw across the domain boundary. Never return null to mean failure.
+
+## Failures
+- AppFailure is sealed: StorageFailure, NetworkFailure, TimeoutFailure, NotFoundFailure, ValidationFailure, AuthFailure, UnexpectedFailure.
+- Each failure carries a stable code, an optional cause and an optional stack trace.
+- Data code throws AppException only internally; guardResult and guardStream convert every exception into an Err and log it with its stack trace.
+- Every catch converts to Err, logs with the stack trace, or rethrows. Empty catches are forbidden.
+- Presentation maps failures to localized text in one place: the AppFailure localization extension in lib/core/extensions.
