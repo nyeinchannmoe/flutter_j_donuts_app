@@ -7,6 +7,7 @@ import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/core/utils/clock.dart';
 import 'package:jdonuts/core/utils/interval_ticker.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/otp_timing.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/verify_otp.dart';
@@ -51,7 +52,7 @@ class OtpVerificationBloc
 
   StreamSubscription<void>? _tickSubscription;
   String? _phoneE164;
-  bool _existingAccountOnly = false;
+  AuthFlowMode _mode = AuthFlowMode.register;
   bool _submitInFlight = false;
 
   Future<void> _onStarted(
@@ -59,7 +60,7 @@ class OtpVerificationBloc
     Emitter<OtpVerificationState> emit,
   ) async {
     _phoneE164 = event.phoneE164;
-    _existingAccountOnly = event.existingAccountOnly;
+    _mode = event.mode;
     emit(_restartCountdown(state.copyWith(code: '', failure: null)));
   }
 
@@ -90,7 +91,7 @@ class OtpVerificationBloc
     final result = await _verifyOtp(
       phoneE164: phone,
       code: code,
-      existingAccountOnly: _existingAccountOnly,
+      mode: _mode,
     );
     _submitInFlight = false;
     if (isClosed) return;
@@ -105,15 +106,18 @@ class OtpVerificationBloc
   }
 
   OtpVerificationState _rejected(AppFailure failure) {
-    final attempts = state.failedAttempts + 1;
-    final locked = attempts >= maxFailedAttempts;
+    final wrongCode = failure.code == FailureCodes.invalidCode;
+    final attempts = wrongCode
+        ? state.failedAttempts + 1
+        : state.failedAttempts;
+    final locked = wrongCode && attempts >= maxFailedAttempts;
     return state.copyWith(
       verifying: false,
-      code: '',
+      code: wrongCode ? '' : state.code,
       failedAttempts: attempts,
       locked: locked,
       failure: failure,
-      shakeEpoch: state.shakeEpoch + 1,
+      shakeEpoch: wrongCode ? state.shakeEpoch + 1 : state.shakeEpoch,
     );
   }
 

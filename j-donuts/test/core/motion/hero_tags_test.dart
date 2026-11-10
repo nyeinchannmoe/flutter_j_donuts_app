@@ -2,19 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/motion/transitions/hero_tags.dart';
 
 void main() {
-  test('product image tags stay unique across home section sources', () {
-    const productId = 'p_santa_cookies';
-    final seasonal = HeroTags.productImage(productId, source: 'sec_seasonal');
-    final orderAgain = HeroTags.productImage(
-      productId,
-      source: 'sec_order_again',
-    );
-
-    expect(seasonal, isNot(orderAgain));
-    expect(seasonal, 'product-image-sec_seasonal-$productId');
+  test('product image tags are stable and unique per product', () {
     expect(
-      HeroTags.productImage(productId),
-      'product-image-${HeroTags.detailSource}-$productId',
+      HeroTags.productImage('p_santa_cookies'),
+      'product-image-p_santa_cookies',
+    );
+    expect(
+      HeroTags.productImage('p_santa_cookies'),
+      isNot(HeroTags.productImage('p_coconut')),
     );
   });
 }

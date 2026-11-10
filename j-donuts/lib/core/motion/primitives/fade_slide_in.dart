@@ -40,7 +40,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_started) return;
+    if (_started || !TickerMode.valuesOf(context).enabled) return;
     _started = true;
     final profile = context.motion;
     _controller.duration = profile.scaleDuration(widget.duration);

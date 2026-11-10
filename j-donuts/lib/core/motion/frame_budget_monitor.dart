@@ -36,10 +36,13 @@ class FrameBudgetMonitor {
   bool _reported = false;
   bool _attached = false;
 
+  /// Whether the timings callback is registered.
+  @visibleForTesting
+  bool get isAttached => _attached;
+
   void attach() {
     if (_attached) return;
-    // Debug frames are not a reliable jank signal; downgrading here would
-    // permanently disable ambient motion (including banner autoplay).
+    // Debug timings are not representative; only profile/release drive tiers.
     if (kDebugMode) return;
     _attached = true;
     SchedulerBinding.instance.addTimingsCallback(recordTimings);

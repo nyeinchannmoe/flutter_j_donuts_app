@@ -18,9 +18,7 @@ const List<String> _appLocations = [
   RoutePaths.rewards,
   RoutePaths.orders,
   RoutePaths.settings,
-  RoutePaths.notifications,
   '/product/p_coconut',
-  '/section/seasonal',
 ];
 
 String? _redirect(Session session, String location) =>
@@ -81,18 +79,18 @@ void main() {
   group('registering session', () {
     const session = Session.registering(phoneE164: _phone);
 
-    test('may use onboarding, every auth step and welcome', () {
-      for (final location in [
-        RoutePaths.onboarding,
-        RoutePaths.welcome,
-        ..._authSteps,
-      ]) {
+    test('may use onboarding and every auth step', () {
+      for (final location in [RoutePaths.onboarding, ..._authSteps]) {
         expect(_redirect(session, location), isNull, reason: location);
       }
     });
 
-    test('is sent to the name step from launch and the app', () {
-      for (final location in [RoutePaths.launch, ..._appLocations]) {
+    test('is sent to the name step from launch, welcome and the app', () {
+      for (final location in [
+        RoutePaths.launch,
+        RoutePaths.welcome,
+        ..._appLocations,
+      ]) {
         expect(
           _redirect(session, location),
           RoutePaths.authName,

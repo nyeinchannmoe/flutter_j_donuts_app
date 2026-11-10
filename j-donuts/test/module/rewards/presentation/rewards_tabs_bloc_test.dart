@@ -8,6 +8,10 @@ void main() {
       expect(RewardsTabsBloc().state.selectedIndex, 0);
     });
 
+    test('honours an initial gift tab index', () {
+      expect(RewardsTabsBloc(initialIndex: 1).state.selectedIndex, 1);
+    });
+
     blocTest<RewardsTabsBloc, RewardsTabsState>(
       'selects a different tab',
       build: RewardsTabsBloc.new,

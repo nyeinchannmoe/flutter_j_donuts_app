@@ -6,17 +6,29 @@ abstract final class AuthValidators {
   /// Myanmar country calling code.
   static const String myanmarCallingCode = '+95';
 
-  static final RegExp _nationalMobile = RegExp(r'^0?(9[0-9]{7,9})$');
-  static final RegExp _nationalSeparators = RegExp('[ -]');
+  /// National field: optional trunk 0, then 9 and 7 to 9 digits.
+  static final RegExp _nationalMobile = RegExp(r'^0?(9\d{7,9})$');
 
-  /// Normalizes the editable part of the phone field.
+  /// Optional +95, 95 or trunk 0, then a mobile number: 9 and 7 to 9 digits.
+  static final RegExp _myanmarMobile = RegExp(r'^(?:\+?95|0)?(9\d{7,9})$');
+  static final RegExp _separators = RegExp(r'[\s\-().]');
+  static final RegExp _nonDigits = RegExp(r'\D');
+
+  /// Normalizes the editable national phone field (after the +95 prefix) to
+  /// E.164. Country-code prefixes belong in [toMyanmarE164], not here.
   static Result<String> normalizeNationalPhone(String input) {
-    final digits = input.replaceAll(_nationalSeparators, '');
+    final digits = input.replaceAll(_separators, '');
     final match = _nationalMobile.firstMatch(digits);
     if (match == null || match.end != digits.length) {
       return const Err(ValidationFailure());
     }
     return Ok('$myanmarCallingCode${match.group(1)}');
+  }
+
+  /// National digits without the +95 prefix, for prefilling the phone field.
+  static String? nationalDigitsFromE164(String phoneE164) {
+    if (!phoneE164.startsWith(myanmarCallingCode)) return null;
+    return phoneE164.substring(myanmarCallingCode.length);
   }
 
   static const int otpLength = 6;
@@ -25,17 +37,12 @@ abstract final class AuthValidators {
   static const String otpTooLongCode = 'auth.otp.tooLong';
   static const String otpNonDigitsCode = 'auth.otp.nonDigits';
 
-  /// Optional +95, 95 or trunk 0, then a mobile number: 9 and 7 to 9 digits.
-  static final RegExp _myanmarMobile = RegExp(r'^(?:\+?95|0)?(9\d{7,9})$');
-  static final RegExp _separators = RegExp(r'[\s\-().]');
-  static final RegExp _nonDigits = RegExp(r'\D');
-
   /// Normalises a Myanmar mobile number to E.164, or returns null when the
   /// input is not a valid mobile number.
   static String? toMyanmarE164(String input) {
     final digits = input.replaceAll(_separators, '');
     final match = _myanmarMobile.firstMatch(digits);
-    if (match == null) return null;
+    if (match == null || match.end != digits.length) return null;
     return '$myanmarCallingCode${match.group(1)}';
   }
 
@@ -135,8 +142,20 @@ abstract final class AuthValidators {
   static DateTime earliestDateOfBirth() => DateTime(earliestBirthYear);
 
   /// Members must be at least [minimumAge] years old on [today].
-  static DateTime latestDateOfBirth(DateTime today) =>
-      DateTime(today.year - minimumAge, today.month, today.day);
+  ///
+  /// Clamps 29 February onto 28 February when the cutoff year is not a leap
+  /// year so DateTime cannot roll the cutoff into March.
+  static DateTime latestDateOfBirth(DateTime today) {
+    final year = today.year - minimumAge;
+    final month = today.month;
+    final day = today.day;
+    final isLeapDay = month == 2 && day == 29;
+    final safeDay = isLeapDay && !_isLeapYear(year) ? 28 : day;
+    return DateTime(year, month, safeDay);
+  }
+
+  static bool _isLeapYear(int year) =>
+      (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
 
   static bool isDateOfBirthValid(DateTime dateOfBirth, DateTime today) =>
       !dateOfBirth.isAfter(latestDateOfBirth(today)) &&

@@ -4,9 +4,11 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/result/result.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/user_profile.dart';
+import 'package:jdonuts/module/auth/domain/usecases/check_phone_registered.dart';
 import 'package:jdonuts/module/auth/domain/usecases/register_user.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/save_registration_name.dart';
@@ -22,6 +24,8 @@ import '../../../helpers/fake_interval_ticker.dart';
 
 class _MockRequestOtp extends Mock implements RequestOtp {}
 
+class _MockCheckPhoneRegistered extends Mock implements CheckPhoneRegistered {}
+
 class _MockVerifyOtp extends Mock implements VerifyOtp {}
 
 class _MockSaveRegistrationName extends Mock implements SaveRegistrationName {}
@@ -31,18 +35,32 @@ class _MockRegisterUser extends Mock implements RegisterUser {}
 const String _nationalPhone = '9123456789';
 const String _phone = '+959123456789';
 const AuthFailure _wrongCode = AuthFailure(code: FailureCodes.invalidCode);
+const AuthFailure _accountMissing = AuthFailure(
+  code: FailureCodes.accountMissing,
+);
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(AuthFlowMode.register);
+  });
+
   group('PhoneEntryBloc', () {
     late _MockRequestOtp requestOtp;
+    late _MockCheckPhoneRegistered checkRegistered;
     late Completer<Result<Unit>> pending;
 
     setUp(() {
       requestOtp = _MockRequestOtp();
+      checkRegistered = _MockCheckPhoneRegistered();
       pending = Completer();
     });
 
-    PhoneEntryBloc build() => PhoneEntryBloc(requestOtp: requestOtp);
+    PhoneEntryBloc build({AuthFlowMode mode = AuthFlowMode.register}) =>
+        PhoneEntryBloc(
+          requestOtp: requestOtp,
+          checkPhoneRegistered: checkRegistered,
+          mode: mode,
+        );
 
     blocTest<PhoneEntryBloc, PhoneEntryState>(
       'sends a code for a submitted number',
@@ -54,10 +72,19 @@ void main() {
         ..add(const PhoneEntryChanged(_nationalPhone))
         ..add(const PhoneEntrySubmitted()),
       expect: () => const [
-        PhoneEntryState(phoneE164: _phone),
-        PhoneEntryState(phoneE164: _phone, submitting: true),
-        PhoneEntryState(phoneE164: _phone, codeSent: true),
+        PhoneEntryState(phoneE164: _phone, nationalInput: _nationalPhone),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          submitting: true,
+        ),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          codeSent: true,
+        ),
       ],
+      verify: (_) => verifyZeroInteractions(checkRegistered),
     );
 
     blocTest<PhoneEntryBloc, PhoneEntryState>(
@@ -70,9 +97,17 @@ void main() {
         ..add(const PhoneEntryChanged(_nationalPhone))
         ..add(const PhoneEntrySubmitted()),
       expect: () => const [
-        PhoneEntryState(phoneE164: _phone),
-        PhoneEntryState(phoneE164: _phone, submitting: true),
-        PhoneEntryState(phoneE164: _phone, failure: NetworkFailure()),
+        PhoneEntryState(phoneE164: _phone, nationalInput: _nationalPhone),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          submitting: true,
+        ),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          failure: NetworkFailure(),
+        ),
       ],
     );
 
@@ -84,11 +119,12 @@ void main() {
         ..add(const PhoneEntryFocusChanged(focused: false))
         ..add(const PhoneEntrySubmitted()),
       expect: () => const [
-        PhoneEntryState(),
-        PhoneEntryState(showInvalid: true),
+        PhoneEntryState(nationalInput: '123'),
+        PhoneEntryState(nationalInput: '123', showInvalid: true),
       ],
       verify: (_) => verifyZeroInteractions(requestOtp),
     );
+
     blocTest<PhoneEntryBloc, PhoneEntryState>(
       'ignores repeated submits while one is running',
       setUp: () => when(
@@ -105,6 +141,61 @@ void main() {
         pending.complete(const Ok(Unit.value));
       },
       verify: (_) => verify(() => requestOtp(_phone)).called(1),
+    );
+
+    blocTest<PhoneEntryBloc, PhoneEntryState>(
+      'login blocks an unregistered number before sending a code',
+      setUp: () => when(
+        () => checkRegistered(_phone),
+      ).thenAnswer((_) async => const Ok(false)),
+      build: () => build(mode: AuthFlowMode.login),
+      act: (bloc) => bloc
+        ..add(const PhoneEntryChanged(_nationalPhone))
+        ..add(const PhoneEntrySubmitted()),
+      expect: () => const [
+        PhoneEntryState(phoneE164: _phone, nationalInput: _nationalPhone),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          submitting: true,
+        ),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          accountMissing: true,
+          failure: _accountMissing,
+        ),
+      ],
+      verify: (_) => verifyZeroInteractions(requestOtp),
+    );
+
+    blocTest<PhoneEntryBloc, PhoneEntryState>(
+      'login sends a code when the number is registered',
+      setUp: () {
+        when(
+          () => checkRegistered(_phone),
+        ).thenAnswer((_) async => const Ok(true));
+        when(
+          () => requestOtp(_phone),
+        ).thenAnswer((_) async => const Ok(Unit.value));
+      },
+      build: () => build(mode: AuthFlowMode.login),
+      act: (bloc) => bloc
+        ..add(const PhoneEntryChanged(_nationalPhone))
+        ..add(const PhoneEntrySubmitted()),
+      expect: () => const [
+        PhoneEntryState(phoneE164: _phone, nationalInput: _nationalPhone),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          submitting: true,
+        ),
+        PhoneEntryState(
+          phoneE164: _phone,
+          nationalInput: _nationalPhone,
+          codeSent: true,
+        ),
+      ],
     );
   });
 
@@ -134,6 +225,7 @@ void main() {
       () => verifyOtp(
         phoneE164: any(named: 'phoneE164'),
         code: any(named: 'code'),
+        mode: any(named: 'mode'),
       ),
     ).thenAnswer((_) async => result);
 
@@ -274,6 +366,7 @@ void main() {
           () => verifyOtp(
             phoneE164: any(named: 'phoneE164'),
             code: any(named: 'code'),
+            mode: any(named: 'mode'),
           ),
         ).thenAnswer((_) => pending.future);
         bloc
@@ -285,8 +378,41 @@ void main() {
         pending.complete(const Ok(OtpVerification(isRegistered: false)));
       },
       verify: (_) => verify(
-        () => verifyOtp(phoneE164: _phone, code: '123456'),
+        () => verifyOtp(
+          phoneE164: _phone,
+          code: '123456',
+          mode: any(named: 'mode'),
+        ),
       ).called(1),
+    );
+
+    blocTest<OtpVerificationBloc, OtpVerificationState>(
+      'account-missing failures do not count toward the lock',
+      setUp: () => stubVerify(const Err(_accountMissing)),
+      build: build,
+      act: (bloc) => bloc
+        ..add(
+          const OtpVerificationStarted(
+            phoneE164: _phone,
+            mode: AuthFlowMode.login,
+          ),
+        )
+        ..add(const OtpCodeChanged('123456')),
+      expect: () => [
+        isA<OtpVerificationState>(),
+        isA<OtpVerificationState>().having((s) => s.code, 'code', '123456'),
+        isA<OtpVerificationState>().having(
+          (s) => s.verifying,
+          'verifying',
+          true,
+        ),
+        isA<OtpVerificationState>()
+            .having((s) => s.code, 'code', '123456')
+            .having((s) => s.failedAttempts, 'attempts', 0)
+            .having((s) => s.locked, 'locked', false)
+            .having((s) => s.failure, 'failure', _accountMissing)
+            .having((s) => s.shakeEpoch, 'shake', 0),
+      ],
     );
 
     blocTest<OtpVerificationBloc, OtpVerificationState>(

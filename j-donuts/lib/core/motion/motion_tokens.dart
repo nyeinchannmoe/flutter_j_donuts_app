@@ -16,6 +16,12 @@ abstract final class MotionTokens {
   /// Fallback used by the minimal tier instead of skipping entirely.
   static const Duration minimalFade = Duration(milliseconds: 120);
 
+  /// Rewards challenge artwork reveal (donut quarters / coffee arc).
+  static const Duration artworkReveal = Duration(milliseconds: 900);
+
+  /// Vertical tier connector fill on Rewards entrance.
+  static const Duration tierLineFill = Duration(milliseconds: 700);
+
   static const Curve standardCurve = Curves.easeInOutCubic;
   static const Curve decelerate = Curves.easeOutCubic;
   static const Curve accelerate = Curves.easeInCubic;
@@ -35,6 +41,10 @@ abstract final class MotionTokens {
   /// Travel distances in logical pixels, multiplied by motionScale.
   static const double travelMedium = 32;
   static const double onboardingDiscTravel = 16;
+  static const double tierEntranceTravel = 20;
+
+  /// Horizontal slide of tab content as a fraction of its own width.
+  static const double tabContentTravel = 0.12;
 
   static const double pressedScale = 0.96;
   static const double popStartScale = 0.6;

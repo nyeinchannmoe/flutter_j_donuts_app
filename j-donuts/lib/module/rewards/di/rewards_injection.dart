@@ -8,6 +8,7 @@ import 'package:jdonuts/module/rewards/domain/usecases/watch_challenges.dart';
 import 'package:jdonuts/module/rewards/domain/usecases/watch_tiers.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/challenges/challenges_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/rewards_summary/rewards_summary_bloc.dart';
+import 'package:jdonuts/module/rewards/presentation/bloc/rewards_tabs/rewards_tabs_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/tier_ladder/tier_ladder_bloc.dart';
 
 List<CatalogImporter> rewardsCatalogImporters(GetIt locator) {
@@ -34,5 +35,6 @@ void registerRewardsModule(GetIt locator) {
       () => RewardsSummaryBloc(watchMemberProfile: locator()),
     )
     ..registerFactory(() => TierLadderBloc(watchTiers: locator()))
-    ..registerFactory(() => ChallengesBloc(watchChallenges: locator()));
+    ..registerFactory(() => ChallengesBloc(watchChallenges: locator()))
+    ..registerFactory(RewardsTabsBloc.new);
 }

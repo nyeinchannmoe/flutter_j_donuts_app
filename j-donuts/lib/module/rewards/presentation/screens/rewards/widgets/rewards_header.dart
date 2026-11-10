@@ -6,32 +6,44 @@ import 'package:jdonuts/core/motion/primitives/pop_in.dart';
 import 'package:jdonuts/core/view_state/view_state.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/rewards_summary/rewards_summary_bloc.dart';
 
-/// Title with a pill counting pending rewards.
+/// Pill width as a fraction of screen width.
+const double _pillWidthFraction = 0.26;
+
+/// Pill height as a fraction of screen width.
+const double _pillHeightFraction = 0.1;
+
+/// White label size on the orange rewards pill.
+const double _pillLabelSize = 15;
+
+/// Title with an edge-flush pending-rewards pill.
 class RewardsHeader extends StatelessWidget {
   const RewardsHeader({super.key});
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: Semantics(
-          header: true,
-          child: Text(
-            context.l10n.rewardsTitle,
-            style: context.typography.headline,
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(left: context.spacing.xl),
+    child: Row(
+      children: [
+        Expanded(
+          child: Semantics(
+            header: true,
+            child: Text(
+              context.l10n.rewardsTitle,
+              style: context.typography.headline,
+            ),
           ),
         ),
-      ),
-      BlocSelector<RewardsSummaryBloc, ViewState<MemberProfile>, int?>(
-        selector: (state) => switch (state) {
-          ViewData(:final value) => value.pendingRewardsCount,
-          _ => null,
-        },
-        builder: (context, count) => count == null
-            ? const SizedBox.shrink()
-            : PopIn(child: _RewardsPill(count: count)),
-      ),
-    ],
+        BlocSelector<RewardsSummaryBloc, ViewState<MemberProfile>, int?>(
+          selector: (state) => switch (state) {
+            ViewData(:final value) => value.pendingRewardsCount,
+            _ => null,
+          },
+          builder: (context, count) => count == null
+              ? const SizedBox.shrink()
+              : PopIn(child: _RewardsPill(count: count)),
+        ),
+      ],
+    ),
   );
 }
 
@@ -41,35 +53,83 @@ class _RewardsPill extends StatelessWidget {
   final int count;
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.colors.accent,
-      borderRadius: context.radius.pillAll,
-    ),
-    child: Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.spacing.md,
-        vertical: context.spacing.xs,
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final radius = context.radius;
+    final spacing = context.spacing;
+    return SizedBox(
+      width: width * _pillWidthFraction,
+      height: width * _pillHeightFraction,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: context.colors.highlight,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(radius.pill),
+            bottomLeft: Radius.circular(radius.pill),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(left: spacing.md, right: spacing.sm),
+          child: Center(child: _RewardsPillLabel(count: count)),
+        ),
       ),
-      child: _label(context),
-    ),
-  );
+    );
+  }
+}
 
-  Widget _label(BuildContext context) {
-    final color = context.colors.textPrimary;
+class _RewardsPillLabel extends StatelessWidget {
+  const _RewardsPillLabel({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: context.spacing.xs,
       children: [
-        Text(
-          count.toString(),
-          style: context.typography.bodyStrong.copyWith(color: color),
+        Expanded(
+          child: Text(
+            context.l10n.rewardsBadge,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.typography.subtitle.copyWith(
+              color: colors.surface,
+              fontSize: _pillLabelSize,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ),
-        Text(
-          context.l10n.rewardsBadge,
-          style: context.typography.label.copyWith(color: color),
-        ),
+        SizedBox(width: context.spacing.sm),
+        _CountBadge(count: count),
       ],
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return SizedBox.square(
+      dimension: context.iconSizes.md,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.surface,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            count.toString(),
+            style: context.typography.bodyStrong.copyWith(
+              color: colors.textPrimary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

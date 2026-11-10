@@ -1,4 +1,5 @@
 import 'package:jdonuts/core/result/result.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
 import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
@@ -11,7 +12,7 @@ class VerifyOtp {
   Future<Result<OtpVerification>> call({
     required String phoneE164,
     required String code,
-    bool existingAccountOnly = false,
+    AuthFlowMode mode = AuthFlowMode.register,
   }) async {
     final format = AuthValidators.validateOtpCode(code);
     if (format case Err(:final failure)) {
@@ -20,7 +21,7 @@ class VerifyOtp {
     return _repository.verifyOtp(
       phoneE164: phoneE164,
       code: code,
-      existingAccountOnly: existingAccountOnly,
+      mode: mode,
     );
   }
 }

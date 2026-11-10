@@ -3,7 +3,7 @@ import 'package:jdonuts/core/member/domain/entities/member_profile.dart';
 
 const MemberProfile _silverMember = MemberProfile(
   name: 'Hania',
-  photoAsset: 'assets/seed/images/user_profile.jpg',
+  photoAsset: 'assets/seed/images/user_profile.webp',
   tierId: 't_silver',
   tierName: 'Silver',
   tierRank: 1,
@@ -11,7 +11,7 @@ const MemberProfile _silverMember = MemberProfile(
   pointsToNextTier: 500,
   notificationsCount: 2,
   pendingRewardsCount: 3,
-  currentTierMinPoints: 500000,
+  currentTierMinPoints: 678500,
   nextTierName: 'Gold',
   nextTierMinPoints: 680500,
 );
@@ -19,11 +19,8 @@ const MemberProfile _silverMember = MemberProfile(
 void main() {
   group('MemberProfile.progressTowardNextTier', () {
     test('returns the fraction within the current to next tier band', () {
-      // (680000 - 500000) / (680500 - 500000) = 180000 / 180500
-      expect(
-        _silverMember.progressTowardNextTier,
-        closeTo(180000 / 180500, 1e-9),
-      );
+      // (680000 - 678500) / (680500 - 678500) = 1500 / 2000 = 0.75
+      expect(_silverMember.progressTowardNextTier, closeTo(0.75, 1e-9));
     });
 
     test('returns null when there is no next tier', () {

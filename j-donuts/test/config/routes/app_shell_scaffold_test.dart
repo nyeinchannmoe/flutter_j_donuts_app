@@ -7,7 +7,7 @@ import '../../helpers/pump_app.dart';
 
 void main() {
   group('ShellNavigationBar', () {
-    testWidgets('shows every destination label', (tester) async {
+    testWidgets('shows the active destination label only', (tester) async {
       await tester.pumpApp(
         Scaffold(
           bottomNavigationBar: ShellNavigationBar(
@@ -18,10 +18,8 @@ void main() {
       );
 
       expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Reward'), findsOneWidget);
-      expect(find.text('Menu'), findsOneWidget);
-      expect(find.text('Orders'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
+      expect(find.text('Reward'), findsNothing);
+      expect(find.text('Menu'), findsNothing);
     });
 
     testWidgets('reports the tapped destination index', (tester) async {
@@ -37,14 +35,15 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(ShellNavigationBar.destinationKey(2)));
+      await tester.tap(find.byKey(ShellNavigationBar.destinationKey(1)));
       await tester.pumpAndSettle();
 
-      expect(selected, 2);
+      expect(selected, 1);
       expect(find.text('Reward'), findsOneWidget);
+      expect(find.text('Home'), findsNothing);
     });
 
-    testWidgets('uses surface bar and primary pill', (tester) async {
+    testWidgets('uses primary bar and accent pill', (tester) async {
       await tester.pumpApp(
         Scaffold(
           bottomNavigationBar: ShellNavigationBar(
@@ -62,11 +61,11 @@ void main() {
           .toList();
 
       expect(
-        decorations.any((decoration) => decoration.color == colors.surface),
+        decorations.any((decoration) => decoration.color == colors.primary),
         isTrue,
       );
       expect(
-        decorations.any((decoration) => decoration.color == colors.primary),
+        decorations.any((decoration) => decoration.color == colors.accent),
         isTrue,
       );
     });

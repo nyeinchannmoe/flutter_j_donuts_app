@@ -53,6 +53,7 @@ flutter:
     - assets/images/onboarding/
     - assets/images/home/
     - assets/images/welcome/
+    - assets/images/rewards/
     - assets/seed/
     - assets/seed/images/
 

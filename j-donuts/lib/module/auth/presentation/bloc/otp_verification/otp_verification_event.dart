@@ -7,11 +7,11 @@ sealed class OtpVerificationEvent {
 final class OtpVerificationStarted extends OtpVerificationEvent {
   const OtpVerificationStarted({
     required this.phoneE164,
-    this.existingAccountOnly = false,
+    this.mode = AuthFlowMode.register,
   });
 
   final String phoneE164;
-  final bool existingAccountOnly;
+  final AuthFlowMode mode;
 }
 
 final class OtpCodeChanged extends OtpVerificationEvent {

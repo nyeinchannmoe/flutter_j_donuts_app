@@ -70,10 +70,12 @@ class _BannerShell extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              CustomPaint(
-                painter: _SprinklePainter(
-                  color: context.colors.onPrimary.withValues(
-                    alpha: _sprinkleOpacity,
+              RepaintBoundary(
+                child: CustomPaint(
+                  painter: _SprinklePainter(
+                    color: context.colors.onPrimary.withValues(
+                      alpha: _sprinkleOpacity,
+                    ),
                   ),
                 ),
               ),
@@ -103,7 +105,6 @@ class _BannerBody extends StatelessWidget {
               start: spacing.lg,
               end: spacing.lg,
               top: spacing.sm,
-              // bottom: spacing.sm,
             ),
             child: _BannerCopy(banner: banner),
           ),
@@ -192,7 +193,6 @@ class _InsetPhoto extends StatelessWidget {
       padding: EdgeInsetsDirectional.only(
         start: spacing.lg,
         end: spacing.lg,
-        // bottom: spacing.md,
       ),
       child: _InsetPhotoStack(banner: banner, glyphExtent: glyphExtent),
     );

@@ -23,8 +23,8 @@ abstract final class AppPalette {
   static const Color cream = Color(0xFFFDF0E4);
   /// Stronger peach tint for avatar glow and organic header shapes.
   static const Color peachDeep = Color(0xFFFFD4B8);
-  static const Color coolGray = Color(0xFFEBF0F0);
-  static const Color mist = Color(0xFFF5F7F8);
+  static const Color coolGray = Color(0xFFF0F2F5);
+  static const Color mist = Color(0xFFE8ECF0);
   static const Color stone = Color(0xFFD5DADD);
   static const Color slate = Color(0xFF9C99A3);
   static const Color ink = Color(0xFF1F1B24);

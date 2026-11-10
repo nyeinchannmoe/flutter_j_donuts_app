@@ -24,9 +24,11 @@ import 'package:jdonuts/module/rewards/presentation/bloc/rewards_tabs/rewards_ta
 import 'package:jdonuts/module/rewards/presentation/bloc/tier_ladder/tier_ladder_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/screens/rewards/rewards_screen.dart';
 
-/// Tab branches in bottom navigation order.
+/// Tab branches in bottom navigation order:
+/// Home, Rewards, Menu, Orders, Settings.
 List<StatefulShellBranch> shellBranches() => [
   StatefulShellBranch(routes: [_homeRoute()]),
+  StatefulShellBranch(routes: [_rewardsRoute()]),
   StatefulShellBranch(
     routes: [
       GoRoute(
@@ -36,7 +38,6 @@ List<StatefulShellBranch> shellBranches() => [
       ),
     ],
   ),
-  StatefulShellBranch(routes: [_rewardsRoute()]),
   StatefulShellBranch(
     routes: [
       GoRoute(

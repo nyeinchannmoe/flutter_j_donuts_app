@@ -60,67 +60,76 @@ class RegistrationDobFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledTextField(
-          controller: monthController,
-          focusNode: monthFocus,
-          label: l10n.dobMonthLabel,
-          hasError: invalid,
-          readOnly: true,
-          showCursor: false,
-          enableInteractiveSelection: false,
-          onTap: slice.busy
-              ? null
-              : () => _pickMonth(context, slice.month),
-          onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
-            RegistrationMonthFocusChanged(focused: focused),
-          ),
-        ),
+        _monthField(context, slice, invalid),
         SizedBox(height: context.spacing.md),
-        FilledTextField(
-          controller: dayController,
-          focusNode: dayFocus,
-          label: l10n.dobDayLabel,
-          hasError: invalid,
-          readOnly: slice.busy,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.next,
-          autocorrect: false,
-          autofillHints: const [AutofillHints.birthdayDay],
-          inputFormatters: dayFormatters,
-          onChanged: (value) => context.read<RegistrationBloc>().add(
-            RegistrationDayChanged(value),
-          ),
-          onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
-            RegistrationDayFocusChanged(focused: focused),
-          ),
-          onSubmitted: (_) => yearFocus.requestFocus(),
-        ),
+        _dayField(context, slice.busy, invalid),
         SizedBox(height: context.spacing.md),
-        FilledTextField(
-          controller: yearController,
-          focusNode: yearFocus,
-          label: l10n.dobYearLabel,
-          hasError: invalid,
-          readOnly: slice.busy,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.done,
-          autocorrect: false,
-          autofillHints: const [AutofillHints.birthdayYear],
-          inputFormatters: yearFormatters,
-          onChanged: (value) => context.read<RegistrationBloc>().add(
-            RegistrationYearChanged(value),
-          ),
-          onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
-            RegistrationYearFocusChanged(focused: focused),
-          ),
-          onSubmitted: (_) => context.read<RegistrationBloc>().add(
-            const RegistrationSubmitted(),
-          ),
-        ),
+        _yearField(context, slice.busy, invalid),
         _DobErrorMessage(message: errorText),
       ],
     );
   }
+
+  Widget _monthField(
+    BuildContext context,
+    _DobSlice slice,
+    bool invalid,
+  ) => FilledTextField(
+    controller: monthController,
+    focusNode: monthFocus,
+    label: context.l10n.dobMonthLabel,
+    hasError: invalid,
+    readOnly: true,
+    showCursor: false,
+    enableInteractiveSelection: false,
+    onTap: slice.busy ? null : () => _pickMonth(context, slice.month),
+    onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
+      RegistrationMonthFocusChanged(focused: focused),
+    ),
+  );
+
+  Widget _dayField(BuildContext context, bool busy, bool invalid) =>
+      FilledTextField(
+        controller: dayController,
+        focusNode: dayFocus,
+        label: context.l10n.dobDayLabel,
+        hasError: invalid,
+        readOnly: busy,
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.next,
+        autocorrect: false,
+        autofillHints: const [AutofillHints.birthdayDay],
+        inputFormatters: dayFormatters,
+        onChanged: (value) =>
+            context.read<RegistrationBloc>().add(RegistrationDayChanged(value)),
+        onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
+          RegistrationDayFocusChanged(focused: focused),
+        ),
+        onSubmitted: (_) => yearFocus.requestFocus(),
+      );
+
+  Widget _yearField(BuildContext context, bool busy, bool invalid) =>
+      FilledTextField(
+        controller: yearController,
+        focusNode: yearFocus,
+        label: context.l10n.dobYearLabel,
+        hasError: invalid,
+        readOnly: busy,
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
+        autocorrect: false,
+        autofillHints: const [AutofillHints.birthdayYear],
+        inputFormatters: yearFormatters,
+        onChanged: (value) => context.read<RegistrationBloc>().add(
+          RegistrationYearChanged(value),
+        ),
+        onFocusChanged: (focused) => context.read<RegistrationBloc>().add(
+          RegistrationYearFocusChanged(focused: focused),
+        ),
+        onSubmitted: (_) => context.read<RegistrationBloc>().add(
+          const RegistrationSubmitted(),
+        ),
+      );
 
   Future<void> _pickMonth(BuildContext context, int? selected) async {
     final l10n = context.l10n;

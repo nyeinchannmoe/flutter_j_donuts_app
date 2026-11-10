@@ -3,6 +3,7 @@ abstract final class AssetBudget {
   static const int kibibyte = 1024;
   static const int maxSeedImageBytes = 20 * kibibyte;
   static const int maxSeedImagesTotalBytes = 300 * kibibyte;
+  static const int maxRewardsImageBytes = 80 * kibibyte;
   static const int maxCatalogBytes = 64 * kibibyte;
   static const int maxFontBytes = 160 * kibibyte;
   static const int maxOnboardingHeroBytes = 1700 * kibibyte;
@@ -14,9 +15,11 @@ abstract final class AssetBudget {
   static const String welcomeHeroPath =
       'assets/images/welcome/welcome_hero.png';
   static const String seedImagesDir = 'assets/seed/images/';
+  static const String rewardsImagesDir = 'assets/images/rewards/';
   static const String catalogPath = 'assets/seed/catalog.json';
   static const String fontsDir = 'assets/fonts/';
   static const Set<String> allowedSeedImageExtensions = {'.webp'};
+  static const Set<String> allowedRewardsImageExtensions = {'.webp'};
 }
 
 /// One asset with its path relative to the project root.
@@ -45,6 +48,8 @@ List<String> checkAssetBudget(List<AssetFile> assets) {
     if (asset.path.startsWith(AssetBudget.seedImagesDir)) {
       seedTotal += asset.bytes;
       problems.addAll(_seedImageProblems(asset));
+    } else if (asset.path.startsWith(AssetBudget.rewardsImagesDir)) {
+      problems.addAll(_rewardsImageProblems(asset));
     } else if (asset.path == AssetBudget.catalogPath) {
       problems.addAll(_limit(asset, AssetBudget.maxCatalogBytes));
     } else if (asset.path.startsWith(AssetBudget.fontsDir) &&
@@ -73,6 +78,15 @@ Iterable<String> _seedImageProblems(AssetFile asset) sync* {
     yield '${asset.path} must be WebP';
   }
   yield* _limit(asset, AssetBudget.maxSeedImageBytes);
+}
+
+Iterable<String> _rewardsImageProblems(AssetFile asset) sync* {
+  final dot = asset.path.lastIndexOf('.');
+  final extension = dot < 0 ? '' : asset.path.substring(dot);
+  if (!AssetBudget.allowedRewardsImageExtensions.contains(extension)) {
+    yield '${asset.path} must be WebP';
+  }
+  yield* _limit(asset, AssetBudget.maxRewardsImageBytes);
 }
 
 Iterable<String> _limit(AssetFile asset, int maxBytes) sync* {

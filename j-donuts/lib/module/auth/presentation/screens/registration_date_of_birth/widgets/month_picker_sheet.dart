@@ -6,6 +6,7 @@ import 'package:jdonuts/module/auth/domain/validators/date_of_birth_validator.da
 /// Fraction of the screen height used by the month list sheet.
 const double _monthSheetHeightFactor = 0.65;
 
+// quality-gate: allow function-length - sheet chrome and list stay together
 /// Opens a themed month list and returns the chosen month (1-12), or null.
 Future<int?> showMonthPickerSheet({
   required BuildContext context,

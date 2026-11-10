@@ -7,7 +7,9 @@ class PrefixedTextField extends StatelessWidget {
   const PrefixedTextField({
     required this.label,
     required this.prefix,
+    this.controller,
     this.errorText,
+    this.hasError = false,
     this.readOnly = false,
     this.keyboardType,
     this.textInputAction,
@@ -21,7 +23,9 @@ class PrefixedTextField extends StatelessWidget {
 
   final String label;
   final String prefix;
+  final TextEditingController? controller;
   final String? errorText;
+  final bool hasError;
   final bool readOnly;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
@@ -35,7 +39,9 @@ class PrefixedTextField extends StatelessWidget {
   Widget build(BuildContext context) => FilledTextField(
     label: label,
     prefix: prefix,
+    controller: controller,
     errorText: errorText,
+    hasError: hasError,
     readOnly: readOnly,
     keyboardType: keyboardType,
     textInputAction: textInputAction,

@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## Layers
 1. Tokens: lib/core/motion/motion_tokens.dart is the only file with Duration and Curve values used for motion.
-2. Policy: MotionPolicy resolves MotionTier (full, reduced, minimal) from MediaQuery.disableAnimations, the FrameBudgetMonitor (downgrades after sustained jank, never upgrades mid-session) and the app lifecycle (ambient motion pauses in background).
+2. Policy: MotionPolicy resolves MotionTier (full, reduced, minimal) from MediaQuery.disableAnimations, the FrameBudgetMonitor (profile/release only; downgrades after sustained jank, never upgrades mid-session) and the app lifecycle (ambient motion pauses in background).
 3. Profile: MotionProfile exposes scaleDuration, allowsAmbient, allowsDepthEffects, maxStaggerItems and animatesEntrances. Read it with context.motion.
 4. Primitives in lib/core/motion/primitives, painters in lib/core/motion/painters, transitions in lib/core/motion/transitions.
 5. Orchestration: a screen with staggered motion owns one AnimationController and derives Intervals from StaggerSchedule.

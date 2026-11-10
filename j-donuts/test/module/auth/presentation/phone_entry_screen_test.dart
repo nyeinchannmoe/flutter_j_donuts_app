@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/widgets/buttons/app_button.dart';
 import 'package:jdonuts/l10n/generated/app_localizations.dart';
+import 'package:jdonuts/module/auth/domain/usecases/check_phone_registered.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/phone_entry/phone_entry_screen.dart';
@@ -13,6 +14,13 @@ import '../../../helpers/pump_app.dart';
 
 class _MockRequestOtp extends Mock implements RequestOtp {}
 
+class _MockCheckPhoneRegistered extends Mock implements CheckPhoneRegistered {}
+
+PhoneEntryBloc _phoneBloc() => PhoneEntryBloc(
+  requestOtp: _MockRequestOtp(),
+  checkPhoneRegistered: _MockCheckPhoneRegistered(),
+);
+
 void main() {
   testWidgets('validates on blur and keeps the calling code outside input', (
     tester,
@@ -21,9 +29,7 @@ void main() {
     await tester.pumpApp(
       PhoneEntryScreen(onCodeSent: (_) {}),
       providers: [
-        BlocProvider<PhoneEntryBloc>(
-          create: (_) => PhoneEntryBloc(requestOtp: _MockRequestOtp()),
-        ),
+        BlocProvider<PhoneEntryBloc>(create: (_) => _phoneBloc()),
       ],
       size: const Size(360, 800),
     );
@@ -65,9 +71,7 @@ void main() {
       await tester.pumpApp(
         PhoneEntryScreen(onCodeSent: (_) {}),
         providers: [
-          BlocProvider<PhoneEntryBloc>(
-            create: (_) => PhoneEntryBloc(requestOtp: _MockRequestOtp()),
-          ),
+          BlocProvider<PhoneEntryBloc>(create: (_) => _phoneBloc()),
         ],
         size: size,
         textScale: 1.3,

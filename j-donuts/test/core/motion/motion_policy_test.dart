@@ -77,6 +77,13 @@ void main() {
     void record(FrameBudgetMonitor monitor, List<Duration> frames) =>
         frames.forEach(monitor.recordFrame);
 
+    test('attach is a no-op in debug so timings cannot downgrade the tier', () {
+      final monitor = FrameBudgetMonitor(logger: silentLogger())
+        ..attach();
+
+      expect(monitor.isAttached, isFalse);
+    });
+
     test('one janky window is not enough to downgrade', () {
       var reports = 0;
       final monitor = buildMonitor(() => reports++);

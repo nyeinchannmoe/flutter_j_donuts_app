@@ -11,6 +11,7 @@ import 'package:jdonuts/core/storage/stored_session.dart';
 import 'package:jdonuts/core/utils/clock.dart';
 import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
 import 'package:jdonuts/module/auth/data/mappers/local_user_mapper.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/session.dart';
@@ -66,6 +67,13 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Result<bool>> isPhoneRegistered(String phoneE164) => _guard(() async {
+    await _otpGateway.simulateNetwork();
+    final user = await _usersDao.findByPhone(phoneE164);
+    return user != null;
+  });
+
+  @override
   Future<Result<Unit>> requestOtp(String phoneE164) => _guard(() async {
     await _otpGateway.sendCode(phoneE164);
     return Unit.value;
@@ -75,7 +83,7 @@ class FakeAuthRepository implements AuthRepository {
   Future<Result<OtpVerification>> verifyOtp({
     required String phoneE164,
     required String code,
-    bool existingAccountOnly = false,
+    AuthFlowMode mode = AuthFlowMode.register,
   }) async {
     final accepted = await _guard(() => _otpGateway.verifyCode(code));
     return switch (accepted) {
@@ -83,22 +91,17 @@ class FakeAuthRepository implements AuthRepository {
       Ok(value: false) => const Err(
         AuthFailure(code: FailureCodes.invalidCode),
       ),
-      Ok() => _guard(
-        () => _completeVerification(
-          phoneE164,
-          existingAccountOnly: existingAccountOnly,
-        ),
-      ),
+      Ok() => _guard(() => _completeVerification(phoneE164, mode: mode)),
     };
   }
 
   Future<OtpVerification> _completeVerification(
     String phoneE164, {
-    required bool existingAccountOnly,
+    required AuthFlowMode mode,
   }) async {
     final user = await _usersDao.findByPhone(phoneE164);
     if (user == null) {
-      if (existingAccountOnly) {
+      if (mode.requiresExistingAccount) {
         throw const AppException(
           AuthFailure(code: FailureCodes.accountMissing),
         );

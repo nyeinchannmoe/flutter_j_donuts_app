@@ -35,7 +35,8 @@ motion stays proportional on small phones and tablets.
 - `FrameBudgetMonitor` counts frames slower than 20 ms in windows of 120
   frames. Two consecutive windows with more than 25 % slow frames lower the
   ceiling from full to reduced once. The ceiling never rises again in that
-  session.
+  session. Monitoring attaches only in profile and release builds; debug
+  timings are ignored so ambient motion is not killed during development.
 - Ambient motion (pulse, carousel autoplay) also pauses while the app is in
   the background.
 

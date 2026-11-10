@@ -7,13 +7,14 @@ import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
 import 'package:jdonuts/core/theme/app_theme.dart';
 import 'package:jdonuts/core/theme/gradient_sampling.dart';
-import 'package:jdonuts/core/widgets/legal_footer.dart';
+import 'package:jdonuts/module/auth/presentation/auth_placeholder_notice.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_actions.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_login_prompt.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_title.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/social_login_row.dart';
+import 'package:jdonuts/module/auth/presentation/widgets/auth_legal_footer.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({
@@ -69,14 +70,6 @@ class _OnboardingEffects extends StatelessWidget {
     }
   }
 
-  void _showNotice(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(context.l10n.onboardingComingSoon)),
-      );
-  }
-
   @override
   Widget build(BuildContext context) => MultiBlocListener(
     listeners: [
@@ -93,7 +86,7 @@ class _OnboardingEffects extends StatelessWidget {
             previous is OnboardingReady &&
             current is OnboardingReady &&
             previous.noticeEpoch != current.noticeEpoch,
-        listener: (context, state) => _showNotice(context),
+        listener: (context, state) => showAuthPlaceholderNotice(context),
       ),
     ],
     child: child,
@@ -200,21 +193,8 @@ class _OnboardingControls extends StatelessWidget {
         child: SocialLoginRow(onUnavailable: () => _requestNotice(context)),
       ),
       const Spacer(flex: 2),
-      StaggeredItem(index: 7, child: _legal(context)),
+      const StaggeredItem(index: 7, child: AuthLegalFooter()),
       SizedBox(height: context.spacing.lg),
     ],
   );
-
-  Widget _legal(BuildContext context) {
-    final l10n = context.l10n;
-    return LegalFooter(
-      before: l10n.onboardingLegalBefore,
-      terms: l10n.onboardingTerms,
-      between: l10n.onboardingLegalBetween,
-      privacy: l10n.onboardingPrivacy,
-      after: l10n.onboardingLegalAfter,
-      onTerms: () => _requestNotice(context),
-      onPrivacy: () => _requestNotice(context),
-    );
-  }
 }

@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jdonuts/config/routes/route_paths.dart';
 import 'package:jdonuts/config/routes/route_transitions.dart';
 import 'package:jdonuts/core/di/injector.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
+import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
@@ -39,7 +43,9 @@ GoRoute _onboardingRoute() => GoRoute(
           onGetStarted: () => context.pushNamed<void>(RoutePaths.authPhoneName),
           onLogIn: () => context.pushNamed<void>(
             RoutePaths.authPhoneName,
-            queryParameters: {RoutePaths.authModeParam: RoutePaths.loginMode},
+            queryParameters: {
+              RoutePaths.authModeParam: AuthFlowMode.loginQueryValue,
+            },
           ),
         ),
       ),
@@ -53,19 +59,54 @@ GoRoute _phoneRoute() => GoRoute(
   pageBuilder: (context, state) => RouteTransitions.sharedAxis(
     context,
     state,
-    BlocProvider(
-      create: (_) => getIt<PhoneEntryBloc>(),
-      child: PhoneEntryScreen(
-        onCodeSent: (phone) => context.pushNamed<void>(
-          RoutePaths.authOtpName,
-          queryParameters: {
-            ...state.uri.queryParameters,
-            RoutePaths.phoneQueryParam: phone,
-          },
-        ),
-      ),
-    ),
+    _phonePage(context, state),
   ),
+);
+
+Widget _phonePage(BuildContext context, GoRouterState state) {
+  final mode = AuthFlowMode.fromQuery(
+    state.uri.queryParameters[RoutePaths.authModeParam],
+  );
+  final national = _seededNationalDigits(state);
+  return BlocProvider(
+    create: (_) => _createPhoneBloc(mode, national),
+    child: PhoneEntryScreen(
+      initialNationalDigits: national,
+      onCodeSent: (phone) => unawaited(_openOtp(context, state, phone)),
+      onSwitchToRegister: (phone) {
+        context.pushReplacementNamed(
+          RoutePaths.authPhoneName,
+          queryParameters: {RoutePaths.phoneQueryParam: phone},
+        );
+      },
+    ),
+  );
+}
+
+String? _seededNationalDigits(GoRouterState state) {
+  final seeded = state.uri.queryParameters[RoutePaths.phoneQueryParam];
+  if (seeded == null) return null;
+  return AuthValidators.nationalDigitsFromE164(seeded);
+}
+
+PhoneEntryBloc _createPhoneBloc(AuthFlowMode mode, String? national) {
+  final bloc = getIt<PhoneEntryBloc>(param1: mode);
+  if (national != null && national.isNotEmpty) {
+    bloc.add(PhoneEntrySeeded(national));
+  }
+  return bloc;
+}
+
+Future<void> _openOtp(
+  BuildContext context,
+  GoRouterState state,
+  String phone,
+) => context.pushNamed<void>(
+  RoutePaths.authOtpName,
+  queryParameters: {
+    ...state.uri.queryParameters,
+    RoutePaths.phoneQueryParam: phone,
+  },
 );
 
 GoRoute _otpRoute() => GoRoute(
@@ -84,21 +125,16 @@ GoRoute _otpRoute() => GoRoute(
 
 Widget _otpPage(BuildContext context, GoRouterState state) {
   final phone = state.uri.queryParameters[RoutePaths.phoneQueryParam]!;
-  final loginOnly =
-      state.uri.queryParameters[RoutePaths.authModeParam] ==
-      RoutePaths.loginMode;
+  final mode = AuthFlowMode.fromQuery(
+    state.uri.queryParameters[RoutePaths.authModeParam],
+  );
   return BlocProvider(
     create: (_) => getIt<OtpVerificationBloc>()
-      ..add(
-        OtpVerificationStarted(
-          phoneE164: phone,
-          existingAccountOnly: loginOnly,
-        ),
-      ),
+      ..add(OtpVerificationStarted(phoneE164: phone, mode: mode)),
     child: OtpVerificationScreen(
       phoneE164: phone,
-      existingAccountOnly: loginOnly,
-      onNewMemberVerified: () => context.push(RoutePaths.authName),
+      onNewMemberVerified: () =>
+          context.pushReplacement(RoutePaths.authName),
     ),
   );
 }

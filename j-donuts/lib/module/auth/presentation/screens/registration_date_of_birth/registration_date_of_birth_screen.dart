@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/extensions/failure_localization.dart';
-import 'package:jdonuts/core/motion/primitives/morphing_progress_ring.dart';
 import 'package:jdonuts/core/utils/clock.dart';
 import 'package:jdonuts/core/widgets/buttons/app_button.dart';
-import 'package:jdonuts/core/widgets/legal_footer.dart';
 import 'package:jdonuts/core/widgets/scaffold/step_page_scaffold.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_date_of_birth/widgets/month_picker_sheet.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_date_of_birth/widgets/registration_dob_fields.dart';
-import 'package:jdonuts/module/auth/presentation/widgets/auth_step_scaffold.dart';
+import 'package:jdonuts/module/auth/presentation/widgets/auth_legal_footer.dart';
+import 'package:jdonuts/module/auth/presentation/widgets/auth_step_progress.dart';
 
 /// Final registration step. Submitting stores the member and starts a
 /// session; [onRegistered] replaces the stack with Welcome.
@@ -85,44 +84,11 @@ class _RegistrationDateOfBirthScreenState
 
   @override
   Widget build(BuildContext context) => MultiBlocListener(
-    listeners: [
-      BlocListener<RegistrationBloc, RegistrationState>(
-        listenWhen: (previous, current) =>
-            previous.dayFocusToken != current.dayFocusToken,
-        listener: (context, state) {
-          _syncControllers(state);
-          _dayFocus.requestFocus();
-        },
-      ),
-      BlocListener<RegistrationBloc, RegistrationState>(
-        listenWhen: (previous, current) =>
-            previous.month != current.month ||
-            previous.dayText != current.dayText ||
-            previous.yearText != current.yearText,
-        listener: (context, state) => _syncControllers(state),
-      ),
-      BlocListener<RegistrationBloc, RegistrationState>(
-        listenWhen: (previous, current) =>
-            previous.status != current.status &&
-            current.status == RegistrationStatus.completed,
-        listener: (context, state) => widget.onRegistered(),
-      ),
-      BlocListener<RegistrationBloc, RegistrationState>(
-        listenWhen: (previous, current) =>
-            current.failure != null && previous.failure != current.failure,
-        listener: (context, state) {
-          final failure = state.failure;
-          if (failure == null) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.localizedMessage(context.l10n))),
-          );
-        },
-      ),
-    ],
+    listeners: _listeners,
     child: StepPageScaffold(
       title: context.l10n.dobTitle,
       onBack: () => Navigator.maybePop(context),
-      progress: _progress(context),
+      progress: const AuthStepProgress(step: 4, completed: true),
       content: RegistrationDobFields(
         monthController: _month,
         dayController: _day,
@@ -133,39 +99,56 @@ class _RegistrationDateOfBirthScreenState
         clock: widget.clock,
       ),
       action: _ContinueAction(clock: widget.clock),
-      supportingContent: _legal(context),
+      supportingContent: const AuthLegalFooter(),
     ),
   );
 
-  Widget _progress(BuildContext context) {
-    final colors = context.colors;
-    final extent = context.iconSizes.lg - context.spacing.xxs;
-    return MorphingProgressRing.steps(
-      step: authStepCount,
-      totalSteps: authStepCount,
-      extent: extent,
-      trackColor: colors.tierColors.last,
-      gradientColors: [colors.accent, colors.accent],
-      checkColor: colors.onPrimary,
-      completed: true,
-    );
-  }
+  List<BlocListener<RegistrationBloc, RegistrationState>> get _listeners => [
+    _dayFocusListener(),
+    _draftSyncListener(),
+    _completedListener(),
+    _failureListener(),
+  ];
 
-  Widget _legal(BuildContext context) {
-    final l10n = context.l10n;
-    void showNotice() => ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.onboardingComingSoon)));
-    return LegalFooter(
-      before: l10n.onboardingLegalBefore,
-      terms: l10n.onboardingTerms,
-      between: l10n.onboardingLegalBetween,
-      privacy: l10n.onboardingPrivacy,
-      after: l10n.onboardingLegalAfter,
-      onTerms: showNotice,
-      onPrivacy: showNotice,
-    );
-  }
+  BlocListener<RegistrationBloc, RegistrationState> _dayFocusListener() =>
+      BlocListener(
+        listenWhen: (previous, current) =>
+            previous.dayFocusToken != current.dayFocusToken,
+        listener: (context, state) {
+          _syncControllers(state);
+          _dayFocus.requestFocus();
+        },
+      );
+
+  BlocListener<RegistrationBloc, RegistrationState> _draftSyncListener() =>
+      BlocListener(
+        listenWhen: (previous, current) =>
+            previous.month != current.month ||
+            previous.dayText != current.dayText ||
+            previous.yearText != current.yearText,
+        listener: (context, state) => _syncControllers(state),
+      );
+
+  BlocListener<RegistrationBloc, RegistrationState> _completedListener() =>
+      BlocListener(
+        listenWhen: (previous, current) =>
+            previous.status != current.status &&
+            current.status == RegistrationStatus.completed,
+        listener: (context, state) => widget.onRegistered(),
+      );
+
+  BlocListener<RegistrationBloc, RegistrationState> _failureListener() =>
+      BlocListener(
+        listenWhen: (previous, current) =>
+            current.failure != null && previous.failure != current.failure,
+        listener: (context, state) {
+          final failure = state.failure;
+          if (failure == null) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.localizedMessage(context.l10n))),
+          );
+        },
+      );
 }
 
 class _ContinueAction extends StatelessWidget {

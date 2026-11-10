@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:jdonuts/core/member/domain/entities/member_profile.dart';
 import 'package:jdonuts/core/member/domain/usecases/watch_member_profile.dart';
+import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/core/view_state/view_state.dart';
 import 'package:jdonuts/core/view_state/view_state_stream.dart';
 
@@ -11,7 +12,7 @@ part 'rewards_summary_event.dart';
 class RewardsSummaryBloc
     extends Bloc<RewardsSummaryEvent, ViewState<MemberProfile>> {
   RewardsSummaryBloc({required this._watchMemberProfile})
-    : super(const ViewState.loading()) {
+    : super(const ViewState<MemberProfile>.loading()) {
     on<RewardsSummaryEvent>(_onWatch, transformer: restartable());
   }
 
@@ -20,7 +21,7 @@ class RewardsSummaryBloc
   Future<void> _onWatch(
     RewardsSummaryEvent event,
     Emitter<ViewState<MemberProfile>> emit,
-  ) => emitViewStates(
+  ) => emitViewStates<Result<MemberProfile?>, MemberProfile>(
     emit,
     _watchMemberProfile(),
     nullableViewState<MemberProfile>,

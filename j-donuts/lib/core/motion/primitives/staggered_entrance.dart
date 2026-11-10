@@ -41,24 +41,31 @@ class _StaggeredEntranceState extends State<StaggeredEntrance>
     vsync: this,
   );
   StaggerSchedule? _schedule;
+  bool _started = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_schedule != null) {
-      if (MediaQuery.disableAnimationsOf(context)) _controller.value = 1;
+    final tickersEnabled = TickerMode.valuesOf(context).enabled;
+    if (_schedule == null) {
+      final profile = context.motion;
+      final schedule = StaggerSchedule(
+        itemCount: widget.itemCount,
+        maxItems: MediaQuery.disableAnimationsOf(context)
+            ? 0
+            : profile.maxStaggerItems,
+      );
+      _schedule = schedule;
+      _controller.duration = profile.scaleDuration(schedule.totalDuration);
+    }
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.value = 1;
+      _started = true;
       return;
     }
-    final profile = context.motion;
-    final schedule = StaggerSchedule(
-      itemCount: widget.itemCount,
-      maxItems: MediaQuery.disableAnimationsOf(context)
-          ? 0
-          : profile.maxStaggerItems,
-    );
-    _schedule = schedule;
-    _controller.duration = profile.scaleDuration(schedule.totalDuration);
-    if (schedule.isAnimated) {
+    if (_started || !tickersEnabled) return;
+    _started = true;
+    if (_schedule!.isAnimated) {
       unawaited(_controller.forward());
     } else {
       _controller.value = 1;

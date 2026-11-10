@@ -28,6 +28,19 @@ void main() {
     });
   });
 
+  group('nationalDigitsFromE164', () {
+    test('strips the Myanmar calling code', () {
+      expect(
+        AuthValidators.nationalDigitsFromE164('+959254135592'),
+        '9254135592',
+      );
+    });
+
+    test('rejects values without the calling code', () {
+      expect(AuthValidators.nationalDigitsFromE164('9254135592'), isNull);
+    });
+  });
+
   group('toMyanmarE164', () {
     test('normalises local, national and international forms', () {
       const expected = '+959123456789';
@@ -202,6 +215,18 @@ void main() {
           today,
         ),
         isTrue,
+      );
+    });
+
+    test('clamps Feb 29 cutoffs onto Feb 28 in non-leap years', () {
+      final leapToday = DateTime(2028, 2, 29);
+      expect(
+        AuthValidators.latestDateOfBirth(leapToday),
+        DateTime(2015, 2, 28),
+      );
+      expect(
+        AuthValidators.isDateOfBirthValid(DateTime(2015, 3), leapToday),
+        isFalse,
       );
     });
   });

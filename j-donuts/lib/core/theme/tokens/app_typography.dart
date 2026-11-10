@@ -94,7 +94,7 @@ abstract final class _Sizes {
   static const double caption = 11;
   static const double label = 13;
   static const double button = 14;
-  static const double metric = 28;
+  static const double metric = 34;
 }
 
 abstract final class _Heights {

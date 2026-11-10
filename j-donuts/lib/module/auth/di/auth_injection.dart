@@ -2,7 +2,9 @@ import 'package:get_it/get_it.dart';
 import 'package:jdonuts/core/database/app_database.dart';
 import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
 import 'package:jdonuts/module/auth/data/repositories/fake_auth_repository.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
+import 'package:jdonuts/module/auth/domain/usecases/check_phone_registered.dart';
 import 'package:jdonuts/module/auth/domain/usecases/register_user.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/restore_session.dart';
@@ -41,6 +43,7 @@ void _registerUseCases(GetIt locator) {
     ..registerFactory(() => WatchSession(locator()))
     ..registerFactory(() => RestoreSession(locator()))
     ..registerFactory(() => RequestOtp(locator()))
+    ..registerFactory(() => CheckPhoneRegistered(locator()))
     ..registerFactory(() => VerifyOtp(locator()))
     ..registerFactory(() => SaveRegistrationName(locator()))
     ..registerFactory(() => RegisterUser(locator(), clock: locator()))
@@ -51,7 +54,13 @@ void _registerBlocs(GetIt locator) {
   locator
     ..registerFactory(OnboardingBloc.new)
     ..registerFactory(WelcomeBloc.new)
-    ..registerFactory(() => PhoneEntryBloc(requestOtp: locator()))
+    ..registerFactoryParam<PhoneEntryBloc, AuthFlowMode, void>(
+      (mode, _) => PhoneEntryBloc(
+        requestOtp: locator(),
+        checkPhoneRegistered: locator(),
+        mode: mode,
+      ),
+    )
     ..registerFactory(
       () => OtpVerificationBloc(
         verifyOtp: locator(),

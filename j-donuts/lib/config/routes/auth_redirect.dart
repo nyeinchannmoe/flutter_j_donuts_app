@@ -20,9 +20,7 @@ String? resolveAuthRedirect({
           ? null
           : RoutePaths.onboarding,
     SessionRegistering() =>
-      isOnboarding || isAuth || location == RoutePaths.welcome
-          ? null
-          : RoutePaths.authName,
+      isOnboarding || isAuth ? null : RoutePaths.authName,
     SessionAuthenticated(:final isNewlyRegistered) =>
       isLaunch || isOnboarding || isAuth
           ? (isNewlyRegistered ? RoutePaths.welcome : RoutePaths.home)

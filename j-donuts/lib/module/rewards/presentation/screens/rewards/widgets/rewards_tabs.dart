@@ -1,158 +1,276 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/motion_scope.dart';
 import 'package:jdonuts/core/motion/motion_tokens.dart';
-import 'package:jdonuts/core/motion/primitives/sliding_pill_indicator.dart';
-import 'package:jdonuts/core/view_state/view_state.dart';
-import 'package:jdonuts/core/view_state/view_state_builder.dart';
-import 'package:jdonuts/core/widgets/skeleton/skeleton_block.dart';
 import 'package:jdonuts/core/widgets/state_views/empty_state_view.dart';
-import 'package:jdonuts/module/rewards/domain/entities/challenge.dart';
-import 'package:jdonuts/module/rewards/presentation/bloc/challenges/challenges_bloc.dart';
-import 'package:jdonuts/module/rewards/presentation/screens/rewards/widgets/challenge_card.dart';
+import 'package:jdonuts/module/rewards/presentation/bloc/rewards_tabs/rewards_tabs_bloc.dart';
+import 'package:jdonuts/module/rewards/presentation/screens/rewards/widgets/challenges_tab.dart';
 
-/// Earn and Gift tabs. The selected tab is local view state.
-class RewardsTabs extends StatefulWidget {
-  const RewardsTabs({super.key});
+/// Pill height as a fraction of screen width.
+const double rewardsTabPillHeightFraction = 0.08;
 
-  @override
-  State<RewardsTabs> createState() => _RewardsTabsState();
-}
+/// Active earn pill width as a fraction of screen width.
+const double _earnWidthFraction = 0.4;
 
-class _RewardsTabsState extends State<RewardsTabs> {
-  int _selected = 0;
+/// Gift pill width as a fraction of screen width.
+const double _giftWidthFraction = 0.14;
+
+/// Gap between pills as a fraction of screen width.
+const double _pillGapFraction = 0.02;
+
+/// Earn / Gift pill pair with a sliding active fill.
+class RewardsTabPills extends StatelessWidget {
+  const RewardsTabPills({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _TabBar(
-          labels: [l10n.rewardsTabEarn, l10n.rewardsTabGift],
-          selectedIndex: _selected,
-          onSelected: (index) => setState(() => _selected = index),
-        ),
-        SizedBox(height: context.spacing.lg),
-        AnimatedSwitcher(
-          duration: context.motion.scaleDuration(MotionTokens.standard),
-          child: _selected == 0
-              ? const _ChallengesTab(key: ValueKey(0))
-              : EmptyStateView(
-                  key: const ValueKey(1),
-                  message: l10n.rewardsGiftEmpty,
-                  icon: Icons.card_giftcard_rounded,
-                ),
-        ),
-      ],
+    final index = context.select<RewardsTabsBloc, int>(
+      (bloc) => bloc.state.selectedIndex,
     );
+    return _SlidingTabPills(selectedIndex: index);
   }
 }
 
-class _TabBar extends StatelessWidget {
-  const _TabBar({
-    required this.labels,
-    required this.selectedIndex,
-    required this.onSelected,
-  });
-
-  final List<String> labels;
-  final int selectedIndex;
-  final ValueChanged<int> onSelected;
+/// Challenge / gift body beneath the straddling pills.
+class RewardsTabBody extends StatelessWidget {
+  const RewardsTabBody({super.key});
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.colors.surface,
-      borderRadius: context.radius.pillAll,
-    ),
-    child: Stack(
-      children: [
-        Positioned.fill(child: _indicator(context)),
-        _labels(),
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final index = context.select<RewardsTabsBloc, int>(
+      (bloc) => bloc.state.selectedIndex,
+    );
+    return _TabBody(selectedIndex: index);
+  }
+}
 
-  Widget _indicator(BuildContext context) => SlidingPillIndicator(
-    slotCount: labels.length,
-    selectedIndex: selectedIndex,
-    pill: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.primary,
-        borderRadius: context.radius.pillAll,
-      ),
-    ),
-  );
+/// Combined pills + body (tests and compact hosts).
+class RewardsTabs extends StatelessWidget {
+  const RewardsTabs({super.key});
 
-  Widget _labels() => Row(
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      for (var i = 0; i < labels.length; i++)
-        Expanded(
-          child: _TabLabel(
-            label: labels[i],
-            selected: i == selectedIndex,
-            onTap: () => onSelected(i),
-          ),
-        ),
+      const Center(child: RewardsTabPills()),
+      SizedBox(height: context.spacing.lg),
+      const Expanded(child: RewardsTabBody()),
     ],
   );
 }
 
-class _TabLabel extends StatelessWidget {
-  const _TabLabel({
+class _SlidingTabPills extends StatelessWidget {
+  const _SlidingTabPills({required this.selectedIndex});
+
+  final int selectedIndex;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final screenWidth = MediaQuery.sizeOf(context).width;
+      final width = constraints.maxWidth.isFinite
+          ? math.min(screenWidth, constraints.maxWidth)
+          : screenWidth;
+      final height = width * rewardsTabPillHeightFraction;
+      final earnWidth = width * _earnWidthFraction;
+      final giftWidth = width * _giftWidthFraction;
+      final gap = width * _pillGapFraction;
+      final l10n = context.l10n;
+      final colors = context.colors;
+      final outline = context.spacing.xxs;
+      final duration = context.motion.scaleDuration(MotionTokens.emphasized);
+      final activeLeft = selectedIndex == 0 ? 0.0 : earnWidth + gap;
+      final activeWidth = selectedIndex == 0 ? earnWidth : giftWidth;
+      return SizedBox(
+        width: earnWidth + gap + giftWidth,
+        height: height,
+        child: Stack(
+          children: [
+            _TrackPill(
+              left: 0,
+              width: earnWidth,
+              height: height,
+              color: colors.surfaceMuted,
+              outline: outline,
+            ),
+            _TrackPill(
+              left: earnWidth + gap,
+              width: giftWidth,
+              height: height,
+              color: colors.surfaceMuted,
+              outline: outline,
+            ),
+            AnimatedPositioned(
+              duration: duration,
+              curve: MotionTokens.popOvershoot,
+              left: activeLeft,
+              width: activeWidth,
+              height: height,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.primary,
+                  borderRadius: context.radius.pillAll,
+                  border: Border.all(color: colors.surface, width: outline),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Row(
+                children: [
+                  _TabHit(
+                    width: earnWidth,
+                    label: l10n.rewardsTabEarn,
+                    selected: selectedIndex == 0,
+                    onTap: () => context.read<RewardsTabsBloc>().add(
+                      const RewardsTabSelected(0),
+                    ),
+                  ),
+                  SizedBox(width: gap),
+                  _TabHit(
+                    width: giftWidth,
+                    label: l10n.rewardsTabGift,
+                    selected: selectedIndex == 1,
+                    onTap: () => context.read<RewardsTabsBloc>().add(
+                      const RewardsTabSelected(1),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+class _TrackPill extends StatelessWidget {
+  const _TrackPill({
+    required this.left,
+    required this.width,
+    required this.height,
+    required this.color,
+    required this.outline,
+  });
+
+  final double left;
+  final double width;
+  final double height;
+  final Color color;
+  final double outline;
+
+  @override
+  Widget build(BuildContext context) => Positioned(
+    left: left,
+    width: width,
+    height: height,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: context.radius.pillAll,
+        border: Border.all(color: context.colors.surface, width: outline),
+      ),
+    ),
+  );
+}
+
+class _TabHit extends StatelessWidget {
+  const _TabHit({
+    required this.width,
     required this.label,
     required this.selected,
     required this.onTap,
   });
 
+  final double width;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    selected: selected,
-    button: true,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: context.radius.pillAll,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: context.spacing.md),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: context.typography.bodyStrong.copyWith(
-            color: selected
-                ? context.colors.textPrimary
-                : context.colors.textSecondary,
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final style = selected
+        ? context.typography.bodyStrong.copyWith(color: colors.onPrimary)
+        : context.typography.body.copyWith(color: colors.textPrimary);
+    return SizedBox(
+      width: width,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Center(
+            child: AnimatedDefaultTextStyle(
+              duration: context.motion.scaleDuration(MotionTokens.fast),
+              curve: MotionTokens.decelerate,
+              style: style,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
-class _ChallengesTab extends StatelessWidget {
-  const _ChallengesTab({super.key});
+class _TabBody extends StatelessWidget {
+  const _TabBody({required this.selectedIndex});
+
+  final int selectedIndex;
 
   @override
-  Widget build(BuildContext context) =>
-      BlocBuilder<ChallengesBloc, ViewState<List<Challenge>>>(
-        builder: (context, state) => ViewStateBuilder<List<Challenge>>(
-          state: state,
-          skeleton: SkeletonBlock(height: context.iconSizes.illustration),
-          emptyMessage: context.l10n.challengesEmpty,
-          onRetry: () =>
-              context.read<ChallengesBloc>().add(const ChallengesRetried()),
-          builder: (context, challenges) => Column(
-            spacing: context.spacing.md,
-            children: [
-              for (final challenge in challenges)
-                ChallengeCard(challenge: challenge),
-            ],
-          ),
+  Widget build(BuildContext context) {
+    final child = selectedIndex == 0
+        ? const ChallengesTab(key: ValueKey(0))
+        : const _GiftTab(key: ValueKey(1));
+    return AnimatedSwitcher(
+      duration: context.motion.scaleDuration(MotionTokens.standard),
+      switchInCurve: MotionTokens.decelerate,
+      switchOutCurve: MotionTokens.accelerate,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previous, ?current],
+      ),
+      transitionBuilder: (widget, animation) =>
+          _tabTransition(widget, animation, selectedIndex),
+      child: child,
+    );
+  }
+
+  Widget _tabTransition(Widget widget, Animation<double> animation, int index) {
+    final begin = index == 0
+        ? const Offset(-MotionTokens.tabContentTravel, 0)
+        : const Offset(MotionTokens.tabContentTravel, 0);
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: begin, end: Offset.zero).animate(
+          animation,
         ),
-      );
+        child: widget,
+      ),
+    );
+  }
+}
+
+class _GiftTab extends StatelessWidget {
+  const _GiftTab({super.key});
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: EmptyStateView(
+      message: context.l10n.rewardsGiftEmpty,
+      icon: Icons.card_giftcard_rounded,
+    ),
+  );
 }

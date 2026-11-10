@@ -11,6 +11,8 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
     this.avatar = 48,
     this.brandMark = 28,
     this.illustration = 96,
+    this.tierBadge = 64,
+    this.tierBadgeMuted = 48,
   });
 
   static const AppIconSizes standard = AppIconSizes();
@@ -22,9 +24,15 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
   final double avatar;
   final double brandMark;
   final double illustration;
+  final double tierBadge;
+  final double tierBadgeMuted;
 
   @override
-  AppIconSizes copyWith({double? md}) => AppIconSizes(
+  AppIconSizes copyWith({
+    double? md,
+    double? tierBadge,
+    double? tierBadgeMuted,
+  }) => AppIconSizes(
     sm: sm,
     md: md ?? this.md,
     lg: lg,
@@ -32,6 +40,8 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
     avatar: avatar,
     brandMark: brandMark,
     illustration: illustration,
+    tierBadge: tierBadge ?? this.tierBadge,
+    tierBadgeMuted: tierBadgeMuted ?? this.tierBadgeMuted,
   );
 
   @override

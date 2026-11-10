@@ -4,6 +4,12 @@ sealed class PhoneEntryEvent {
   const PhoneEntryEvent();
 }
 
+final class PhoneEntrySeeded extends PhoneEntryEvent {
+  const PhoneEntrySeeded(this.nationalDigits);
+
+  final String nationalDigits;
+}
+
 final class PhoneEntryChanged extends PhoneEntryEvent {
   const PhoneEntryChanged(this.input);
 

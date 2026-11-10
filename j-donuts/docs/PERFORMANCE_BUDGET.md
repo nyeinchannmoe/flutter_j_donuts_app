@@ -31,6 +31,8 @@ inside these limits. Network images go through `AppImage` and the shared
 | Downgrade | after 2 consecutive janky windows, full to reduced, once per session |
 
 In profile builds each closed window logs its over-budget percentage.
+`attach` is a no-op in debug builds so non-representative timings cannot
+downgrade the motion tier during development.
 
 ## Rendering rules
 

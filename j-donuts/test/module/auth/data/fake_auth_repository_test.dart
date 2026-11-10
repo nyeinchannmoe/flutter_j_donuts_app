@@ -5,6 +5,7 @@ import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/core/storage/session_store.dart';
 import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
 import 'package:jdonuts/module/auth/data/repositories/fake_auth_repository.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/session.dart';
@@ -65,13 +66,26 @@ void main() {
       final result = await repository.verifyOtp(
         phoneE164: _phone,
         code: FakeOtpGateway.demoCode,
-        existingAccountOnly: true,
+        mode: AuthFlowMode.login,
       );
 
       expect(result.failureOrNull?.code, FailureCodes.accountMissing);
       expect(
         await repository.watchSession().first,
         const Session.unauthenticated(),
+      );
+    });
+
+    test('isPhoneRegistered reports stored numbers only', () async {
+      final repository = buildRepository();
+      expect(
+        await repository.isPhoneRegistered(_phone),
+        const Ok(false),
+      );
+      await registerNewMember(repository);
+      expect(
+        await buildRepository().isPhoneRegistered(_phone),
+        const Ok(true),
       );
     });
 

@@ -1,4 +1,5 @@
 import 'package:jdonuts/core/result/result.dart';
+import 'package:jdonuts/module/auth/domain/entities/auth_flow_mode.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/session.dart';
@@ -14,12 +15,15 @@ abstract interface class AuthRepository {
   /// unreadable storage resolves to unauthenticated.
   Future<Result<Session>> restoreSession();
 
+  /// Whether [phoneE164] already has a stored local account.
+  Future<Result<bool>> isPhoneRegistered(String phoneE164);
+
   Future<Result<Unit>> requestOtp(String phoneE164);
 
   Future<Result<OtpVerification>> verifyOtp({
     required String phoneE164,
     required String code,
-    bool existingAccountOnly = false,
+    AuthFlowMode mode = AuthFlowMode.register,
   });
 
   /// Accepts the validated name draft before the date of birth step.
