@@ -24,9 +24,12 @@ class ProductDetailScreen extends StatelessWidget {
                 current.cartStatus == CartStatus.failed),
         listener: _showCartResult,
         child: Scaffold(
-          backgroundColor: context.colors.surface,
+          backgroundColor: context.colors.background,
           appBar: AppBar(
-            backgroundColor: context.colors.surface,
+            backgroundColor: context.colors.background,
+            surfaceTintColor: context.colors.background,
+            elevation: 0,
+            scrolledUnderElevation: 0,
             leading: BackButton(color: context.colors.textPrimary),
           ),
           body: _ProductBody(productId: productId),
@@ -82,18 +85,18 @@ class _ProductSkeleton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(layout.horizontalGutter),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: spacing.md,
         children: [
-          Center(
-            child: SkeletonBlock(
-              width: layout.heroImageExtent,
-              height: layout.heroImageExtent,
-              borderRadius: context.radius.pillAll,
-            ),
+          SkeletonBlock(
+            height: layout.heroImageExtent + spacing.xxxl,
+            borderRadius: context.radius.xxlAll,
           ),
-          SkeletonBlock(height: spacing.xl),
-          SkeletonBlock(height: spacing.lg),
+          SkeletonBlock(height: spacing.xxxl),
+          SkeletonBlock(
+            height: context.iconSizes.xl,
+            borderRadius: context.radius.pillAll,
+          ),
         ],
       ),
     );

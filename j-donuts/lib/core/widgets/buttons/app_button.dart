@@ -108,26 +108,48 @@ class _ButtonContent extends StatelessWidget {
         : _labelRow(context),
   );
 
-  Widget _labelRow(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Flexible(
-        child: Text(
-          label.toUpperCase(),
-          style: context.typography.button.copyWith(
-            color: context.colors.onPrimary,
-          ),
-          textAlign: TextAlign.center,
-        ),
+  Widget _labelRow(BuildContext context) {
+    final labelText = Text(
+      label.toUpperCase(),
+      style: context.typography.button.copyWith(
+        color: context.colors.onPrimary,
       ),
-      if (trailing case final trailing?)
-        Flexible(
+      textAlign: TextAlign.center,
+    );
+    final trailingWidget = trailing;
+    if (trailingWidget == null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [Flexible(child: labelText)],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: labelText),
+        _ButtonDivider(height: context.iconSizes.md),
+        Expanded(
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerEnd,
-            child: trailing,
+            child: trailingWidget,
           ),
         ),
-    ],
+      ],
+    );
+  }
+}
+
+class _ButtonDivider extends StatelessWidget {
+  const _ButtonDivider({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    height: height,
+    child: VerticalDivider(
+      width: context.spacing.lg,
+      thickness: context.spacing.xxs / 2,
+      color: context.colors.onPrimary,
+    ),
   );
 }
