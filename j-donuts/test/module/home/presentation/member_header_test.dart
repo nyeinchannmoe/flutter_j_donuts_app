@@ -17,7 +17,7 @@ class _MockWatchMemberProfile extends Mock implements WatchMemberProfile {}
 
 const MemberProfile _member = MemberProfile(
   name: 'Hania',
-  photoAsset: 'assets/seed/images/m_hania.webp',
+  photoAsset: 'assets/seed/images/user_profile.jpg',
   tierId: 't_silver',
   tierName: 'Silver',
   tierRank: 1,

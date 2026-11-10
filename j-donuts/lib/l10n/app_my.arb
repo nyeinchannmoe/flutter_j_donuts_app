@@ -53,7 +53,7 @@
   "sectionSeeAll": "အားလုံးကြည့်မည်",
   "sectionEmpty": "ဤကဏ္ဍတွင် ပစ္စည်း မရှိသေးပါ။",
   "bannersEmpty": "လက်ရှိတွင် ပရိုမိုးရှင်း မရှိပါ။",
-  "shopsTitle": "{count, plural, =0{သင့်အနီးတွင် J'Donut ဆိုင် မရှိပါ} other{သင့်အနီးတွင် J'Donut ဆိုင် {count} ဆိုင် ရှိပါသည်}}",
+  "shopsTitle": "{count, plural, =0{သင့်အနီးတွင် J'Donut ဆိုင် မရှိပါ။} other{သင့်အနီးတွင် J'Donut ဆိုင် {count} ဆိုင် ရှိပါသည်။😋}}",
   "shopsEmpty": "အနီးတွင် ဆိုင် မရှိသေးပါ။",
   "shopsExploreNow": "ယခုစူးစမ်းမည်",
   "shopsOrderOnline": "အွန်လိုင်းမှာယူမည်",

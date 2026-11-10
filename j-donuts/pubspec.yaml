@@ -51,6 +51,7 @@ flutter:
 
   assets:
     - assets/images/onboarding/
+    - assets/images/home/
     - assets/seed/
     - assets/seed/images/
 

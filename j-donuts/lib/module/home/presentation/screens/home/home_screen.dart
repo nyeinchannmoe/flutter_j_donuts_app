@@ -20,11 +20,15 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({
     required this.sectionBlocFactory,
     required this.onProductSelected,
+    required this.onExploreNow,
+    required this.onOrderOnline,
     super.key,
   });
 
   final HomeSectionBloc Function(HomeSectionKind kind) sectionBlocFactory;
   final ValueChanged<String> onProductSelected;
+  final VoidCallback onExploreNow;
+  final ValueChanged<String> onOrderOnline;
 
   Future<void> _refresh(BuildContext context) {
     final bloc = context.read<HomeRefreshBloc>()
@@ -43,7 +47,7 @@ class HomeScreen extends StatelessWidget {
           create: (_) => sectionBlocFactory(kind),
           child: ProductRail(onProductSelected: onProductSelected),
         ),
-      const _Gutter(child: NearbyShops()),
+      NearbyShops(onExploreNow: onExploreNow, onOrderOnline: onOrderOnline),
     ];
     return Scaffold(
       backgroundColor: context.colors.background,

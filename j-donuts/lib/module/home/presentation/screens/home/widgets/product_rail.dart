@@ -12,14 +12,14 @@ import 'package:jdonuts/module/home/presentation/screens/home/widgets/section_he
 /// Width fraction for seasonal specials tiles (next card peeks).
 const double _seasonalTileWidthFraction = 0.58;
 
-/// Width fraction for popular / order-again tiles.
-const double _catalogTileWidthFraction = 0.36;
+/// Width fraction for popular / order-again tiles (next card peeks).
+const double _catalogTileWidthFraction = 0.38;
 
 /// Tile count shown while a rail loads.
 const int _skeletonTileCount = 3;
 
-/// Matches catalog tile image height factor used by [ProductTile].
-const double _catalogSkeletonHeightFactor = 1.15;
+/// Approximate catalog card height relative to tile width (image + chrome).
+const double _catalogSkeletonHeightFactor = 1.35;
 
 /// Matches seasonal tile image height factor used by [ProductTile].
 const double _seasonalSkeletonHeightFactor = 0.95;
@@ -68,7 +68,7 @@ class _RailContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionHeader(title: section.title),
-        SizedBox(height: context.spacing.md),
+        SizedBox(height: context.spacing.lg),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: layout.horizontalGutter),

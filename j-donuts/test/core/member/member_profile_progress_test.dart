@@ -3,7 +3,7 @@ import 'package:jdonuts/core/member/domain/entities/member_profile.dart';
 
 const MemberProfile _silverMember = MemberProfile(
   name: 'Hania',
-  photoAsset: 'assets/seed/images/m_hania.webp',
+  photoAsset: 'assets/seed/images/user_profile.jpg',
   tierId: 't_silver',
   tierName: 'Silver',
   tierRank: 1,

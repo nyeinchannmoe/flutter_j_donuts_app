@@ -71,6 +71,8 @@ GoRoute _homeRoute() => GoRoute(
       sectionBlocFactory: (kind) =>
           getIt<HomeSectionBloc>(param1: kind)..add(const HomeSectionStarted()),
       onProductSelected: (id) => context.push(RoutePaths.productDetail(id)),
+      onExploreNow: () => context.go(RoutePaths.explore),
+      onOrderOnline: (_) => context.go(RoutePaths.explore),
     ),
   ),
 );

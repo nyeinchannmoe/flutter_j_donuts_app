@@ -2,7 +2,7 @@
   "member": {
     "name": "Hania",
     "photoUrl": null,
-    "photoAsset": "assets/seed/images/m_hania.webp",
+    "photoAsset": "assets/seed/images/user_profile.jpg",
     "tierId": "t_silver",
     "totalPoints": 680000,
     "pointsToNextTier": 500,
@@ -53,7 +53,7 @@
       "priceMmk": 18000,
       "isNew": true,
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/p_mistletoe_box.webp",
+      "imageAsset": "assets/seed/images/card_mistletoe_clean.jpg",
       "description": "Six festive donuts in pink and green, made for sharing under the mistletoe."
     },
     {
@@ -63,7 +63,7 @@
       "priceMmk": 26000,
       "isNew": true,
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/p_christmas_family_box.webp",
+      "imageAsset": "assets/seed/images/card_new_christmas.jpg",
       "description": "A dozen holiday favourites for the whole family."
     },
     {
@@ -73,7 +73,7 @@
       "priceMmk": 12000,
       "isNew": false,
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/p_santa_cookies.webp",
+      "imageAsset": "assets/seed/images/card_family_box_full.jpg",
       "description": "Butter cookies and mini donuts packed in a gift box."
     },
     {
@@ -209,7 +209,7 @@
       "name": "J'Donuts Downtown",
       "address": "Sule Pagoda Road, Kyauktada",
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/s_downtown.webp",
+      "imageAsset": "assets/seed/images/card_bakery.jpg",
       "sortOrder": 0
     },
     {
@@ -217,7 +217,7 @@
       "name": "J'Donuts Junction City",
       "address": "Bogyoke Aung San Road, Pabedan",
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/s_junction.webp",
+      "imageAsset": "assets/seed/images/card_cafe.jpg",
       "sortOrder": 1
     },
     {

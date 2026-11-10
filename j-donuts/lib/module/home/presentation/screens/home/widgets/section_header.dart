@@ -17,13 +17,33 @@ class SectionHeader extends StatelessWidget {
             child: Text(title, style: context.typography.title),
           ),
         ),
-        Icon(
-          Icons.arrow_forward,
-          size: context.iconSizes.md,
-          color: context.colors.textPrimary,
-          semanticLabel: context.l10n.sectionSeeAll,
-        ),
+        const _SeeAllButton(),
       ],
     ),
   );
+}
+
+class _SeeAllButton extends StatelessWidget {
+  const _SeeAllButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        shape: BoxShape.circle,
+        boxShadow: context.shadows.card,
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(context.spacing.sm),
+        child: Icon(
+          Icons.chevron_right_rounded,
+          size: context.iconSizes.sm,
+          color: colors.textPrimary,
+          semanticLabel: context.l10n.sectionSeeAll,
+        ),
+      ),
+    );
+  }
 }
