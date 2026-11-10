@@ -36,7 +36,7 @@ abstract final class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: AppTypography.fontFamily,
-      colorScheme: colors.toColorScheme(),
+      colorScheme: _colorScheme(colors),
       filledButtonTheme: FilledButtonThemeData(
         style: _primaryButton(colors, typography),
       ),
@@ -58,6 +58,18 @@ abstract final class AppTheme {
       ],
     );
   }
+
+  static ColorScheme _colorScheme(AppColors colors) => ColorScheme.fromSeed(
+    seedColor: colors.primary,
+    primary: colors.primary,
+    onPrimary: colors.onPrimary,
+    secondary: colors.accent,
+    tertiary: colors.highlight,
+    surface: colors.surface,
+    error: colors.danger,
+    shadow: AppShadows.standard.card.first.color,
+    scrim: colors.scrim,
+  );
 
   static ButtonStyle _primaryButton(
     AppColors colors,

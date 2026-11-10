@@ -3,112 +3,111 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/extensions/failure_localization.dart';
+import 'package:jdonuts/core/motion/primitives/morphing_progress_ring.dart';
 import 'package:jdonuts/core/widgets/buttons/app_button.dart';
-import 'package:jdonuts/core/widgets/inputs/app_text_field.dart';
-import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
+import 'package:jdonuts/core/widgets/inputs/prefixed_text_field.dart';
+import 'package:jdonuts/core/widgets/legal_footer.dart';
+import 'package:jdonuts/core/widgets/scaffold/step_page_scaffold.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/widgets/auth_step_scaffold.dart';
 
-class PhoneEntryScreen extends StatefulWidget {
+class PhoneEntryScreen extends StatelessWidget {
   const PhoneEntryScreen({required this.onCodeSent, super.key});
 
   final ValueChanged<String> onCodeSent;
 
   @override
-  State<PhoneEntryScreen> createState() => _PhoneEntryScreenState();
-}
-
-class _PhoneEntryScreenState extends State<PhoneEntryScreen> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit(String? phoneE164) {
-    if (phoneE164 == null) return;
-    context.read<PhoneEntryBloc>().add(PhoneEntrySubmitted(phoneE164));
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<PhoneEntryBloc, PhoneEntryState>(
-        listenWhen: (previous, current) => current is PhoneEntryCodeSent,
-        listener: (context, state) {
-          if (state is PhoneEntryCodeSent) widget.onCodeSent(state.phoneE164);
-        },
-        builder: (context, state) => _PhoneStep(
-          state: state,
-          controller: _controller,
-          onSubmit: _submit,
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final extent = context.iconSizes.lg - context.spacing.xxs;
+    return BlocListener<PhoneEntryBloc, PhoneEntryState>(
+      listenWhen: (previous, current) => !previous.codeSent && current.codeSent,
+      listener: (context, state) => onCodeSent(state.phoneE164!),
+      child: StepPageScaffold(
+        title: context.l10n.phoneTitle,
+        onBack: () => Navigator.maybePop(context),
+        progress: MorphingProgressRing(
+          progress: 1 / authStepCount,
+          extent: extent,
+          strokeWidth: extent * MorphingProgressRing.strokeFraction,
+          trackColor: colors.tierColors.last,
+          progressColor: colors.accent,
         ),
-      );
+        content: const _PhoneInput(),
+        action: const _ContinueAction(),
+        supportingContent: _legal(context),
+      ),
+    );
+  }
+
+  Widget _legal(BuildContext context) {
+    final l10n = context.l10n;
+    void showNotice() => ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.onboardingComingSoon)),
+    );
+    return LegalFooter(
+      before: l10n.onboardingLegalBefore,
+      terms: l10n.onboardingTerms,
+      between: l10n.onboardingLegalBetween,
+      privacy: l10n.onboardingPrivacy,
+      after: l10n.onboardingLegalAfter,
+      onTerms: showNotice,
+      onPrivacy: showNotice,
+    );
+  }
 }
 
-class _PhoneStep extends StatelessWidget {
-  const _PhoneStep({
-    required this.state,
-    required this.controller,
-    required this.onSubmit,
-  });
+class _PhoneInput extends StatelessWidget {
+  const _PhoneInput();
 
-  final PhoneEntryState state;
-  final TextEditingController controller;
-  final ValueChanged<String?> onSubmit;
+  static const _maxLength = 20;
+  static final List<TextInputFormatter> _formatters = [
+    FilteringTextInputFormatter.allow(RegExp('[0-9 -]')),
+    LengthLimitingTextInputFormatter(_maxLength),
+  ];
 
   @override
-  Widget build(BuildContext context) =>
-      ValueListenableBuilder<TextEditingValue>(
-        valueListenable: controller,
-        builder: (context, value, _) {
-          final phoneE164 = AuthValidators.toMyanmarE164(value.text);
-          return AuthStepScaffold(
-            step: 1,
-            title: context.l10n.phoneTitle,
-            action: AppButton(
-              label: context.l10n.actionContinue,
-              isLoading: state is PhoneEntrySubmitting,
-              onPressed: phoneE164 == null ? null : () => onSubmit(phoneE164),
-            ),
-            child: _PhoneField(
-              controller: controller,
-              errorText: switch (state) {
-                PhoneEntryFailure(:final failure) => failure.localizedMessage(
-                  context.l10n,
-                ),
-                _ => null,
-              },
-              onSubmitted: () => onSubmit(phoneE164),
-            ),
-          );
-        },
-      );
+  Widget build(BuildContext context) {
+    final state = context.select<PhoneEntryBloc, PhoneEntryState>(
+      (bloc) => bloc.state,
+    );
+    final bloc = context.read<PhoneEntryBloc>();
+    final l10n = context.l10n;
+    return PrefixedTextField(
+      label: l10n.phoneFieldLabel,
+      prefix: l10n.phoneCountryPrefix,
+      errorText: state.showInvalid
+          ? l10n.phoneInvalid
+          : state.failure?.localizedMessage(l10n),
+      readOnly: state.submitting,
+      keyboardType: TextInputType.phone,
+      textInputAction: TextInputAction.done,
+      autofillHints: const [AutofillHints.telephoneNumberNational],
+      inputFormatters: _formatters,
+      onChanged: (value) => bloc.add(PhoneEntryChanged(value)),
+      onFocusChanged: (focused) =>
+          bloc.add(PhoneEntryFocusChanged(focused: focused)),
+      onSubmitted: (_) => bloc.add(const PhoneEntrySubmitted()),
+    );
+  }
 }
 
-class _PhoneField extends StatelessWidget {
-  const _PhoneField({
-    required this.controller,
-    required this.errorText,
-    required this.onSubmitted,
-  });
-
-  final TextEditingController controller;
-  final String? errorText;
-  final VoidCallback onSubmitted;
+class _ContinueAction extends StatelessWidget {
+  const _ContinueAction();
 
   @override
-  Widget build(BuildContext context) => AppTextField(
-    controller: controller,
-    label: context.l10n.phoneFieldLabel,
-    prefixText: context.l10n.phoneCountryPrefix,
-    errorText: errorText,
-    autofocus: true,
-    keyboardType: TextInputType.phone,
-    textInputAction: TextInputAction.done,
-    autofillHints: const [AutofillHints.telephoneNumberNational],
-    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-    onSubmitted: (_) => onSubmitted(),
-  );
+  Widget build(BuildContext context) {
+    final (valid, busy) = context.select<PhoneEntryBloc, (bool, bool)>(
+      (bloc) => (bloc.state.phoneE164 != null, bloc.state.submitting),
+    );
+    return AppButton(
+      label: context.l10n.actionContinue,
+      isLoading: busy,
+      usePrimaryDisabledFill: true,
+      onPressed: valid
+          ? () =>
+                context.read<PhoneEntryBloc>().add(const PhoneEntrySubmitted())
+          : null,
+    );
+  }
 }

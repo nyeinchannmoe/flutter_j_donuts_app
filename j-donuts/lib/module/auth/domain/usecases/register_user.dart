@@ -16,10 +16,14 @@ class RegisterUser {
   static DateTime _now() => DateTime.now();
 
   Future<Result<UserProfile>> call(RegistrationDetails details) async {
-    final valid =
-        AuthValidators.isNameValid(details.firstName) &&
-        AuthValidators.isDateOfBirthValid(details.dateOfBirth, _today());
-    if (!valid) {
+    final firstOk = AuthValidators.validateFirstName(details.firstName) is Ok;
+    final lastOk =
+        AuthValidators.validateLastName(details.lastName ?? '') is Ok;
+    final dobOk = AuthValidators.isDateOfBirthValid(
+      details.dateOfBirth,
+      _today(),
+    );
+    if (!firstOk || !lastOk || !dobOk) {
       return const Err(ValidationFailure(code: invalidDetailsCode));
     }
     return _repository.register(details);

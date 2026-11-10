@@ -28,7 +28,6 @@ class _MotionScopeState extends State<MotionScope> {
   @override
   void initState() {
     super.initState();
-    widget.policy.addListener(_onPolicyChanged);
     _lifecycle = AppLifecycleListener(
       onShow: () => widget.policy.updateAppActive(isActive: true),
       onHide: () => widget.policy.updateAppActive(isActive: false),
@@ -36,29 +35,21 @@ class _MotionScopeState extends State<MotionScope> {
   }
 
   @override
-  void didUpdateWidget(MotionScope oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.policy == widget.policy) return;
-    oldWidget.policy.removeListener(_onPolicyChanged);
-    widget.policy.addListener(_onPolicyChanged);
-  }
-
-  void _onPolicyChanged() => setState(() {});
-
-  @override
   void dispose() {
     _lifecycle.dispose();
-    widget.policy.removeListener(_onPolicyChanged);
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final profile = widget.policy.resolve(
-      disableAnimations: MediaQuery.disableAnimationsOf(context),
-    );
-    return _MotionProfileScope(profile: profile, child: widget.child);
-  }
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: widget.policy,
+    builder: (context, _) {
+      final profile = widget.policy.resolve(
+        disableAnimations: MediaQuery.disableAnimationsOf(context),
+      );
+      return _MotionProfileScope(profile: profile, child: widget.child);
+    },
+  );
 }
 
 class _MotionProfileScope extends InheritedWidget {

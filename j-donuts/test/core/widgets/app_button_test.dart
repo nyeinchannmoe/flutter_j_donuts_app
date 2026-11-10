@@ -42,6 +42,29 @@ void main() {
       }
     });
 
+    testWidgets('can use the primary hue for the disabled fill', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        const AppButton(
+          label: 'Continue',
+          onPressed: null,
+          usePrimaryDisabledFill: true,
+        ),
+      );
+      final button = find.byType(AppButton);
+      final context = tester.element(button);
+      final fill = FilledButtonTheme.of(context).style!.backgroundColor!;
+      final surface = tester.widget<DecoratedBox>(
+        find.descendant(of: button, matching: find.byType(DecoratedBox)),
+      );
+      expect(
+        (surface.decoration as ShapeDecoration).color,
+        context.colors.primary.withValues(
+          alpha: fill.resolve({WidgetState.disabled})!.a,
+        ),
+      );
+    });
     testWidgets('ignores taps while an async action runs', (tester) async {
       final pending = Completer<void>();
       var taps = 0;

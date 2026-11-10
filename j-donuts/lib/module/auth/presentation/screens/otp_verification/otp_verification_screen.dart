@@ -1,141 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
-import 'package:jdonuts/core/extensions/failure_localization.dart';
-import 'package:jdonuts/core/motion/primitives/shake_on_trigger.dart';
-import 'package:jdonuts/core/widgets/buttons/app_button.dart';
-import 'package:jdonuts/core/widgets/inputs/app_text_field.dart';
-import 'package:jdonuts/l10n/generated/app_localizations.dart';
-import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
+import 'package:jdonuts/core/motion/primitives/morphing_progress_ring.dart';
+import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
+import 'package:jdonuts/core/widgets/legal_footer.dart';
+import 'package:jdonuts/core/widgets/scaffold/step_page_scaffold.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
+import 'package:jdonuts/module/auth/presentation/screens/otp_verification/widgets/otp_code_block.dart';
+import 'package:jdonuts/module/auth/presentation/screens/otp_verification/widgets/otp_resend_block.dart';
 import 'package:jdonuts/module/auth/presentation/widgets/auth_step_scaffold.dart';
 
 /// Code entry. Returning members are moved on by the router as soon as the
 /// session is authenticated; new members continue via [onNewMemberVerified].
-class OtpVerificationScreen extends StatefulWidget {
+class OtpVerificationScreen extends StatelessWidget {
   const OtpVerificationScreen({
     required this.phoneE164,
-    required this.demoCode,
     required this.onNewMemberVerified,
     this.existingAccountOnly = false,
     super.key,
   });
 
   final String phoneE164;
-
-  /// Shown as a hint because this build uses a fake OTP provider.
-  final String demoCode;
   final bool existingAccountOnly;
   final VoidCallback onNewMemberVerified;
 
   @override
-  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
-}
-
-class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() {
-    if (!AuthValidators.isOtpComplete(_controller.text)) return;
-    context.read<OtpVerificationBloc>().add(
-      OtpCodeSubmitted(
-        phoneE164: widget.phoneE164,
-        code: _controller.text,
-        existingAccountOnly: widget.existingAccountOnly,
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final extent = context.iconSizes.lg - context.spacing.xxs;
+    return BlocListener<OtpVerificationBloc, OtpVerificationState>(
+      listenWhen: (previous, current) =>
+          current.verifiedIsRegistered == false &&
+          previous.verifiedIsRegistered != false,
+      listener: (context, _) => onNewMemberVerified(),
+      child: StepPageScaffold(
+        title: context.l10n.otpTitle,
+        onBack: () => Navigator.maybePop(context),
+        progress: MorphingProgressRing.steps(
+          step: 2,
+          totalSteps: authStepCount,
+          extent: extent,
+          trackColor: colors.tierColors.last,
+          gradientColors: [colors.accent, colors.accent],
+          checkColor: colors.onPrimary,
+        ),
+        content: _OtpBody(phoneE164: phoneE164),
+        supportingContent: _legal(context),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) =>
-      BlocConsumer<OtpVerificationBloc, OtpVerificationState>(
-        listenWhen: (previous, current) =>
-            current is OtpVerified && !current.isRegistered,
-        listener: (context, _) => widget.onNewMemberVerified(),
-        builder: (context, state) => AuthStepScaffold(
-          step: 2,
-          title: context.l10n.otpTitle,
-          action: ValueListenableBuilder<TextEditingValue>(
-            valueListenable: _controller,
-            builder: (context, value, _) => AppButton(
-              label: context.l10n.actionContinue,
-              isLoading: state is OtpVerifying,
-              onPressed: AuthValidators.isOtpComplete(value.text)
-                  ? _submit
-                  : null,
-            ),
-          ),
-          child: _OtpBody(
-            state: state,
-            controller: _controller,
-            phoneE164: widget.phoneE164,
-            demoCode: widget.demoCode,
-            onSubmitted: _submit,
-          ),
-        ),
-      );
+  Widget _legal(BuildContext context) {
+    final l10n = context.l10n;
+    void showNotice() => ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.onboardingComingSoon)),
+    );
+    return LegalFooter(
+      before: l10n.onboardingLegalBefore,
+      terms: l10n.onboardingTerms,
+      between: l10n.onboardingLegalBetween,
+      privacy: l10n.onboardingPrivacy,
+      after: l10n.onboardingLegalAfter,
+      onTerms: showNotice,
+      onPrivacy: showNotice,
+    );
+  }
 }
 
 class _OtpBody extends StatelessWidget {
-  const _OtpBody({
-    required this.state,
-    required this.controller,
-    required this.phoneE164,
-    required this.demoCode,
-    required this.onSubmitted,
-  });
+  const _OtpBody({required this.phoneE164});
 
-  final OtpVerificationState state;
-  final TextEditingController controller;
   final String phoneE164;
-  final String demoCode;
-  final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final rejected = switch (state) {
-      final OtpRejected rejected => rejected,
-      _ => null,
-    };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: context.spacing.lg,
-      children: [
-        Text(l10n.otpSubtitle(phoneE164), style: context.typography.body),
-        ShakeOnTrigger(
-          trigger: rejected?.failedAttempts ?? 0,
-          child: _codeField(l10n, rejected),
-        ),
-        Text(
-          l10n.otpDemoHint(demoCode),
-          style: context.typography.label.copyWith(
-            color: context.colors.textSecondary,
+    final spacing = context.spacing;
+    return StaggeredEntrance(
+      itemCount: 3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StaggeredItem(
+            index: 0,
+            child: Text(
+              context.l10n.otpSubtitle(phoneE164),
+              style: context.typography.body.copyWith(
+                color: context.colors.textDisabled,
+              ),
+            ),
           ),
-        ),
-      ],
+          SizedBox(height: spacing.xxl),
+          const StaggeredItem(index: 1, child: OtpCodeBlock()),
+          SizedBox(height: spacing.xl),
+          const StaggeredItem(index: 2, child: OtpResendBlock()),
+        ],
+      ),
     );
   }
-
-  Widget _codeField(AppLocalizations l10n, OtpRejected? rejected) =>
-      AppTextField(
-        controller: controller,
-        label: l10n.otpFieldLabel,
-        errorText: rejected?.failure.localizedMessage(l10n),
-        autofocus: true,
-        keyboardType: TextInputType.number,
-        autofillHints: const [AutofillHints.oneTimeCode],
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(AuthValidators.otpLength),
-        ],
-        onSubmitted: (_) => onSubmitted(),
-      );
 }

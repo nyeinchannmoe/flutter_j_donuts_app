@@ -1,20 +1,22 @@
 part of 'otp_verification_bloc.dart';
 
 @freezed
-sealed class OtpVerificationState with _$OtpVerificationState {
-  const factory OtpVerificationState.idle() = OtpIdle;
+abstract class OtpVerificationState with _$OtpVerificationState {
+  const factory OtpVerificationState({
+    required DateTime resendAvailableAt,
+    @Default('') String code,
+    @Default(0) int failedAttempts,
+    @Default(false) bool locked,
+    @Default(false) bool verifying,
+    bool? verifiedIsRegistered,
+    AppFailure? failure,
+    @Default(Duration.zero) Duration remaining,
+    @Default(0) int shakeEpoch,
+  }) = _OtpVerificationState;
+}
 
-  const factory OtpVerificationState.verifying() = OtpVerifying;
+extension OtpVerificationStateX on OtpVerificationState {
+  bool get canResend => remaining == Duration.zero;
 
-  /// New users continue to the name step; returning users are moved to
-  /// Home by the router once the session becomes authenticated.
-  const factory OtpVerificationState.verified({required bool isRegistered}) =
-      OtpVerified;
-
-  /// [failedAttempts] counts consecutive wrong codes, so every rejection is
-  /// a distinct state even when the failure is the same.
-  const factory OtpVerificationState.rejected({
-    required AppFailure failure,
-    required int failedAttempts,
-  }) = OtpRejected;
+  bool get isVerified => verifiedIsRegistered != null;
 }

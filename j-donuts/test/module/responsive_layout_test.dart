@@ -63,7 +63,9 @@ void main() {
       await tester.pumpOnDevice(
         OnboardingScreen(onGetStarted: () async {}, onLogIn: () async {}),
         providers: [
-          BlocProvider<OnboardingBloc>(create: (_) => OnboardingBloc()),
+          BlocProvider<OnboardingBloc>(
+            create: (_) => OnboardingBloc()..add(const OnboardingPrepared()),
+          ),
         ],
       );
       await tester.pumpAndSettle();

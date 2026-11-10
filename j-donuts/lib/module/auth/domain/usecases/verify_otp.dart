@@ -1,4 +1,3 @@
-import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
 import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
@@ -14,8 +13,9 @@ class VerifyOtp {
     required String code,
     bool existingAccountOnly = false,
   }) async {
-    if (!AuthValidators.isOtpComplete(code)) {
-      return const Err(ValidationFailure(code: FailureCodes.invalidCode));
+    final format = AuthValidators.validateOtpCode(code);
+    if (format case Err(:final failure)) {
+      return Err(failure);
     }
     return _repository.verifyOtp(
       phoneE164: phoneE164,

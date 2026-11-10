@@ -6,27 +6,44 @@ import 'package:jdonuts/core/motion/motion_tokens.dart';
 import 'package:jdonuts/core/motion/painters/arc_sweep_painter.dart';
 import 'package:jdonuts/core/motion/painters/check_morph_painter.dart';
 
-/// Step ring for multi-step flows: animates from the previous step to
-/// [step] of [totalSteps] (25, 50, 75, 100 percent for four steps), then
-/// morphs into a check when [completed].
+/// Animates a circular progress value and optionally morphs into a check.
 class MorphingProgressRing extends StatefulWidget {
   const MorphingProgressRing({
-    required this.step,
-    required this.totalSteps,
+    required this.progress,
     required this.extent,
     required this.trackColor,
-    required this.gradientColors,
+    required Color this.progressColor,
+    required this.strokeWidth,
+    this.completed = false,
+    super.key,
+  }) : gradientColors = null,
+       _start = 0,
+       checkColor = null;
+
+  /// Starts at the previous step when the ring first appears.
+  MorphingProgressRing.steps({
+    required int step,
+    required int totalSteps,
+    required this.extent,
+    required this.trackColor,
+    required List<Color> this.gradientColors,
     required this.checkColor,
     this.completed = false,
     super.key,
-  });
+  }) : assert(totalSteps > 0, 'A step ring needs at least one step.'),
+       progress = step.clamp(0, totalSteps) / totalSteps,
+       _start = (step - 1).clamp(0, totalSteps) / totalSteps,
+       progressColor = null,
+       strokeWidth = null;
 
-  final int step;
-  final int totalSteps;
+  final double progress;
+  final double _start;
   final double extent;
+  final double? strokeWidth;
   final Color trackColor;
-  final List<Color> gradientColors;
-  final Color checkColor;
+  final List<Color>? gradientColors;
+  final Color? progressColor;
+  final Color? checkColor;
   final bool completed;
 
   static const double strokeFraction = 0.18;
@@ -40,19 +57,13 @@ class _MorphingProgressRingState extends State<MorphingProgressRing>
     with TickerProviderStateMixin {
   late final AnimationController _progress = AnimationController(
     vsync: this,
-    value: _fractionBefore(widget.step),
+    value: widget._start,
   );
   late final AnimationController _morph = AnimationController(vsync: this);
   late final CurvedAnimation _morphCurve = CurvedAnimation(
     parent: _morph,
     curve: MotionTokens.emphasizedCurve,
   );
-
-  double _fractionBefore(int step) =>
-      (step - 1).clamp(0, widget.totalSteps) / widget.totalSteps;
-
-  double get _target =>
-      widget.step.clamp(0, widget.totalSteps) / widget.totalSteps;
 
   @override
   void didChangeDependencies() {
@@ -63,22 +74,35 @@ class _MorphingProgressRingState extends State<MorphingProgressRing>
   @override
   void didUpdateWidget(MorphingProgressRing oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.step != widget.step ||
+    if (oldWidget.progress != widget.progress ||
         oldWidget.completed != widget.completed) {
       unawaited(_animateToTarget());
     }
   }
 
   Future<void> _animateToTarget() async {
-    final profile = context.motion;
-    _progress.duration = profile.scaleDuration(MotionTokens.emphasized);
-    _morph.duration = profile.scaleDuration(MotionTokens.emphasized);
-    await _progress.animateTo(_target, curve: MotionTokens.emphasizedCurve);
-    if (!mounted) return;
-    if (widget.completed) {
-      await _morph.forward();
-    } else {
-      await _morph.reverse();
+    final target = widget.progress.clamp(0.0, 1.0);
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _progress.value = target;
+      _morph.value = widget.completed ? 1 : 0;
+      return;
+    }
+    final duration = context.motion.scaleDuration(MotionTokens.emphasized);
+    _progress.duration = duration;
+    _morph.duration = duration;
+    try {
+      if (!mounted) return;
+      await _progress
+          .animateTo(target, curve: MotionTokens.emphasizedCurve)
+          .orCancel;
+      if (!mounted) return;
+      if (widget.completed) {
+        await _morph.forward().orCancel;
+      } else {
+        await _morph.reverse().orCancel;
+      }
+    } on TickerCanceled {
+      // A newer target or disposal superseded this transition.
     }
   }
 
@@ -92,7 +116,11 @@ class _MorphingProgressRingState extends State<MorphingProgressRing>
 
   @override
   Widget build(BuildContext context) {
-    final stroke = widget.extent * MorphingProgressRing.strokeFraction;
+    final stroke =
+        widget.strokeWidth ??
+        widget.extent * MorphingProgressRing.strokeFraction;
+    final gradient =
+        widget.gradientColors ?? [widget.progressColor!, widget.progressColor!];
     return RepaintBoundary(
       child: SizedBox.square(
         dimension: widget.extent,
@@ -100,13 +128,13 @@ class _MorphingProgressRingState extends State<MorphingProgressRing>
           painter: ArcSweepPainter(
             progress: _progress,
             trackColor: widget.trackColor,
-            gradientColors: widget.gradientColors,
+            gradientColors: gradient,
             strokeWidth: stroke,
           ),
           foregroundPainter: CheckMorphPainter(
             progress: _morphCurve,
-            fillColor: widget.gradientColors.last,
-            checkColor: widget.checkColor,
+            fillColor: gradient.last,
+            checkColor: widget.checkColor ?? widget.trackColor,
             strokeWidth: stroke * MorphingProgressRing.checkStrokeFraction,
           ),
         ),

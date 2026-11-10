@@ -9,10 +9,10 @@ import 'package:jdonuts/core/motion/motion_profile.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
 import 'package:jdonuts/core/theme/app_theme.dart';
 import 'package:jdonuts/core/theme/tokens/app_colors.dart';
+import 'package:jdonuts/core/widgets/legal_footer.dart';
 import 'package:jdonuts/l10n/generated/app_localizations.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
-import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/legal_footer.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
 
 import '../../../helpers/device_matrix.dart';
@@ -38,7 +38,11 @@ Future<void> _pumpScreen(
         onLogIn: () => _open(context, 'Login phone'),
       ),
     ),
-    providers: [BlocProvider<OnboardingBloc>(create: (_) => OnboardingBloc())],
+    providers: [
+      BlocProvider<OnboardingBloc>(
+        create: (_) => OnboardingBloc()..add(const OnboardingPrepared()),
+      ),
+    ],
     tier: tier,
     textScale: textScale,
     size: size,
@@ -233,7 +237,6 @@ void _expectPalette(AppColors colors) {
   expect(colors.textSecondary, const Color(0xFF2B2730));
   expect(colors.textDisabled, const Color(0xFF9C99A3));
   expect(colors.authGradient.colors, const [
-    Color(0xFFFFF8F5),
     Color(0xFFFCE4EE),
     Color(0xFFFDEEF4),
   ]);

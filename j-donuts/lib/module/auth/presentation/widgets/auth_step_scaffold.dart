@@ -72,7 +72,7 @@ class _StepRing extends StatelessWidget {
     final colors = context.colors;
     return Padding(
       padding: EdgeInsetsDirectional.only(end: context.layout.horizontalGutter),
-      child: MorphingProgressRing(
+      child: MorphingProgressRing.steps(
         step: step,
         totalSteps: authStepCount,
         extent: context.iconSizes.lg,

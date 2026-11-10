@@ -16,14 +16,21 @@ abstract final class RoutePaths {
   static const String product = '/product/:$productIdParam';
 
   static const String productIdParam = 'id';
+  static const String heroSourceQueryParam = 'hero';
   static const String phoneQueryParam = 'phone';
   static const String authPhoneName = 'authPhone';
   static const String authOtpName = 'authOtp';
   static const String authModeParam = 'mode';
   static const String loginMode = 'login';
 
-  static String productDetail(String productId) =>
-      '/product/${Uri.encodeComponent(productId)}';
+  static String productDetail(String productId, {String? heroSource}) {
+    final path = '/product/${Uri.encodeComponent(productId)}';
+    if (heroSource == null || heroSource.isEmpty) return path;
+    return Uri(
+      path: path,
+      queryParameters: {heroSourceQueryParam: heroSource},
+    ).toString();
+  }
 
   static String otpFor(String phoneE164) => Uri(
     path: authOtp,

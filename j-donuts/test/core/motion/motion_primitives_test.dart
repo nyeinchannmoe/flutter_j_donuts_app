@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/motion/motion_profile.dart';
 import 'package:jdonuts/core/motion/primitives/fade_slide_in.dart';
 import 'package:jdonuts/core/motion/primitives/pop_in.dart';
-import 'package:jdonuts/core/motion/primitives/pressable_scale.dart';
 import 'package:jdonuts/core/motion/primitives/shake_on_trigger.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
+import 'package:jdonuts/core/widgets/buttons/pressable_scale.dart';
 
 import '../../helpers/pump_app.dart';
 

@@ -22,6 +22,12 @@ abstract interface class AuthRepository {
     bool existingAccountOnly = false,
   });
 
+  /// Accepts the validated name draft before the date of birth step.
+  Future<Result<Unit>> saveRegistrationName({
+    required String firstName,
+    String? lastName,
+  });
+
   /// Completes registration for the phone number verified last.
   Future<Result<UserProfile>> register(RegistrationDetails details);
 

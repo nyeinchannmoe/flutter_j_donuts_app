@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/motion/motion_profile.dart';
+import 'package:jdonuts/core/motion/painters/arc_sweep_painter.dart';
 import 'package:jdonuts/core/motion/primitives/animated_quantity_text.dart';
 import 'package:jdonuts/core/motion/primitives/count_up_text.dart';
 import 'package:jdonuts/core/motion/primitives/morphing_progress_ring.dart';
@@ -145,7 +146,7 @@ void main() {
   });
 
   group('MorphingProgressRing', () {
-    Widget ring(int step) => MorphingProgressRing(
+    Widget ring(int step) => MorphingProgressRing.steps(
       step: step,
       totalSteps: 4,
       extent: 64,
@@ -155,6 +156,28 @@ void main() {
       completed: step == 4,
     );
 
+    testWidgets('accepts fractional progress and a custom stroke', (
+      tester,
+    ) async {
+      await tester.pumpApp(
+        const MorphingProgressRing(
+          progress: 0.25,
+          extent: 32,
+          strokeWidth: 5,
+          trackColor: Colors.lightBlue,
+          progressColor: Colors.pink,
+        ),
+        tier: MotionTier.minimal,
+      );
+      final ring = find.byType(MorphingProgressRing);
+      final paint = tester.widget<CustomPaint>(
+        find.descendant(of: ring, matching: find.byType(CustomPaint)),
+      );
+      final arc = paint.painter! as ArcSweepPainter;
+      expect(arc.progress.value, 0.25);
+      expect(arc.strokeWidth, 5);
+      expect(arc.gradientColors, [Colors.pink, Colors.pink]);
+    });
     testWidgets('animates each step on the full tier', (tester) async {
       await _pumpDriver(tester, ring);
 

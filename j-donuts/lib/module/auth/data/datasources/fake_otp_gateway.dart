@@ -7,7 +7,7 @@ Future<void> _realLatency(Duration duration) => Future<void>.delayed(duration);
 class FakeOtpGateway {
   const FakeOtpGateway({this._latency = _realLatency});
 
-  /// The only code this demo accepts.
+  /// The only code this demo accepts. Documented in the project README.
   static const String demoCode = '123456';
   static const Duration simulatedLatency = Duration(seconds: 1);
 

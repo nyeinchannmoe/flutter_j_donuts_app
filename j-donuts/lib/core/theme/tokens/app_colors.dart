@@ -16,6 +16,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.textSecondary,
     required this.textDisabled,
     required this.border,
+    required this.scrim,
     required this.success,
     required this.danger,
     required this.shimmerBase,
@@ -43,6 +44,7 @@ class AppColors extends ThemeExtension<AppColors> {
     textSecondary: AppPalette.inkSoft,
     textDisabled: AppPalette.slate,
     border: AppPalette.stone,
+    scrim: AppPalette.scrim,
     success: AppPalette.olive,
     danger: AppPalette.danger,
     shimmerBase: AppPalette.shimmerBase,
@@ -67,36 +69,6 @@ class AppColors extends ThemeExtension<AppColors> {
     promoSky: AppPalette.skyBlue,
   );
 
-  static const _gradientMidpoint = 0.5;
-
-  Color get illustrationPlum => AppPalette.deepPink;
-
-  Color authGradientColorAt(double fraction) {
-    final colors = authGradient.colors;
-    return fraction <= _gradientMidpoint
-        ? Color.lerp(colors.first, colors[1], fraction / _gradientMidpoint)!
-        : Color.lerp(
-            colors[1],
-            colors.last,
-            (fraction - _gradientMidpoint) / _gradientMidpoint,
-          )!;
-  }
-
-  ColorScheme toColorScheme() => ColorScheme.fromSeed(
-    seedColor: primary,
-    primary: primary,
-    onPrimary: onPrimary,
-    secondary: accent,
-    tertiary: highlight,
-    surface: surface,
-    error: danger,
-    shadow: AppPalette.shadow,
-    scrim: AppPalette.scrim,
-  );
-
-  Color illustrationTint(Color color, double amount) =>
-      Color.lerp(color, surface, amount)!;
-
   final Color primary;
   final Color onPrimary;
   final Color accent;
@@ -108,6 +80,9 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color textSecondary;
   final Color textDisabled;
   final Color border;
+
+  /// Overlay color that dims content behind a modal surface.
+  final Color scrim;
   final Color success;
   final Color danger;
   final Color shimmerBase;
@@ -145,32 +120,34 @@ class AppColors extends ThemeExtension<AppColors> {
   };
 
   @override
-  AppColors copyWith({Color? primary, Color? accent}) => AppColors(
-    primary: primary ?? this.primary,
-    onPrimary: onPrimary,
-    accent: accent ?? this.accent,
-    highlight: highlight,
-    background: background,
-    surface: surface,
-    surfaceMuted: surfaceMuted,
-    textPrimary: textPrimary,
-    textSecondary: textSecondary,
-    textDisabled: textDisabled,
-    border: border,
-    success: success,
-    danger: danger,
-    shimmerBase: shimmerBase,
-    shimmerHighlight: shimmerHighlight,
-    authGradient: authGradient,
-    tierColors: tierColors,
-    offlineBanner: offlineBanner,
-    onOfflineBanner: onOfflineBanner,
-    headerWash: headerWash,
-    headerDecor: headerDecor,
-    avatarGlow: avatarGlow,
-    promoViolet: promoViolet,
-    promoSky: promoSky,
-  );
+  AppColors copyWith({Color? primary, Color? accent, Color? scrim}) =>
+      AppColors(
+        primary: primary ?? this.primary,
+        onPrimary: onPrimary,
+        accent: accent ?? this.accent,
+        highlight: highlight,
+        background: background,
+        surface: surface,
+        surfaceMuted: surfaceMuted,
+        textPrimary: textPrimary,
+        textSecondary: textSecondary,
+        textDisabled: textDisabled,
+        border: border,
+        scrim: scrim ?? this.scrim,
+        success: success,
+        danger: danger,
+        shimmerBase: shimmerBase,
+        shimmerHighlight: shimmerHighlight,
+        authGradient: authGradient,
+        tierColors: tierColors,
+        offlineBanner: offlineBanner,
+        onOfflineBanner: onOfflineBanner,
+        headerWash: headerWash,
+        headerDecor: headerDecor,
+        avatarGlow: avatarGlow,
+        promoViolet: promoViolet,
+        promoSky: promoSky,
+      );
 
   @override
   AppColors lerp(AppColors? other, double t) =>

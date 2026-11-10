@@ -5,28 +5,35 @@ import 'package:jdonuts/core/theme/tokens/app_colors.dart';
 
 /// Bundled-image fallback with the same circular composition.
 class OnboardingHeroPainter extends CustomPainter {
-  const OnboardingHeroPainter({required this.colors});
+  const OnboardingHeroPainter({
+    required this.colors,
+    required this.glazeShadow,
+  });
 
   final AppColors colors;
+  final Color glazeShadow;
 
   List<(Offset, double, Color, Color)> get _discs {
     final cyan = colors.primary;
     final pink = colors.accent;
-    final plum = colors.illustrationPlum;
+
     final cocoa = colors.textSecondary;
-    final lilac = colors.illustrationTint(pink, _pastelAmount);
-    final blue = colors.illustrationTint(cyan, _pastelAmount);
-    final yellow = colors.illustrationTint(colors.highlight, _pastelAmount);
-    final peach = colors.illustrationTint(colors.highlight, _peachAmount);
+    final lilac = _tint(pink, _pastelAmount);
+    final blue = _tint(cyan, _pastelAmount);
+    final yellow = _tint(colors.highlight, _pastelAmount);
+    final peach = _tint(colors.highlight, _peachAmount);
     return [
       (const Offset(0, 0.07), 0.22, cyan, cocoa),
-      (const Offset(0, 0.57), 0.22, lilac, plum),
+      (const Offset(0, 0.57), 0.22, lilac, glazeShadow),
       (const Offset(1, 0.08), 0.23, blue, pink),
-      (const Offset(1, 0.57), 0.22, blue, plum),
+      (const Offset(1, 0.57), 0.22, blue, glazeShadow),
       (const Offset(0.5, 0.88), 0.29, yellow, cocoa),
       (const Offset(0.5, 0.36), 0.31, peach, pink),
     ];
   }
+
+  Color _tint(Color color, double amount) =>
+      ColorTween(begin: color, end: colors.surface).lerp(amount)!;
 
   static const _pastelAmount = 0.48;
   static const _peachAmount = 0.72;
@@ -63,7 +70,7 @@ class OnboardingHeroPainter extends CustomPainter {
         Paint()
           ..shader = RadialGradient(
             center: _highlightOffset,
-            colors: [colors.illustrationTint(glaze, _highlightAmount), glaze],
+            colors: [_tint(glaze, _highlightAmount), glaze],
           ).createShader(Rect.fromCircle(center: center, radius: glazeRadius)),
       );
     _drawSprinkles(canvas, center, radius);

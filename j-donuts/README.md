@@ -41,7 +41,8 @@ files.
 1. Open the app and go through onboarding.
 2. Enter any valid Myanmar mobile number, for example `9123456789` (the
    `+95`, `95` or `0` prefixes are accepted).
-3. Enter the demo OTP `123456`. The OTP screen also shows it.
+3. Enter the demo OTP `123456` (accepted by the fake auth gateway; not shown
+   on screen).
 4. A new number continues to registration (name and date of birth) and then
    the welcome screen. A number you registered before goes straight to Home.
 5. Browse Home (banners, product rails, nearby shops), open a product to

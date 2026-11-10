@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
 import 'package:jdonuts/core/theme/app_theme.dart';
+import 'package:jdonuts/core/widgets/legal_footer.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
-import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/legal_footer.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_actions.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_login_prompt.dart';
@@ -24,6 +24,39 @@ class OnboardingScreen extends StatelessWidget {
   final Future<void> Function() onGetStarted;
   final Future<void> Function() onLogIn;
 
+  @override
+  Widget build(BuildContext context) => _OnboardingEffects(
+    onGetStarted: onGetStarted,
+    onLogIn: onLogIn,
+    child: AnnotatedRegion(
+      value: AppTheme.lightSystemBars,
+      child: Scaffold(
+        backgroundColor: context.colors.surface.withValues(alpha: 0),
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        body: DecoratedBox(
+          decoration: BoxDecoration(gradient: context.colors.authGradient),
+          child: const StaggeredEntrance(
+            itemCount: _OnboardingLayout.itemCount,
+            child: _OnboardingLayout(),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _OnboardingEffects extends StatelessWidget {
+  const _OnboardingEffects({
+    required this.onGetStarted,
+    required this.onLogIn,
+    required this.child,
+  });
+
+  final Future<void> Function() onGetStarted;
+  final Future<void> Function() onLogIn;
+  final Widget child;
+
   Future<void> _open(OnboardingBloc bloc, OnboardingOpening opening) async {
     try {
       await switch (opening.action) {
@@ -35,30 +68,35 @@ class OnboardingScreen extends StatelessWidget {
     }
   }
 
+  void _showNotice(BuildContext context) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.onboardingComingSoon)),
+      );
+  }
+
   @override
-  Widget build(BuildContext context) =>
+  Widget build(BuildContext context) => MultiBlocListener(
+    listeners: [
       BlocListener<OnboardingBloc, OnboardingState>(
+        listenWhen: (previous, current) => current is OnboardingOpening,
         listener: (context, state) {
           if (state is OnboardingOpening) {
             unawaited(_open(context.read<OnboardingBloc>(), state));
           }
         },
-        child: AnnotatedRegion(
-          value: AppTheme.lightSystemBars,
-          child: Scaffold(
-            backgroundColor: context.colors.surface.withValues(alpha: 0),
-            extendBody: true,
-            extendBodyBehindAppBar: true,
-            body: DecoratedBox(
-              decoration: BoxDecoration(gradient: context.colors.authGradient),
-              child: const StaggeredEntrance(
-                itemCount: _OnboardingLayout.itemCount,
-                child: _OnboardingLayout(),
-              ),
-            ),
-          ),
-        ),
-      );
+      ),
+      BlocListener<OnboardingBloc, OnboardingState>(
+        listenWhen: (previous, current) =>
+            previous is OnboardingReady &&
+            current is OnboardingReady &&
+            previous.noticeEpoch != current.noticeEpoch,
+        listener: (context, state) => _showNotice(context),
+      ),
+    ],
+    child: child,
+  );
 }
 
 class _OnboardingLayout extends StatelessWidget {
@@ -87,9 +125,10 @@ class _OnboardingLayout extends StatelessWidget {
           right: 0,
           height: height,
           child: OnboardingHero(
-            backgroundAtEdge: context.colors.authGradientColorAt(
-              height / viewport,
-            ),
+            backgroundAtEdge: ColorTween(
+              begin: context.colors.authGradient.colors.first,
+              end: context.colors.authGradient.colors.last,
+            ).lerp(height / viewport)!,
           ),
         ),
         Positioned.fill(
@@ -122,13 +161,9 @@ class _OnboardingControls extends StatelessWidget {
   void _select(BuildContext context, OnboardingAction action) =>
       context.read<OnboardingBloc>().add(OnboardingActionSelected(action));
 
-  void _showPlaceholder(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(context.l10n.onboardingComingSoon)),
-      );
-  }
+  void _requestNotice(BuildContext context) => context
+      .read<OnboardingBloc>()
+      .add(const OnboardingPlaceholderRequested());
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -161,14 +196,24 @@ class _OnboardingControls extends StatelessWidget {
       SizedBox(height: context.spacing.md),
       StaggeredItem(
         index: 6,
-        child: SocialLoginRow(onUnavailable: () => _showPlaceholder(context)),
+        child: SocialLoginRow(onUnavailable: () => _requestNotice(context)),
       ),
       const Spacer(flex: 2),
-      StaggeredItem(
-        index: 7,
-        child: LegalFooter(onUnavailable: () => _showPlaceholder(context)),
-      ),
+      StaggeredItem(index: 7, child: _legal(context)),
       SizedBox(height: context.spacing.lg),
     ],
   );
+
+  Widget _legal(BuildContext context) {
+    final l10n = context.l10n;
+    return LegalFooter(
+      before: l10n.onboardingLegalBefore,
+      terms: l10n.onboardingTerms,
+      between: l10n.onboardingLegalBetween,
+      privacy: l10n.onboardingPrivacy,
+      after: l10n.onboardingLegalAfter,
+      onTerms: () => _requestNotice(context),
+      onPrivacy: () => _requestNotice(context),
+    );
+  }
 }

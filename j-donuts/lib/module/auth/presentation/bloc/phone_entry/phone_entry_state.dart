@@ -1,14 +1,12 @@
 part of 'phone_entry_bloc.dart';
 
 @freezed
-sealed class PhoneEntryState with _$PhoneEntryState {
-  const factory PhoneEntryState.idle() = PhoneEntryIdle;
-
-  const factory PhoneEntryState.submitting() = PhoneEntrySubmitting;
-
-  /// One-shot transition the screen reacts to by opening the OTP step.
-  const factory PhoneEntryState.codeSent({required String phoneE164}) =
-      PhoneEntryCodeSent;
-
-  const factory PhoneEntryState.failure(AppFailure failure) = PhoneEntryFailure;
+abstract class PhoneEntryState with _$PhoneEntryState {
+  const factory PhoneEntryState({
+    String? phoneE164,
+    @Default(false) bool showInvalid,
+    @Default(false) bool submitting,
+    @Default(false) bool codeSent,
+    AppFailure? failure,
+  }) = _PhoneEntryState;
 }

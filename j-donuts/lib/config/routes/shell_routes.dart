@@ -16,6 +16,7 @@ import 'package:jdonuts/module/product/presentation/bloc/product_detail/product_
 import 'package:jdonuts/module/product/presentation/screens/product_detail/product_detail_screen.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/challenges/challenges_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/rewards_summary/rewards_summary_bloc.dart';
+import 'package:jdonuts/module/rewards/presentation/bloc/rewards_tabs/rewards_tabs_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/tier_ladder/tier_ladder_bloc.dart';
 import 'package:jdonuts/module/rewards/presentation/screens/rewards/rewards_screen.dart';
 
@@ -91,6 +92,7 @@ GoRoute _rewardsRoute() => GoRoute(
       BlocProvider(
         create: (_) => getIt<ChallengesBloc>()..add(const ChallengesStarted()),
       ),
+      BlocProvider(create: (_) => getIt<RewardsTabsBloc>()),
     ],
     child: const RewardsScreen(),
   ),

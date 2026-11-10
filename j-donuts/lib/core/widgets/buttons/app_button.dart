@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/motion_scope.dart';
 import 'package:jdonuts/core/motion/motion_tokens.dart';
-import 'package:jdonuts/core/motion/primitives/pressable_scale.dart';
+import 'package:jdonuts/core/widgets/buttons/pressable_scale.dart';
 
 /// Primary pill button with press feedback, a loading morph and a
 /// double-tap guard.
@@ -17,6 +17,7 @@ class AppButton extends StatefulWidget {
     required this.onPressed,
     this.isLoading = false,
     this.trailing,
+    this.usePrimaryDisabledFill = false,
     super.key,
   });
 
@@ -27,50 +28,73 @@ class AppButton extends StatefulWidget {
   final bool isLoading;
   final Widget? trailing;
 
+  final bool usePrimaryDisabledFill;
+
   static const Key progressKey = Key('app_button_progress');
 
   @override
   State<AppButton> createState() => _AppButtonState();
 }
 
-class _AppButtonState extends State<AppButton> {
-  bool _running = false;
+class _AppButtonState extends State<AppButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _busy = AnimationController(
+    vsync: this,
+    duration: MotionTokens.micro,
+  );
 
-  bool get _busy => widget.isLoading || _running;
+  bool get _running => _busy.value > 0;
+
+  bool get _isBusy => widget.isLoading || _running;
 
   Future<void> _handleTap() async {
     final onPressed = widget.onPressed;
-    if (_busy || onPressed == null) return;
-    setState(() => _running = true);
+    if (_isBusy || onPressed == null) return;
+    _busy.value = 1;
     try {
       await onPressed();
     } finally {
-      if (mounted) setState(() => _running = false);
+      if (mounted) _busy.value = 0;
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final enabled = widget.onPressed != null;
-    final style = FilledButtonTheme.of(context).style!;
-    final states = enabled ? <WidgetState>{} : {WidgetState.disabled};
-    return Semantics(
-      button: true,
-      enabled: enabled && !_busy,
-      label: widget.label,
-      excludeSemantics: true,
-      child: PressableScale(
-        onTap: enabled ? _handleTap : null,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            color: style.backgroundColor!.resolve(states),
-            shape: style.shape!.resolve(states)!,
-          ),
-          child: _content(style, states),
-        ),
-      ),
-    );
+  void dispose() {
+    _busy.dispose();
+    super.dispose();
   }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _busy,
+    builder: (context, _) {
+      final enabled = widget.onPressed != null;
+      final style = FilledButtonTheme.of(context).style!;
+      final states = enabled ? <WidgetState>{} : {WidgetState.disabled};
+      final fill = style.backgroundColor!.resolve(states);
+      final background =
+          !enabled && widget.usePrimaryDisabledFill && fill != null
+          ? context.colors.primary.withValues(alpha: fill.a)
+          : fill;
+      return Semantics(
+        button: true,
+        enabled: enabled && !_isBusy,
+        label: widget.label,
+        onTap: enabled && !_isBusy ? _handleTap : null,
+        excludeSemantics: true,
+        child: PressableScale(
+          onTap: enabled ? _handleTap : null,
+          child: DecoratedBox(
+            decoration: ShapeDecoration(
+              color: background,
+              shape: style.shape!.resolve(states)!,
+            ),
+            child: _content(style, states),
+          ),
+        ),
+      );
+    },
+  );
 
   Widget _content(ButtonStyle style, Set<WidgetState> states) => ConstrainedBox(
     constraints: BoxConstraints(
@@ -83,7 +107,7 @@ class _AppButtonState extends State<AppButton> {
         child: _ButtonContent(
           labelStyle: style.textStyle!.resolve(states)!,
           label: widget.label,
-          busy: _busy,
+          busy: _isBusy,
           trailing: widget.trailing,
         ),
       ),

@@ -7,6 +7,7 @@ import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
 import 'package:jdonuts/module/auth/domain/usecases/register_user.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/verify_otp.dart';
+import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
 import 'package:jdonuts/module/product/domain/entities/cart_rules.dart';
 import 'package:jdonuts/module/product/domain/repositories/cart_repository.dart';
 import 'package:jdonuts/module/product/domain/usecases/add_to_cart.dart';
@@ -67,7 +68,10 @@ void main() {
       );
 
       expect(result.failureOrNull, isA<ValidationFailure>());
-      expect(result.failureOrNull?.code, FailureCodes.invalidCode);
+      expect(
+        result.failureOrNull?.code,
+        AuthValidators.otpTooShortCode,
+      );
     });
 
     test('RegisterUser rejects a member younger than 13', () async {

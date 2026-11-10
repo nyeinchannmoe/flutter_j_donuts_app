@@ -46,7 +46,7 @@ motion stays proportional on small phones and tablets.
 | `StaggeredEntrance` with `StaggerSchedule` | List and grid entrances from one controller |
 | `FadeSlideIn` | One-shot fade plus slide |
 | `PopIn` | Overshoot scale entrance |
-| `PressableScale` | Press feedback |
+| `PressableScale` (`lib/core/widgets/buttons`) | Press feedback |
 | `ShakeOnTrigger` | Error shake when a trigger value changes |
 | `CountUpText` | Number count-up, for points |
 | `AnimatedQuantityText` | Rolling quantity in steppers |

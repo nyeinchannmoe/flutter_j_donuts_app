@@ -111,6 +111,15 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<Result<Unit>> saveRegistrationName({
+    required String firstName,
+    String? lastName,
+  }) => _guard(() async {
+    await _otpGateway.simulateNetwork();
+    return Unit.value;
+  });
+
+  @override
   Future<Result<UserProfile>> register(RegistrationDetails details) async {
     final pending = _current;
     if (pending is! SessionRegistering) {

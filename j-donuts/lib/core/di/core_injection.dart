@@ -25,6 +25,8 @@ import 'package:jdonuts/core/storage/secure_key_value_store.dart';
 import 'package:jdonuts/core/storage/session_store.dart';
 import 'package:jdonuts/core/sync/app_lifecycle_sync_binding.dart';
 import 'package:jdonuts/core/sync/sync_coordinator.dart';
+import 'package:jdonuts/core/utils/clock.dart';
+import 'package:jdonuts/core/utils/interval_ticker.dart';
 
 /// Core values derived from AppConfig, so core never imports config.
 class CoreSettings {
@@ -70,6 +72,8 @@ void _registerPlatformServices(
   required AppLogger logger,
 }) {
   locator
+    ..registerLazySingleton<Clock>(SystemClock.new)
+    ..registerLazySingleton<IntervalTicker>(SystemIntervalTicker.new)
     ..registerLazySingleton(
       () => MotionPolicy(monitor: FrameBudgetMonitor(logger: logger)),
       dispose: (policy) => policy.dispose(),

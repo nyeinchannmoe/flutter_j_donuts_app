@@ -51,10 +51,13 @@ void main() {
     await tester.pump();
     await tester.tap(_button(l10n.actionContinue));
 
-    await tester.pumpUntilFound(find.byType(OtpVerificationScreen));
-    await tester.enterText(find.byType(TextField), FakeOtpGateway.demoCode);
+    final otp = find.byType(OtpVerificationScreen);
+    await tester.pumpUntilFound(otp);
+    await tester.enterText(
+      find.descendant(of: otp, matching: find.byType(TextField)),
+      FakeOtpGateway.demoCode,
+    );
     await tester.pump();
-    await tester.tap(_button(l10n.actionContinue));
 
     await tester.pumpUntilFound(find.byType(RegistrationNameScreen));
   });

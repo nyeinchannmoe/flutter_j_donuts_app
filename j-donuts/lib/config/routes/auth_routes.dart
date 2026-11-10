@@ -1,15 +1,18 @@
+import 'dart:async';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jdonuts/config/routes/route_paths.dart';
 import 'package:jdonuts/config/routes/route_transitions.dart';
 import 'package:jdonuts/core/di/injector.dart';
-import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_entry.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
 import 'package:jdonuts/module/auth/presentation/screens/otp_verification/otp_verification_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/phone_entry/phone_entry_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_date_of_birth/registration_date_of_birth_screen.dart';
@@ -30,9 +33,9 @@ GoRoute _onboardingRoute() => GoRoute(
   pageBuilder: (context, state) => RouteTransitions.fadeThrough(
     context,
     state,
-    OnboardingEntry(
-      child: BlocProvider(
-        create: (_) => getIt<OnboardingBloc>(),
+    BlocProvider(
+      create: _createOnboardingBloc,
+      child: OnboardingEntry(
         child: OnboardingScreen(
           onGetStarted: () => context.pushNamed<void>(RoutePaths.authPhoneName),
           onLogIn: () => context.pushNamed<void>(
@@ -44,6 +47,23 @@ GoRoute _onboardingRoute() => GoRoute(
     ),
   ),
 );
+
+OnboardingBloc _createOnboardingBloc(BuildContext context) {
+  final bloc = getIt<OnboardingBloc>();
+  final image = OnboardingHero.imageFor(context);
+  unawaited(
+    precacheImage(
+      image,
+      context,
+      onError: (_, _) {
+        // The hero paints its bundled-image fallback if decoding fails.
+      },
+    ).whenComplete(() {
+      if (!bloc.isClosed) bloc.add(const OnboardingPrepared());
+    }),
+  );
+  return bloc;
+}
 
 GoRoute _phoneRoute() => GoRoute(
   path: RoutePaths.authPhone,
@@ -76,19 +96,30 @@ GoRoute _otpRoute() => GoRoute(
   pageBuilder: (context, state) => RouteTransitions.sharedAxis(
     context,
     state,
-    BlocProvider(
-      create: (_) => getIt<OtpVerificationBloc>(),
-      child: OtpVerificationScreen(
-        phoneE164: state.uri.queryParameters[RoutePaths.phoneQueryParam]!,
-        demoCode: FakeOtpGateway.demoCode,
-        existingAccountOnly:
-            state.uri.queryParameters[RoutePaths.authModeParam] ==
-            RoutePaths.loginMode,
-        onNewMemberVerified: () => context.push(RoutePaths.authName),
-      ),
-    ),
+    _otpPage(context, state),
   ),
 );
+
+Widget _otpPage(BuildContext context, GoRouterState state) {
+  final phone = state.uri.queryParameters[RoutePaths.phoneQueryParam]!;
+  final loginOnly =
+      state.uri.queryParameters[RoutePaths.authModeParam] ==
+      RoutePaths.loginMode;
+  return BlocProvider(
+    create: (_) => getIt<OtpVerificationBloc>()
+      ..add(
+        OtpVerificationStarted(
+          phoneE164: phone,
+          existingAccountOnly: loginOnly,
+        ),
+      ),
+    child: OtpVerificationScreen(
+      phoneE164: phone,
+      existingAccountOnly: loginOnly,
+      onNewMemberVerified: () => context.push(RoutePaths.authName),
+    ),
+  );
+}
 
 GoRoute _welcomeRoute() => GoRoute(
   path: RoutePaths.welcome,

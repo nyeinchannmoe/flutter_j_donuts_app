@@ -4,8 +4,18 @@ sealed class PhoneEntryEvent {
   const PhoneEntryEvent();
 }
 
-final class PhoneEntrySubmitted extends PhoneEntryEvent {
-  const PhoneEntrySubmitted(this.phoneE164);
+final class PhoneEntryChanged extends PhoneEntryEvent {
+  const PhoneEntryChanged(this.input);
 
-  final String phoneE164;
+  final String input;
+}
+
+final class PhoneEntryFocusChanged extends PhoneEntryEvent {
+  const PhoneEntryFocusChanged({required this.focused});
+
+  final bool focused;
+}
+
+final class PhoneEntrySubmitted extends PhoneEntryEvent {
+  const PhoneEntrySubmitted();
 }

@@ -61,6 +61,9 @@ class AppTypography extends ThemeExtension<AppTypography> {
     fontWeight: weight,
     color: color,
     height: height,
+    // ListTile (and other Material defaults) force textBaseline!; inherit:false
+    // otherwise leaves it null and crashes on every tile.
+    textBaseline: TextBaseline.alphabetic,
   );
 
   @override
