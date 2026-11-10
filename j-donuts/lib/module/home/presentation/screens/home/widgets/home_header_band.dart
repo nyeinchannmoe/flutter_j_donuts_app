@@ -12,7 +12,9 @@ const double _waveClearanceFactor = 0.55;
 /// Peach wash wrapping the member header and promo carousel, ending in a
 /// soft downward curve into the white content plane.
 class HomeHeaderBand extends StatelessWidget {
-  const HomeHeaderBand({super.key});
+  const HomeHeaderBand({required this.onNotificationsPressed, super.key});
+
+  final VoidCallback onNotificationsPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +33,7 @@ class HomeHeaderBand extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.layout.horizontalGutter,
-                ),
-                child: const MemberHeader(),
-              ),
+              MemberHeader(onNotificationsPressed: onNotificationsPressed),
               SizedBox(height: spacing.lg),
               const BannerCarousel(),
             ],

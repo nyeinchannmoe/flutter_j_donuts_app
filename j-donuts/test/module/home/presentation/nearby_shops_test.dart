@@ -9,6 +9,7 @@ import 'package:jdonuts/module/home/domain/entities/shop.dart';
 import 'package:jdonuts/module/home/domain/usecases/watch_shops.dart';
 import 'package:jdonuts/module/home/presentation/bloc/shops/shops_bloc.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/nearby_shops.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/widgets/nearby_shops_skeleton.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/shop_card.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -65,7 +66,7 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('EXPLORE NOW'), findsOneWidget);
-    expect(find.text('Order Online'), findsNWidgets(2));
+    expect(find.text('Order online'), findsNWidgets(2));
     expect(find.text("J'Donuts Downtown"), findsOneWidget);
     expect(find.text('Sule Pagoda Road, Kyauktada'), findsOneWidget);
     expect(find.byType(ShopCard), findsNWidgets(2));
@@ -74,7 +75,7 @@ void main() {
     await tester.pump();
     expect(exploreTaps, 1);
 
-    await tester.tap(find.text('Order Online').first);
+    await tester.tap(find.text('Order online').first);
     await tester.pump();
     expect(orderTaps, ['s_downtown']);
   });
@@ -87,6 +88,7 @@ void main() {
     await tester.pumpApp(subject());
     await tester.pump();
 
+    expect(find.byType(NearbyShopsSkeleton), findsOneWidget);
     expect(find.byType(SkeletonBlock), findsWidgets);
   });
 

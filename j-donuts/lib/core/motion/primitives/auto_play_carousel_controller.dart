@@ -28,31 +28,50 @@ class AutoPlayCarouselController {
 
   bool get isPlaying => _timer?.isActive ?? false;
 
+  bool _tickersEnabled = true;
+
   /// Applies [profile] and starts or stops auto-play accordingly.
-  void updateProfile(MotionProfile profile) {
+  void updateProfile(MotionProfile profile, {bool tickersEnabled = true}) {
     _profile = profile;
-    profile.allowsAmbient ? _start() : _stop();
+    _tickersEnabled = tickersEnabled;
+    _syncPlayback();
   }
 
   /// Call when the user starts interacting with the carousel.
   void pauseForInteraction() {
-    _stop();
+    _stop(settle: true);
     _resumeTimer?.cancel();
-    _resumeTimer = Timer(resumeDelay, () => updateProfile(_profile));
+    _resumeTimer = Timer(
+      resumeDelay,
+      () => updateProfile(_profile, tickersEnabled: _tickersEnabled),
+    );
+  }
+
+  void _syncPlayback() {
+    final shouldPlay =
+        _tickersEnabled && _profile.allowsAmbient && pageCount >= 2;
+    if (shouldPlay) {
+      _start();
+    } else {
+      _stop(settle: true);
+    }
   }
 
   void _start() {
-    if (pageCount < 2 || isPlaying) return;
+    if (isPlaying) return;
     _timer = Timer.periodic(interval, (_) => _advance());
   }
 
-  void _stop() {
+  void _stop({bool settle = false}) {
     _timer?.cancel();
     _timer = null;
+    if (!settle || !pageController.hasClients || pageCount < 1) return;
+    final page = pageController.page?.round() ?? 0;
+    pageController.jumpToPage(page.clamp(0, pageCount - 1));
   }
 
   void _advance() {
-    if (!pageController.hasClients) return;
+    if (!_tickersEnabled || !pageController.hasClients) return;
     final current = pageController.page?.round() ?? 0;
     unawaited(
       pageController.animateToPage(

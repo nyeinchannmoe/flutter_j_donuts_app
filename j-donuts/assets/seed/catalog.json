@@ -143,7 +143,7 @@
       "tag": "New shop",
       "title": "We are now at Central Boulevard",
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/b_central_boulevard.webp",
+      "imageAsset": "assets/seed/images/card_restaurant_1.jpg",
       "cardTone": "violet",
       "sortOrder": 0
     },
@@ -152,7 +152,7 @@
       "tag": "Hot",
       "title": "Hot drinks are back for the cold season",
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/b_hot_drinks.webp",
+      "imageAsset": "assets/seed/images/card_restaurant_3.jpg",
       "cardTone": "sky",
       "sortOrder": 1
     },
@@ -161,7 +161,7 @@
       "tag": "Holiday",
       "title": "Holiday boxes for every family",
       "imageUrl": null,
-      "imageAsset": "assets/seed/images/b_holiday_boxes.webp",
+      "imageAsset": "assets/seed/images/card_restaurant_2.jpg",
       "cardTone": "violet",
       "sortOrder": 2
     }
@@ -174,8 +174,8 @@
       "sortOrder": 0,
       "items": [
         { "productId": "p_mistletoe_box", "sortOrder": 0, "discountPercent": 50 },
-        { "productId": "p_christmas_family_box", "sortOrder": 1, "discountPercent": null },
-        { "productId": "p_santa_cookies", "sortOrder": 2, "discountPercent": null }
+        { "productId": "p_christmas_family_box", "sortOrder": 1, "discountPercent": 30 },
+        { "productId": "p_santa_cookies", "sortOrder": 2, "discountPercent": 10 }
       ]
     },
     {
@@ -196,7 +196,7 @@
       "title": "Order again",
       "sortOrder": 2,
       "items": [
-        { "productId": "p_santa_cookies", "sortOrder": 0, "discountPercent": 20 },
+        { "productId": "p_coconut", "sortOrder": 0, "discountPercent": 20 },
         { "productId": "p_caramel_latte", "sortOrder": 1, "discountPercent": 20 },
         { "productId": "p_glazed_classic", "sortOrder": 2, "discountPercent": null },
         { "productId": "p_americano", "sortOrder": 3, "discountPercent": null }

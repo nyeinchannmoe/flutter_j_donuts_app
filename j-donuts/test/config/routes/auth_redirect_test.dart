@@ -18,7 +18,9 @@ const List<String> _appLocations = [
   RoutePaths.rewards,
   RoutePaths.orders,
   RoutePaths.settings,
+  RoutePaths.notifications,
   '/product/p_coconut',
+  '/section/seasonal',
 ];
 
 String? _redirect(Session session, String location) =>

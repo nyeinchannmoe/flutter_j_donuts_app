@@ -9,6 +9,7 @@ import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/core/widgets/skeleton/skeleton_block.dart';
 import 'package:jdonuts/module/home/presentation/bloc/member_header/member_header_bloc.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/member_header.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/widgets/member_header_chrome.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../helpers/pump_app.dart';
@@ -46,7 +47,9 @@ void main() {
       BlocProvider(
         create: (_) => MemberHeaderBloc(watchMemberProfile: watch)
           ..add(const MemberHeaderStarted()),
-        child: const Scaffold(body: MemberHeader()),
+        child: Scaffold(
+          body: MemberHeader(onNotificationsPressed: () {}),
+        ),
       ),
     );
     await tester.pump();
@@ -61,6 +64,30 @@ void main() {
     expect(find.text('2'), findsOneWidget);
   });
 
+  testWidgets('invokes onNotificationsPressed when the bell is tapped', (
+    tester,
+  ) async {
+    when(
+      () => watch(),
+    ).thenAnswer((_) => Stream.value(const Ok(_member)));
+    var pressed = false;
+
+    await tester.pumpApp(
+      BlocProvider(
+        create: (_) => MemberHeaderBloc(watchMemberProfile: watch)
+          ..add(const MemberHeaderStarted()),
+        child: Scaffold(
+          body: MemberHeader(onNotificationsPressed: () => pressed = true),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    await tester.tap(find.byType(MemberNotificationBell));
+    expect(pressed, isTrue);
+  });
+
   testWidgets('shows skeleton blocks while loading', (tester) async {
     final controller = StreamController<Result<MemberProfile?>>();
     addTearDown(controller.close);
@@ -70,7 +97,9 @@ void main() {
       BlocProvider(
         create: (_) => MemberHeaderBloc(watchMemberProfile: watch)
           ..add(const MemberHeaderStarted()),
-        child: const Scaffold(body: MemberHeader()),
+        child: Scaffold(
+          body: MemberHeader(onNotificationsPressed: () {}),
+        ),
       ),
     );
     await tester.pump();

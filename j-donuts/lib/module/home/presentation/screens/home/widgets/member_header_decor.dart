@@ -52,7 +52,6 @@ class MemberHeaderDecor extends StatelessWidget {
     );
   }
 }
-
 /// Opacity for the warm ribbon behind the badge.
 const double _ribbonOpacity = 0.55;
 

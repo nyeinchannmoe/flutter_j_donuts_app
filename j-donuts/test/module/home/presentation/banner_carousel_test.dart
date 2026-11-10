@@ -19,14 +19,14 @@ const HomeBanner _central = HomeBanner(
   id: 'b_central_boulevard',
   tag: 'New shop',
   title: 'We are now at Central Boulevard',
-  imageAsset: 'assets/seed/images/b_central_boulevard.webp',
+  imageAsset: 'assets/seed/images/card_restaurant_1.jpg',
 );
 
 const HomeBanner _hot = HomeBanner(
   id: 'b_hot_drinks',
   tag: 'Hot',
   title: 'Hot drinks are back for the cold season',
-  imageAsset: 'assets/seed/images/b_hot_drinks.webp',
+  imageAsset: 'assets/seed/images/card_restaurant_3.jpg',
 );
 
 void main() {
@@ -86,5 +86,29 @@ void main() {
     await tester.pump();
 
     expect(find.text('No promotions right now.'), findsOneWidget);
+  });
+
+  testWidgets('auto-plays to the next banner', (tester) async {
+    when(
+      () => watch(),
+    ).thenAnswer((_) => Stream.value(const Ok([_central, _hot])));
+
+    await tester.pumpApp(
+      BlocProvider(
+        create: (_) =>
+            BannersBloc(watchBanners: watch)..add(const BannersStarted()),
+        child: const Scaffold(body: BannerCarousel()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('We are now at Central Boulevard'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(
+      find.text('Hot drinks are back for the cold season'),
+      findsOneWidget,
+    );
   });
 }

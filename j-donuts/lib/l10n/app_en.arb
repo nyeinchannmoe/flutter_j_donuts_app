@@ -144,6 +144,9 @@
     "description": "Accessibility label of the notification bell.",
     "placeholders": { "count": { "type": "int" } }
   },
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": { "description": "App bar title of the Notifications screen." },
+
   "sectionSeeAll": "See all",
   "@sectionSeeAll": { "description": "Accessibility label of the section arrow." },
   "sectionEmpty": "No products in this section yet.",

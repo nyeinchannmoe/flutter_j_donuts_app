@@ -7,7 +7,7 @@ lib/
   main.dart, bootstrap.dart, app.dart   entry, startup sequence, root widget
   config/                               AppConfig, composition root, routing
   core/                                 shared infrastructure, no feature imports
-  module/<feature>/                     auth, home, product, rewards
+  module/<feature>/                     auth, home, product, rewards, notifications
     data/        datasources, models (DTOs), mappers, repositories
     domain/      entities, repository interfaces, use cases
     presentation/ blocs, screens, widgets
@@ -56,7 +56,8 @@ directly, which keeps them testable without a router.
 ## Routing
 
 `go_router` with a `StatefulShellRoute` for the five tabs. Menu and orders
-are placeholder tabs outside the brief's scope. `auth_redirect.dart`
+are placeholder tabs outside the brief's scope. Product detail, section
+catalog and notifications sit above the shell. `auth_redirect.dart`
 is a pure function of the auth session and the target location;
 `RouterRefresh` re-runs it when the session changes. Transitions come from
 `route_transitions.dart`, which wraps `MotionTransitions`.

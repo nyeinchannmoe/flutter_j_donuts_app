@@ -9,7 +9,7 @@ J'Donuts customer app (Madivizion Senior Flutter code test): fake login and regi
 - `lib/main.dart` calls `bootstrap()`. `lib/bootstrap.dart` installs error handlers, registers dependencies, opens and seeds the database, restores the session and runs `JDonutsApp` (`lib/app.dart`).
 - `lib/config`: environment (`AppConfig`), the dependency aggregator (`dependencies.dart`) and routing (`go_router`, pure `resolveAuthRedirect`, transitions, five-tab shell).
 - `lib/core`: shared kernel. Result and AppFailure, DI, logging, Drift database (tables, DAOs, migrations, seed), network (Dio, disabled by default), sync coordinator, connectivity, secure session storage, images, theme tokens, responsive metrics, motion system, view state, shared widgets, locale, and the shared member record.
-- `lib/module/{auth,home,product,rewards}`: each with `domain` (pure Dart entities, repository interfaces, use cases), `data` (DTOs, mappers, importers, repository implementations) and `presentation` (Blocs, screens, widgets), plus `di/<feature>_injection.dart`.
+- `lib/module/{auth,home,product,rewards,notifications}`: each with `domain` (pure Dart entities, repository interfaces, use cases), `data` (DTOs, mappers, importers, repository implementations) and `presentation` (Blocs, screens, widgets), plus `di/<feature>_injection.dart` when the feature owns registrations.
 - Data flow: bundled JSON or remote payload, then importers inside one Drift transaction, then DAO watch streams, then repositories returning `Result`, then use cases, then Blocs emitting `ViewState`, then widgets.
 - State: Bloc only. DI: get_it, referenced only in the composition root. UI reads only the local database.
 

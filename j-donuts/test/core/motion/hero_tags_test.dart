@@ -13,7 +13,7 @@ void main() {
     expect(seasonal, isNot(orderAgain));
     expect(seasonal, 'product-image-sec_seasonal-$productId');
     expect(
-      HeroTags.productImage(productId, source: HeroTags.detailSource),
+      HeroTags.productImage(productId),
       'product-image-${HeroTags.detailSource}-$productId',
     );
   });

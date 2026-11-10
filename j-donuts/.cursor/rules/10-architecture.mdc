@@ -17,7 +17,7 @@ alwaysApply: true
 - lib/config: app_config.dart, app_environment.dart, routes/ (routes.dart, route_paths.dart, auth_redirect.dart, route_transitions.dart, router_refresh.dart, app_shell_scaffold.dart).
 - lib/core: result, error, di, logging, database (tables, daos, migrations, seed), network (interceptors, envelope, remote source), sync, connectivity, storage, images, theme, responsive, motion (tokens, profile, policy, scope, frame budget, primitives, painters, transitions), view_state, widgets (skeleton, state_views, buttons, inputs, scaffold, offline banner), extensions, utils, locale, member.
 - lib/l10n: app_en.arb, app_my.arb and generated output in lib/l10n/generated.
-- lib/module/<feature> for auth, home, product, rewards, each with di/, domain/ (entities, repositories, usecases), data/ (datasources, models, mappers, repositories) and presentation/ (bloc/<name>/, screens/<name>/ with a widgets/ subfolder, widgets/).
+- lib/module/<feature> for auth, home, product, rewards, notifications, each with di/, domain/ (entities, repositories, usecases), data/ (datasources, models, mappers, repositories) and presentation/ (bloc/<name>/, screens/<name>/ with a widgets/ subfolder, widgets/) as needed.
 - test mirrors lib. Shared helpers live in test/helpers. integration_test, tool, docs, drift_schemas and assets/seed sit at the root.
 
 ## Naming

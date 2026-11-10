@@ -34,5 +34,12 @@ void main() {
       carousel.updateProfile(MotionProfile.full);
       expect(carousel.isPlaying, isTrue);
     });
+
+    test('does not auto-play when tickers are disabled', () {
+      final carousel = AutoPlayCarouselController(pageCount: 3);
+      addTearDown(carousel.dispose);
+      carousel.updateProfile(MotionProfile.full, tickersEnabled: false);
+      expect(carousel.isPlaying, isFalse);
+    });
   });
 }

@@ -13,7 +13,12 @@ class AddToCartBar extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
     top: false,
     child: Padding(
-      padding: EdgeInsets.all(context.layout.horizontalGutter),
+      padding: EdgeInsets.fromLTRB(
+        context.layout.horizontalGutter,
+        context.spacing.sm,
+        context.layout.horizontalGutter,
+        context.spacing.lg,
+      ),
       child: BlocBuilder<ProductDetailBloc, ProductDetailState>(
         buildWhen: (previous, current) =>
             previous.totalMmk != current.totalMmk ||
@@ -24,14 +29,12 @@ class AddToCartBar extends StatelessWidget {
           onPressed: () => context.read<ProductDetailBloc>().add(
             const ProductAddToCartPressed(),
           ),
-          trailing: Padding(
-            padding: EdgeInsetsDirectional.only(start: context.spacing.md),
-            child: Text(
-              context.l10n.priceMmk(MmkFormatter.amount(state.totalMmk)),
-              style: context.typography.button.copyWith(
-                color: context.colors.onPrimary,
-              ),
+          trailing: Text(
+            context.l10n.priceMmk(MmkFormatter.amount(state.totalMmk)),
+            style: context.typography.button.copyWith(
+              color: context.colors.onPrimary,
             ),
+            textAlign: TextAlign.center,
           ),
         ),
       ),

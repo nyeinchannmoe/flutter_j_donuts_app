@@ -6,12 +6,16 @@ import 'package:jdonuts/core/di/injector.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/widgets/scaffold/placeholder_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/settings/settings_screen.dart';
+import 'package:jdonuts/module/home/domain/entities/home_section.dart';
 import 'package:jdonuts/module/home/presentation/bloc/banners/banners_bloc.dart';
 import 'package:jdonuts/module/home/presentation/bloc/home_refresh/home_refresh_bloc.dart';
 import 'package:jdonuts/module/home/presentation/bloc/home_section/home_section_bloc.dart';
 import 'package:jdonuts/module/home/presentation/bloc/member_header/member_header_bloc.dart';
 import 'package:jdonuts/module/home/presentation/bloc/shops/shops_bloc.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/home_screen.dart';
+import 'package:jdonuts/module/home/presentation/screens/section_products/section_products_screen.dart';
+import 'package:jdonuts/module/home/presentation/screens/section_products/unknown_section_screen.dart';
+import 'package:jdonuts/module/notifications/presentation/screens/notifications/notifications_screen.dart';
 import 'package:jdonuts/module/product/presentation/bloc/product_detail/product_detail_bloc.dart';
 import 'package:jdonuts/module/product/presentation/screens/product_detail/product_detail_screen.dart';
 import 'package:jdonuts/module/rewards/presentation/bloc/challenges/challenges_bloc.dart';
@@ -72,9 +76,22 @@ GoRoute _homeRoute() => GoRoute(
       sectionBlocFactory: (kind) =>
           getIt<HomeSectionBloc>(param1: kind)..add(const HomeSectionStarted()),
       onProductSelected: (id) => context.push(RoutePaths.productDetail(id)),
+      onSeeAllSection: (kind) =>
+          context.push(RoutePaths.sectionProducts(kind.name)),
       onExploreNow: () => context.go(RoutePaths.explore),
       onOrderOnline: (_) => context.go(RoutePaths.explore),
+      onNotificationsPressed: () => context.push(RoutePaths.notifications),
     ),
+  ),
+);
+
+/// Notifications sits above the shell; opened from the Home member header.
+GoRoute notificationsRoute() => GoRoute(
+  path: RoutePaths.notifications,
+  pageBuilder: (context, state) => RouteTransitions.sharedAxis(
+    context,
+    state,
+    const NotificationsScreen(),
   ),
 );
 
@@ -110,6 +127,35 @@ GoRoute productRoute() => GoRoute(
         create: (_) =>
             getIt<ProductDetailBloc>()..add(ProductDetailStarted(id)),
         child: ProductDetailScreen(productId: id),
+      ),
+    );
+  },
+);
+
+/// Full section catalog above the shell; unknown kinds show empty inside.
+GoRoute sectionProductsRoute() => GoRoute(
+  path: RoutePaths.section,
+  pageBuilder: (context, state) {
+    final kindName = state.pathParameters[RoutePaths.sectionKindParam]!;
+    final kind = HomeSectionKind.values.asNameMap()[kindName];
+    if (kind == null) {
+      return RouteTransitions.sharedAxis(
+        context,
+        state,
+        const UnknownSectionScreen(),
+      );
+    }
+    return RouteTransitions.sharedAxis(
+      context,
+      state,
+      BlocProvider(
+        create: (_) =>
+            getIt<HomeSectionBloc>(param1: kind)
+              ..add(const HomeSectionStarted()),
+        child: SectionProductsScreen(
+          kind: kind,
+          onProductSelected: (id) => context.push(RoutePaths.productDetail(id)),
+        ),
       ),
     );
   },

@@ -6,8 +6,14 @@ import 'package:jdonuts/core/images/app_image.dart';
 import 'package:jdonuts/core/images/image_ref.dart';
 import 'package:jdonuts/module/home/domain/entities/home_banner.dart';
 
+/// Leaves a peek of the next banner when more than one exists.
+const double bannerViewportFraction = 0.86;
+
+/// Banner width to height ratio from the design (near-square cards).
+const double bannerAspectRatio = 2;
+
 /// Flex weight for the centered tag/title region.
-const int _copyFlex = 52;
+const int _copyFlex = 50;
 
 /// Flex weight for the bottom inset photo region.
 const int _insetFlex = 48;
@@ -21,24 +27,46 @@ const int _sprinkleCount = 28;
 /// How far the shop glyph sits above the inset photo.
 const double _shopGlyphOverlapFactor = 0.45;
 
+/// Height of the banner carousel for a given host width.
+double bannerCarouselHeightForWidth(double width) => width / bannerAspectRatio;
+
+/// Height of every [BannerCard] for a given card width.
+double bannerCardHeightForWidth(double cardWidth) =>
+    cardWidth / (bannerViewportFraction * bannerAspectRatio);
+
 class BannerCard extends StatelessWidget {
   const BannerCard({required this.banner, super.key});
 
   final HomeBanner banner;
 
   @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => SizedBox(
+      height: bannerCardHeightForWidth(constraints.maxWidth),
+      child: _BannerShell(banner: banner),
+    ),
+  );
+}
+
+class _BannerShell extends StatelessWidget {
+  const _BannerShell({required this.banner});
+
+  final HomeBanner banner;
+
+  @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
-    final shell = context.colors.bannerShell(banner.cardTone);
     return Padding(
       padding: EdgeInsetsDirectional.only(
         start: context.layout.horizontalGutter,
         end: spacing.sm,
       ),
       child: ClipRRect(
-        borderRadius: context.radius.xlAll,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.radius.xl),
+        ),
         child: ColoredBox(
-          color: shell,
+          color: context.colors.bannerShell(banner.cardTone),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -74,8 +102,8 @@ class _BannerBody extends StatelessWidget {
             padding: EdgeInsetsDirectional.only(
               start: spacing.lg,
               end: spacing.lg,
-              top: spacing.lg,
-              bottom: spacing.sm,
+              top: spacing.sm,
+              // bottom: spacing.sm,
             ),
             child: _BannerCopy(banner: banner),
           ),
@@ -103,17 +131,19 @@ class _BannerCopy extends StatelessWidget {
       children: [
         if (hasTag) ...[
           _BannerTag(label: tag),
-          SizedBox(height: context.spacing.sm),
+          SizedBox(height: context.spacing.xs),
         ],
-        Text(
-          banner.title,
-          textAlign: TextAlign.center,
-          style: context.typography.title.copyWith(
-            color: context.colors.onPrimary,
-            fontWeight: FontWeight.w700,
+        Flexible(
+          child: Text(
+            banner.title,
+            textAlign: TextAlign.center,
+            style: context.typography.title.copyWith(
+              color: context.colors.onPrimary,
+              fontWeight: FontWeight.w700,
+            ),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
           ),
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
@@ -162,7 +192,7 @@ class _InsetPhoto extends StatelessWidget {
       padding: EdgeInsetsDirectional.only(
         start: spacing.lg,
         end: spacing.lg,
-        bottom: spacing.md,
+        // bottom: spacing.md,
       ),
       child: _InsetPhotoStack(banner: banner, glyphExtent: glyphExtent),
     );
@@ -185,7 +215,9 @@ class _InsetPhotoStack extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(top: topPad),
           child: ClipRRect(
-            borderRadius: context.radius.lgAll,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(context.radius.lg),
+            ),
             child: AppImage(
               image: ImageRef.fromSources(
                 asset: banner.imageAsset,

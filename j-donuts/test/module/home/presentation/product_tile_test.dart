@@ -121,7 +121,7 @@ void main() {
             children: [
               ProductTile(
                 product: short,
-                kind: HomeSectionKind.popular,
+                kind: HomeSectionKind.orderAgain,
                 width: tileWidth,
                 onTap: () {},
               ),

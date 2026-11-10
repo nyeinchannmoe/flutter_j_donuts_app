@@ -125,27 +125,47 @@ class MemberPointsPill extends StatelessWidget {
 }
 
 class MemberNotificationBell extends StatelessWidget {
-  const MemberNotificationBell({required this.count, super.key});
+  const MemberNotificationBell({
+    required this.count,
+    required this.onPressed,
+    super.key,
+  });
 
   final int count;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: context.l10n.notificationsCount(count),
+    excludeSemantics: true,
+    child: _BellChrome(count: count, onPressed: onPressed),
+  );
+}
+
+class _BellChrome extends StatelessWidget {
+  const _BellChrome({required this.count, required this.onPressed});
+
+  final int count;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
     final colors = context.colors;
     final endPadding = count > 0 ? spacing.xs : spacing.sm;
-    return Semantics(
-      label: context.l10n.notificationsCount(count),
-      excludeSemantics: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.highlight,
-          borderRadius: context.radius.pillAll,
-          border: Border.all(
-            color: colors.onPrimary,
-            width: spacing.xxs,
-          ),
-        ),
+    final shape = BorderRadiusDirectional.horizontal(
+      start: Radius.circular(context.radius.pill),
+    );
+    return Material(
+      color: colors.highlight,
+      shape: RoundedRectangleBorder(
+        borderRadius: shape.resolve(Directionality.of(context)),
+        side: BorderSide(color: colors.onPrimary, width: spacing.xxs),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onPressed,
         child: Padding(
           padding: EdgeInsetsDirectional.only(
             start: spacing.sm,
@@ -179,6 +199,7 @@ class _BellRow extends StatelessWidget {
         if (count > 0) ...[
           SizedBox(width: spacing.xs),
           _NotificationCountChip(count: count),
+          SizedBox(width: spacing.xs),
         ],
       ],
     );

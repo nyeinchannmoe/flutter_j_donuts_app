@@ -13,22 +13,28 @@ import 'package:jdonuts/module/home/presentation/screens/home/widgets/product_ra
 
 /// Home: member header, banners, three product rails and nearby shops.
 ///
-/// Each section listens to its own Bloc. Rails get theirs from
-/// [sectionBlocFactory] because the same Bloc type appears three times.
-/// Refresh failures are reported by the app-level sync listener.
+/// Each section listens to its own Bloc and shows its own feature-shaped
+/// shimmer while that Bloc is loading — there is no single full-screen
+/// skeleton. Rails get theirs from [sectionBlocFactory] because the same
+/// Bloc type appears three times. Refresh failures are reported by the
+/// app-level sync listener.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({
     required this.sectionBlocFactory,
     required this.onProductSelected,
+    required this.onSeeAllSection,
     required this.onExploreNow,
     required this.onOrderOnline,
+    required this.onNotificationsPressed,
     super.key,
   });
 
   final HomeSectionBloc Function(HomeSectionKind kind) sectionBlocFactory;
   final ValueChanged<String> onProductSelected;
+  final ValueChanged<HomeSectionKind> onSeeAllSection;
   final VoidCallback onExploreNow;
   final ValueChanged<String> onOrderOnline;
+  final VoidCallback onNotificationsPressed;
 
   Future<void> _refresh(BuildContext context) {
     final bloc = context.read<HomeRefreshBloc>()
@@ -39,13 +45,16 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sections = [
-      const _Gutter(child: MemberHeader()),
+      MemberHeader(onNotificationsPressed: onNotificationsPressed),
       const BannerCarousel(),
       for (final kind in HomeSectionKind.values)
         BlocProvider<HomeSectionBloc>(
           key: ValueKey(kind),
           create: (_) => sectionBlocFactory(kind),
-          child: ProductRail(onProductSelected: onProductSelected),
+          child: ProductRail(
+            onProductSelected: onProductSelected,
+            onSeeAll: () => onSeeAllSection(kind),
+          ),
         ),
       NearbyShops(onExploreNow: onExploreNow, onOrderOnline: onOrderOnline),
     ];
@@ -88,17 +97,4 @@ class _SectionList extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Rails and banners scroll edge to edge; other sections sit in the gutter.
-class _Gutter extends StatelessWidget {
-  const _Gutter({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: context.layout.horizontalGutter),
-    child: child,
-  );
 }

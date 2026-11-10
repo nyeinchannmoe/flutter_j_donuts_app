@@ -20,5 +20,9 @@ class RewardsSummaryBloc
   Future<void> _onWatch(
     RewardsSummaryEvent event,
     Emitter<ViewState<MemberProfile>> emit,
-  ) => emitViewStates(emit, _watchMemberProfile(), nullableViewState);
+  ) => emitViewStates(
+    emit,
+    _watchMemberProfile(),
+    nullableViewState<MemberProfile>,
+  );
 }

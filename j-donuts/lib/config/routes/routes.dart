@@ -36,5 +36,7 @@ GoRouter buildRouter({required SessionBloc sessionBloc}) => GoRouter(
       branches: shellBranches(),
     ),
     productRoute(),
+    sectionProductsRoute(),
+    notificationsRoute(),
   ],
 );

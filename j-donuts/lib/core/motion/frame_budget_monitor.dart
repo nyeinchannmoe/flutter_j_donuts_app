@@ -38,6 +38,9 @@ class FrameBudgetMonitor {
 
   void attach() {
     if (_attached) return;
+    // Debug frames are not a reliable jank signal; downgrading here would
+    // permanently disable ambient motion (including banner autoplay).
+    if (kDebugMode) return;
     _attached = true;
     SchedulerBinding.instance.addTimingsCallback(recordTimings);
   }

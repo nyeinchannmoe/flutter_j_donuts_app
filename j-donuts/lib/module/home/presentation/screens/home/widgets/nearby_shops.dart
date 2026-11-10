@@ -4,9 +4,9 @@ import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/primitives/pressable_scale.dart';
 import 'package:jdonuts/core/view_state/view_state.dart';
 import 'package:jdonuts/core/view_state/view_state_builder.dart';
-import 'package:jdonuts/core/widgets/skeleton/skeleton_block.dart';
 import 'package:jdonuts/module/home/domain/entities/shop.dart';
 import 'package:jdonuts/module/home/presentation/bloc/shops/shops_bloc.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/widgets/nearby_shops_skeleton.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/shop_card.dart';
 
 /// Explore Now landscape illustration behind the nearby shops band.
@@ -14,9 +14,6 @@ const String _shopsBackgroundAsset = 'assets/images/home/home_background.png';
 
 /// Card width as a fraction of screen width so the next card peeks.
 const double _shopCardWidthFraction = 0.72;
-
-/// Approximate band height while shops are loading.
-const double _skeletonHeightFactor = 0.55;
 
 class NearbyShops extends StatelessWidget {
   const NearbyShops({
@@ -33,10 +30,7 @@ class NearbyShops extends StatelessWidget {
       BlocBuilder<ShopsBloc, ViewState<List<Shop>>>(
         builder: (context, state) => ViewStateBuilder<List<Shop>>(
           state: state,
-          skeleton: SkeletonBlock(
-            height: context.layout.size.height * _skeletonHeightFactor,
-            borderRadius: BorderRadius.zero,
-          ),
+          skeleton: const NearbyShopsSkeleton(),
           emptyMessage: context.l10n.shopsEmpty,
           onRetry: () => context.read<ShopsBloc>().add(const ShopsRetried()),
           builder: (context, shops) => _ShopsContent(

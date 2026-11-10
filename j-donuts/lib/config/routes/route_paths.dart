@@ -13,9 +13,12 @@ abstract final class RoutePaths {
   static const String rewards = '/rewards';
   static const String orders = '/orders';
   static const String settings = '/settings';
+  static const String notifications = '/notifications';
   static const String product = '/product/:$productIdParam';
+  static const String section = '/section/:$sectionKindParam';
 
   static const String productIdParam = 'id';
+  static const String sectionKindParam = 'kind';
   static const String heroSourceQueryParam = 'hero';
   static const String phoneQueryParam = 'phone';
   static const String authPhoneName = 'authPhone';
@@ -31,6 +34,9 @@ abstract final class RoutePaths {
       queryParameters: {heroSourceQueryParam: heroSource},
     ).toString();
   }
+
+  static String sectionProducts(String kindName) =>
+      '/section/${Uri.encodeComponent(kindName)}';
 
   static String otpFor(String phoneE164) => Uri(
     path: authOtp,

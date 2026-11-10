@@ -6,7 +6,7 @@ alwaysApply: false
 # Routing
 
 ## Paths
-- Every path is a constant in lib/config/routes/route_paths.dart: /, /onboarding, /auth/phone, /auth/otp, /auth/name, /auth/dob, /welcome, /home, /explore, /rewards, /orders, /settings and /product/:id. Use the helper methods to build paths with parameters.
+- Every path is a constant in lib/config/routes/route_paths.dart: /, /onboarding, /auth/phone, /auth/otp, /auth/name, /auth/dob, /welcome, /home, /explore, /rewards, /orders, /settings, /notifications, /product/:id and /section/:kind. Use the helper methods to build paths with parameters.
 - Never write a path string literal outside route_paths.dart.
 
 ## Guard
@@ -21,6 +21,8 @@ alwaysApply: false
 ## Structure
 - The five-tab shell is a StatefulShellRoute.indexedStack. Inactive branches are wrapped in TickerMode so their animations stop.
 - /product/:id is a top-level route above the shell. An unknown id renders the not-found state inside the route.
+- /section/:kind is a top-level route above the shell for a home section's full product list. An unknown kind renders the empty state inside the route.
+- /notifications is a top-level route above the shell opened from the Home member header bell.
 - Registration name and date of birth share one RegistrationBloc provided by a ShellRoute so entered data survives back navigation.
 - Route builders resolve Blocs from get_it and provide them with BlocProvider. Screens never resolve dependencies themselves.
 

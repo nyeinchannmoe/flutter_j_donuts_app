@@ -29,8 +29,9 @@ class _MotionScopeState extends State<MotionScope> {
   void initState() {
     super.initState();
     _lifecycle = AppLifecycleListener(
-      onShow: () => widget.policy.updateAppActive(isActive: true),
-      onHide: () => widget.policy.updateAppActive(isActive: false),
+      onStateChange: (state) => widget.policy.updateAppActive(
+        isActive: state == AppLifecycleState.resumed,
+      ),
     );
   }
 

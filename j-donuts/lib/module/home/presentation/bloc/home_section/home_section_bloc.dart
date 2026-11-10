@@ -27,7 +27,7 @@ class HomeSectionBloc extends Bloc<HomeSectionEvent, ViewState<HomeSection>> {
 
   /// A section without items is shown as empty.
   static ViewState<HomeSection> _toViewState(Result<HomeSection?> result) =>
-      nullableViewState(
+      nullableViewState<HomeSection>(
         result.map(
           (section) => section?.items.isEmpty ?? true ? null : section,
         ),

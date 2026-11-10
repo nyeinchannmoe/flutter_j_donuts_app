@@ -67,6 +67,7 @@
   "pointsToNextTier": "{tier} အဖွဲ့ဝင်ဖြစ်ရန် {points} မှတ် လိုပါသေးသည်",
   "topTierReached": "အမြင့်ဆုံးအဆင့်သို့ ရောက်ရှိပြီးပါပြီ",
   "notificationsCount": "{count, plural, =0{အသိပေးချက် မရှိပါ} other{အသိပေးချက် {count} ခု}}",
+  "notificationsTitle": "အသိပေးချက်များ",
   "sectionSeeAll": "အားလုံးကြည့်မည်",
   "sectionEmpty": "ဤကဏ္ဍတွင် ပစ္စည်း မရှိသေးပါ။",
   "bannersEmpty": "လက်ရှိတွင် ပရိုမိုးရှင်း မရှိပါ။",
