@@ -109,6 +109,21 @@ void main() {
     });
   });
 
+  group('formatFullName', () {
+    test('returns first name alone when last is missing or blank', () {
+      expect(AuthValidators.formatFullName('Su', null), 'Su');
+      expect(AuthValidators.formatFullName('Su', ''), 'Su');
+      expect(AuthValidators.formatFullName('Su', '   '), 'Su');
+    });
+
+    test('joins first and last with a single space', () {
+      expect(
+        AuthValidators.formatFullName('Ye Min', 'Phyoe Win'),
+        'Ye Min Phyoe Win',
+      );
+    });
+  });
+
   group('validateFirstName', () {
     test('requires a non-blank value', () {
       expect(

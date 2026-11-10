@@ -57,8 +57,10 @@ decision by adding a new entry that supersedes the old one.
   the user then changes locally. A remote refresh must not reset them.
 - Decision: `MemberCatalogImporter` sets `acceptsRemoteUpdates` to false and
   upserts on reseed. Challenge `claimed` flags are excluded from upserts too.
+  Display name is not a catalog demo value; registration writes
+  `firstName` + optional `lastName` onto `member_profile.name`.
 - Consequences: only a seed version bump rewrites the member, and challenge
-  progress always survives.
+  progress always survives. Seeded name is empty until registration.
 
 ## ADR-007 Shared member and locale code lives in core
 

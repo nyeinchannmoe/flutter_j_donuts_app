@@ -3,8 +3,9 @@ import 'package:jdonuts/core/database/seed/catalog_importer.dart';
 import 'package:jdonuts/core/member/data/mappers/member_mapper.dart';
 import 'package:jdonuts/core/member/data/models/member_dto.dart';
 
-/// Seeds the member record. Remote refreshes never overwrite it because
-/// the member's points and counters are owned by the device session.
+/// Seeds the member record (points, photo, tier). Display name starts empty
+/// and is written by registration. Remote refreshes never overwrite it
+/// because the member's points and counters are owned by the device session.
 class MemberCatalogImporter implements CatalogImporter {
   const MemberCatalogImporter(this._dao);
 

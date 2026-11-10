@@ -52,4 +52,10 @@ class MemberDao extends DatabaseAccessor<AppDatabase> with _$MemberDaoMixin {
 
   Future<void> upsertMember(MemberProfilesCompanion row) =>
       into(memberProfiles).insertOnConflictUpdate(row);
+
+  /// Updates the display name on the singleton member row.
+  Future<void> updateName(String name) =>
+      (update(memberProfiles)
+            ..where((row) => row.id.equals(MemberProfiles.singletonId)))
+          .write(MemberProfilesCompanion(name: Value(name)));
 }

@@ -30,6 +30,7 @@ void _registerData(GetIt locator) {
     ..registerLazySingleton<AuthRepository>(
       () => FakeAuthRepository(
         usersDao: locator<AppDatabase>().localUsersDao,
+        memberDao: locator<AppDatabase>().memberDao,
         sessionStore: locator(),
         otpGateway: locator(),
         logger: locator(),

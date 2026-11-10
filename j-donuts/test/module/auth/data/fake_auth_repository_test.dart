@@ -11,17 +11,21 @@ import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/session.dart';
 
 import '../../../helpers/fake_clock.dart';
+import '../../../helpers/seed_harness.dart';
 import '../../../helpers/test_database.dart';
 import '../../../helpers/test_doubles.dart';
 
 const String _phone = '+959123456789';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late AppDatabase database;
   late InMemoryKeyValueStore storage;
 
   FakeAuthRepository buildRepository() => FakeAuthRepository(
     usersDao: database.localUsersDao,
+    memberDao: database.memberDao,
     sessionStore: SessionStore(store: storage, logger: silentLogger()),
     otpGateway: const FakeOtpGateway(latency: noLatency),
     logger: silentLogger(),
@@ -38,9 +42,10 @@ void main() {
     );
   }
 
-  setUp(() {
+  setUp(() async {
     database = openTestDatabase();
     storage = InMemoryKeyValueStore();
+    await seedServiceFor(database).ensureSeeded();
   });
   tearDown(() => database.close());
 
@@ -112,6 +117,31 @@ void main() {
       final session = await repository.watchSession().first;
       expect(session, isA<SessionAuthenticated>());
       expect((session as SessionAuthenticated).isNewlyRegistered, isTrue);
+    });
+
+    test('saveRegistrationName writes full name to member_profile', () async {
+      final repository = buildRepository();
+      await repository.verifyOtp(
+        phoneE164: _phone,
+        code: FakeOtpGateway.demoCode,
+      );
+
+      final result = await repository.saveRegistrationName(
+        firstName: 'Ye Min',
+        lastName: 'Phyoe Win',
+      );
+
+      expect(result, const Ok(Unit.value));
+      final member = await database.select(database.memberProfiles).getSingle();
+      expect(member.name, 'Ye Min Phyoe Win');
+    });
+
+    test('registration writes first name alone when last is omitted', () async {
+      final repository = buildRepository();
+      await registerNewMember(repository);
+
+      final member = await database.select(database.memberProfiles).getSingle();
+      expect(member.name, 'Su');
     });
 
     test('register without a verified phone fails', () async {

@@ -88,6 +88,13 @@ abstract final class AuthValidators {
   static String normalizePersonName(String input) =>
       input.trim().replaceAll(_repeatedWhitespace, ' ');
 
+  /// Display name stored on the member profile: first, or first plus last.
+  static String formatFullName(String firstName, String? lastName) {
+    final last = lastName == null ? '' : normalizePersonName(lastName);
+    if (last.isEmpty) return firstName;
+    return '$firstName $last';
+  }
+
   /// Required given name: 1 to [personNameMaxLength] letters and spaces.
   static Result<String> validateFirstName(String input) {
     final value = normalizePersonName(input);

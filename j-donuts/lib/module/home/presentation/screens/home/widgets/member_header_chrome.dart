@@ -64,7 +64,7 @@ class MemberIdentity extends StatelessWidget {
     children: [
       Text(
         member.name,
-        style: context.typography.display,
+        style: context.typography.headline,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),

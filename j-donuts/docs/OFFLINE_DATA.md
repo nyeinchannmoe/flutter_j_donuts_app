@@ -28,7 +28,8 @@ Each feature owns the importers for its tables
 - `stage`: `reference` rows (tiers, challenges, products, banners, shops) are
   written before `dependent` rows (home sections, member).
 - `acceptsRemoteUpdates`: false for user-owned data such as the member
-  record, which is seeded once and then owned by the device.
+  record, which is seeded once and then owned by the device. Member display
+  name is seeded empty and filled by registration into `member_profile`.
 
 `CatalogImportRunner` sorts importers by stage and skips sections that are
 missing from a payload. The bundled seed and remote refreshes share the same

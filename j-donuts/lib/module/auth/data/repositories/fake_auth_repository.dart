@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:jdonuts/core/database/daos/local_users_dao.dart';
+import 'package:jdonuts/core/database/daos/member_dao.dart';
 import 'package:jdonuts/core/error/app_exception.dart';
 import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/error/guard.dart';
@@ -17,12 +18,14 @@ import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/session.dart';
 import 'package:jdonuts/module/auth/domain/entities/user_profile.dart';
 import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
+import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
 
 /// Local-only auth: users live in the local_users table, the OTP is the
 /// demo code and the session is kept in secure storage.
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({
     required this._usersDao,
+    required this._memberDao,
     required this._sessionStore,
     required this._otpGateway,
     required this._logger,
@@ -33,6 +36,7 @@ class FakeAuthRepository implements AuthRepository {
   static const String _userIdPrefix = 'u_';
 
   final LocalUsersDao _usersDao;
+  final MemberDao _memberDao;
   final SessionStore _sessionStore;
   final FakeOtpGateway _otpGateway;
   final AppLogger _logger;
@@ -63,6 +67,7 @@ class FakeAuthRepository implements AuthRepository {
       await _sessionStore.clear();
       return const Session.unauthenticated();
     }
+    await _writeMemberDisplayName(user.firstName, user.lastName);
     return Session.authenticated(userId: user.id, phoneE164: user.phoneE164);
   }
 
@@ -109,6 +114,7 @@ class FakeAuthRepository implements AuthRepository {
       _publish(Session.registering(phoneE164: phoneE164));
       return const OtpVerification(isRegistered: false);
     }
+    await _writeMemberDisplayName(user.firstName, user.lastName);
     await _startSession(user.id, phoneE164, isNewlyRegistered: false);
     return const OtpVerification(isRegistered: true);
   }
@@ -119,6 +125,7 @@ class FakeAuthRepository implements AuthRepository {
     String? lastName,
   }) => _guard(() async {
     await _otpGateway.simulateNetwork();
+    await _writeMemberDisplayName(firstName, lastName);
     return Unit.value;
   });
 
@@ -141,9 +148,17 @@ class FakeAuthRepository implements AuthRepository {
     await _usersDao.insertUser(
       details.toCompanion(id: id, phoneE164: phoneE164, createdAt: now),
     );
+    await _writeMemberDisplayName(details.firstName, details.lastName);
     await _startSession(id, phoneE164, isNewlyRegistered: true);
     return (await _usersDao.findById(id))!.toEntity();
   }
+
+  Future<void> _writeMemberDisplayName(
+    String firstName,
+    String? lastName,
+  ) => _memberDao.updateName(
+    AuthValidators.formatFullName(firstName, lastName),
+  );
 
   @override
   Future<Result<Unit>> signOut() => _guard(() async {
