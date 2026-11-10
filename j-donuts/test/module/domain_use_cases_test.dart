@@ -13,6 +13,8 @@ import 'package:jdonuts/module/product/domain/repositories/cart_repository.dart'
 import 'package:jdonuts/module/product/domain/usecases/add_to_cart.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../helpers/fake_clock.dart';
+
 class _MockCartRepository extends Mock implements CartRepository {}
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
@@ -77,7 +79,7 @@ void main() {
     test('RegisterUser rejects a member younger than 13', () async {
       final register = RegisterUser(
         repository,
-        today: () => DateTime(2026, 11, 9),
+        clock: FakeClock(DateTime(2026, 11, 9)),
       );
 
       final result = await register(
@@ -103,7 +105,10 @@ void main() {
         () => repository.register(details),
       ).thenAnswer((_) async => Ok(profile));
 
-      final result = await RegisterUser(repository)(details);
+      final result = await RegisterUser(
+        repository,
+        clock: FakeClock(DateTime(2026, 11, 9)),
+      )(details);
 
       expect(result, Ok(profile));
     });

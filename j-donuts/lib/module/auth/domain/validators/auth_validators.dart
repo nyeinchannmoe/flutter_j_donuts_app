@@ -122,8 +122,15 @@ abstract final class AuthValidators {
   static bool isNameValid(String firstName) =>
       validateFirstName(firstName) is Ok;
 
+  /// Youngest age allowed to register.
   static const int minimumAge = 13;
+
+  /// Oldest birth year accepted by the date-of-birth step.
   static const int earliestBirthYear = 1900;
+
+  static const String dobNotRealCode = 'auth.dob.notReal';
+  static const String dobFutureCode = 'auth.dob.future';
+  static const String dobTooYoungCode = 'auth.dob.tooYoung';
 
   static DateTime earliestDateOfBirth() => DateTime(earliestBirthYear);
 

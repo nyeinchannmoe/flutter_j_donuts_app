@@ -11,7 +11,13 @@ abstract class RegistrationState with _$RegistrationState {
     @Default(false) bool lastNameTouched,
     @Default(false) bool nameSubmitting,
     @Default(0) int nameAdvanceToken,
-    DateTime? dateOfBirth,
+    int? month,
+    @Default('') String dayText,
+    @Default('') String yearText,
+    @Default(false) bool monthTouched,
+    @Default(false) bool dayTouched,
+    @Default(false) bool yearTouched,
+    @Default(0) int dayFocusToken,
     @Default(RegistrationStatus.editing) RegistrationStatus status,
     AppFailure? failure,
   }) = _RegistrationState;
@@ -38,9 +44,40 @@ abstract class RegistrationState with _$RegistrationState {
 
   bool get hasName => isFirstNameValid;
 
-  bool get canSubmit =>
-      hasName &&
-      isLastNameValid &&
-      dateOfBirth != null &&
-      status != RegistrationStatus.submitting;
+  DateOfBirthResult dateOfBirthResult(DateTime today) =>
+      DateOfBirthValidator.validateParts(
+        month: month,
+        dayText: dayText,
+        yearText: yearText,
+        today: today,
+      );
+
+  bool get dobPartsFilled =>
+      month != null && dayText.isNotEmpty && yearText.isNotEmpty;
+
+  bool get shouldRevealDobError =>
+      dobPartsFilled || monthTouched || dayTouched || yearTouched;
+
+  String? dobErrorCode(DateTime today) {
+    if (!shouldRevealDobError) return null;
+    return switch (dateOfBirthResult(today)) {
+      DateOfBirthValid() || DateOfBirthIncomplete() => null,
+      DateOfBirthNotReal() => AuthValidators.dobNotRealCode,
+      DateOfBirthFuture() => AuthValidators.dobFutureCode,
+      DateOfBirthTooYoung() => AuthValidators.dobTooYoungCode,
+    };
+  }
+
+  bool canSubmit(DateTime today) {
+    final result = dateOfBirthResult(today);
+    return hasName &&
+        isLastNameValid &&
+        result is DateOfBirthValid &&
+        status != RegistrationStatus.submitting;
+  }
+
+  DateTime? resolvedDateOfBirth(DateTime today) {
+    final result = dateOfBirthResult(today);
+    return result is DateOfBirthValid ? result.date : null;
+  }
 }

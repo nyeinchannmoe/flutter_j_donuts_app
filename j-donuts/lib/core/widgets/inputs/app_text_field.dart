@@ -21,6 +21,9 @@ class AppTextField extends StatelessWidget {
     this.autofocus = false,
     this.focusNode,
     this.readOnly = false,
+    this.showCursor,
+    this.enableInteractiveSelection,
+    this.onTap,
     this.decoration,
     this.style,
     super.key,
@@ -41,6 +44,9 @@ class AppTextField extends StatelessWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final bool readOnly;
+  final bool? showCursor;
+  final bool? enableInteractiveSelection;
+  final VoidCallback? onTap;
   final InputDecoration? decoration;
   final TextStyle? style;
 
@@ -49,6 +55,8 @@ class AppTextField extends StatelessWidget {
     controller: controller,
     focusNode: focusNode,
     readOnly: readOnly,
+    showCursor: showCursor,
+    enableInteractiveSelection: enableInteractiveSelection,
     autofocus: autofocus,
     keyboardType: keyboardType,
     textCapitalization: textCapitalization,
@@ -58,6 +66,7 @@ class AppTextField extends StatelessWidget {
     textInputAction: textInputAction,
     onChanged: onChanged,
     onSubmitted: onSubmitted,
+    onTap: onTap,
     style: _withBaseline(style ?? context.typography.subtitle),
     decoration: decoration ?? _decoration(context),
   );

@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
 import 'package:jdonuts/core/theme/app_theme.dart';
+import 'package:jdonuts/core/theme/gradient_sampling.dart';
 import 'package:jdonuts/core/widgets/legal_footer.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_actions.dart';
@@ -125,10 +126,10 @@ class _OnboardingLayout extends StatelessWidget {
           right: 0,
           height: height,
           child: OnboardingHero(
-            backgroundAtEdge: ColorTween(
-              begin: context.colors.authGradient.colors.first,
-              end: context.colors.authGradient.colors.last,
-            ).lerp(height / viewport)!,
+            backgroundAtEdge: sampleLinearGradient(
+              context.colors.authGradient,
+              height / viewport,
+            ),
           ),
         ),
         Positioned.fill(

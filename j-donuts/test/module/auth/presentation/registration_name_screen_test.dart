@@ -13,6 +13,7 @@ import 'package:jdonuts/module/auth/presentation/screens/registration_name/regis
 import 'package:mocktail/mocktail.dart';
 
 import '../../../helpers/device_matrix.dart';
+import '../../../helpers/fake_clock.dart';
 import '../../../helpers/pump_app.dart';
 
 class _MockSaveRegistrationName extends Mock implements SaveRegistrationName {}
@@ -42,6 +43,7 @@ void main() {
     final bloc = RegistrationBloc(
       saveRegistrationName: saveName,
       registerUser: registerUser,
+      clock: FakeClock(DateTime(2026, 11, 10)),
     );
     await tester.pumpApp(
       RegistrationNameScreen(onContinue: onContinue ?? () {}),

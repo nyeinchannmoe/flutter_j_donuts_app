@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -10,13 +8,14 @@ import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/welcome/welcome_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_entry.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
-import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
 import 'package:jdonuts/module/auth/presentation/screens/otp_verification/otp_verification_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/phone_entry/phone_entry_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_date_of_birth/registration_date_of_birth_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_name/registration_name_screen.dart';
+import 'package:jdonuts/module/auth/presentation/screens/welcome/welcome_entry.dart';
 import 'package:jdonuts/module/auth/presentation/screens/welcome/welcome_screen.dart';
 
 /// Onboarding, phone, code, registration and welcome routes.
@@ -34,7 +33,7 @@ GoRoute _onboardingRoute() => GoRoute(
     context,
     state,
     BlocProvider(
-      create: _createOnboardingBloc,
+      create: (_) => getIt<OnboardingBloc>(),
       child: OnboardingEntry(
         child: OnboardingScreen(
           onGetStarted: () => context.pushNamed<void>(RoutePaths.authPhoneName),
@@ -47,23 +46,6 @@ GoRoute _onboardingRoute() => GoRoute(
     ),
   ),
 );
-
-OnboardingBloc _createOnboardingBloc(BuildContext context) {
-  final bloc = getIt<OnboardingBloc>();
-  final image = OnboardingHero.imageFor(context);
-  unawaited(
-    precacheImage(
-      image,
-      context,
-      onError: (_, _) {
-        // The hero paints its bundled-image fallback if decoding fails.
-      },
-    ).whenComplete(() {
-      if (!bloc.isClosed) bloc.add(const OnboardingPrepared());
-    }),
-  );
-  return bloc;
-}
 
 GoRoute _phoneRoute() => GoRoute(
   path: RoutePaths.authPhone,
@@ -126,7 +108,14 @@ GoRoute _welcomeRoute() => GoRoute(
   pageBuilder: (context, state) => RouteTransitions.fadeThrough(
     context,
     state,
-    WelcomeScreen(onExplore: () => context.go(RoutePaths.home)),
+    BlocProvider(
+      create: (_) => getIt<WelcomeBloc>(),
+      child: WelcomeEntry(
+        child: WelcomeScreen(
+          onExplore: () async => context.go(RoutePaths.home),
+        ),
+      ),
+    ),
   ),
 );
 
@@ -153,7 +142,10 @@ ShellRoute _registrationRoute() => ShellRoute(
       pageBuilder: (context, state) => RouteTransitions.sharedAxis(
         context,
         state,
-        const RegistrationDateOfBirthScreen(),
+        RegistrationDateOfBirthScreen(
+          onRegistered: () => context.go(RoutePaths.welcome),
+          clock: getIt(),
+        ),
       ),
     ),
   ],

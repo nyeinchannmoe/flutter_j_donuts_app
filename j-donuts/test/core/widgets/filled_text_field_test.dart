@@ -47,4 +47,39 @@ void main() {
     expect(border(), colors.danger);
     expect(find.text('Required'), findsOneWidget);
   });
+
+  testWidgets('supports a read-only choice field without a cursor', (
+    tester,
+  ) async {
+    var tapped = false;
+    await tester.pumpApp(
+      Scaffold(
+        body: FilledTextField(
+          label: 'Month',
+          readOnly: true,
+          showCursor: false,
+          enableInteractiveSelection: false,
+          hasError: true,
+          onTap: () => tapped = true,
+        ),
+      ),
+      tier: MotionTier.minimal,
+    );
+    await tester.pump();
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.showCursor, isFalse);
+    expect(field.readOnly, isTrue);
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    expect(tapped, isTrue);
+    final frame = tester.widget<AnimatedContainer>(
+      find.descendant(
+        of: find.byType(FilledTextField),
+        matching: find.byType(AnimatedContainer),
+      ),
+    );
+    final decoration = frame.decoration! as BoxDecoration;
+    final colors = tester.element(find.byType(FilledTextField)).colors;
+    expect((decoration.border! as Border).top.color, colors.danger);
+  });
 }

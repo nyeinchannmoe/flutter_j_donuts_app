@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/motion_tokens.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
+import 'package:jdonuts/core/widgets/hero_edge_fade.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_disc_entrance_painter.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero_painter.dart';
 
@@ -31,7 +32,6 @@ class OnboardingHero extends StatefulWidget {
 class _OnboardingHeroState extends State<OnboardingHero>
     with SingleTickerProviderStateMixin {
   static const _discSlots = 3;
-  static const _fadeStart = 0.75;
 
   ImageStream? _stream;
   ImageInfo? _image;
@@ -89,7 +89,7 @@ class _OnboardingHeroState extends State<OnboardingHero>
           fit: StackFit.expand,
           children: [
             _artwork(context),
-            DecoratedBox(decoration: BoxDecoration(gradient: _fade())),
+            HeroEdgeFade(color: widget.backgroundAtEdge),
           ],
         ),
       ),
@@ -122,13 +122,4 @@ class _OnboardingHeroState extends State<OnboardingHero>
     );
   }
 
-  LinearGradient _fade() => LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      widget.backgroundAtEdge.withValues(alpha: 0),
-      widget.backgroundAtEdge,
-    ],
-    stops: const [_fadeStart, 1],
-  );
 }

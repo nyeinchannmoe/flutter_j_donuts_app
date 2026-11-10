@@ -14,7 +14,10 @@ class FilledTextField extends StatefulWidget {
     this.controller,
     this.focusNode,
     this.errorText,
+    this.hasError = false,
     this.readOnly = false,
+    this.showCursor,
+    this.enableInteractiveSelection,
     this.autofocus = false,
     this.keyboardType,
     this.textInputAction,
@@ -24,6 +27,7 @@ class FilledTextField extends StatefulWidget {
     this.autocorrect = true,
     this.onChanged,
     this.onSubmitted,
+    this.onTap,
     this.onFocusChanged,
     super.key,
   });
@@ -33,7 +37,12 @@ class FilledTextField extends StatefulWidget {
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final String? errorText;
+
+  /// Draws the error border without an inline message under this field.
+  final bool hasError;
   final bool readOnly;
+  final bool? showCursor;
+  final bool? enableInteractiveSelection;
   final bool autofocus;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
@@ -43,6 +52,7 @@ class FilledTextField extends StatefulWidget {
   final bool autocorrect;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+  final VoidCallback? onTap;
   final ValueChanged<bool>? onFocusChanged;
 
   @override
@@ -89,11 +99,12 @@ class _FilledTextFieldState extends State<FilledTextField> {
   @override
   Widget build(BuildContext context) {
     final error = widget.errorText;
+    final invalid = widget.hasError || error != null;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final duration = reduceMotion
         ? Duration.zero
         : context.motion.scaleDuration(MotionTokens.fast);
-    final message = error == null
+    final message = error == null || error.isEmpty
         ? const SizedBox.shrink()
         : _error(context, error);
     return Column(
@@ -102,7 +113,7 @@ class _FilledTextFieldState extends State<FilledTextField> {
         ListenableBuilder(
           listenable: _focus,
           builder: (context, _) =>
-              _frame(context, duration, error != null, widget.readOnly),
+              _frame(context, duration, invalid, widget.readOnly),
         ),
         if (reduceMotion)
           message
@@ -179,11 +190,14 @@ class _FilledTextFieldState extends State<FilledTextField> {
 
   Widget _input(BuildContext context, bool busy) => Semantics(
     label: widget.label,
+    button: widget.onTap != null,
     child: AppTextField(
       label: widget.label,
       controller: widget.controller,
       focusNode: _focus,
-      readOnly: busy,
+      readOnly: busy || widget.readOnly,
+      showCursor: widget.showCursor,
+      enableInteractiveSelection: widget.enableInteractiveSelection,
       autofocus: widget.autofocus,
       style: _style(context, context.colors.textPrimary),
       decoration: _inputDecoration(context),
@@ -195,6 +209,7 @@ class _FilledTextFieldState extends State<FilledTextField> {
       inputFormatters: widget.inputFormatters,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
+      onTap: widget.onTap,
     ),
   );
 

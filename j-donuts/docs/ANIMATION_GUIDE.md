@@ -16,8 +16,8 @@ scales and distances. The quality gate rejects `Curves.` outside
 | Durations | `micro` 90 ms, `fast` 160 ms, `standard` 260 ms, `emphasized` 420 ms, `entrance` 560 ms, `countUp` 1400 ms, `ambient` 1800 ms, `shimmer` 1300 ms |
 | Carousel | `carouselInterval` 4 s, `carouselResumeDelay` 6 s |
 | Curves | `standardCurve`, `decelerate`, `accelerate`, `emphasizedCurve`, `popOvershoot`, `shake`, `spring` |
-| Stagger | `staggerStep` 70 ms, `staggerItemSpan` 0.55, 8 items at full tier, 3 at reduced |
-| Shape | `travelMedium` 24, `pressedScale` 0.96, `popStartScale` 0.6, `pulseScale` 1.06, `fadeThroughStartScale` 0.94, `shakeAmplitude` 10, `maxTilt` 0.18 rad |
+| Stagger | `staggerStep` 90 ms, `staggerItemSpan` 0.55, 8 items at full tier, 3 at reduced |
+| Shape | `travelMedium` 32, `pressedScale` 0.96, `popStartScale` 0.6, `pulseScale` 1.06, `fadeThroughStartScale` 0.94, `shakeAmplitude` 10, `maxTilt` 0.18 rad |
 
 Distances and amplitudes are multiplied by `LayoutMetrics.motionScale`, so
 motion stays proportional on small phones and tablets.
@@ -43,7 +43,7 @@ motion stays proportional on small phones and tablets.
 
 | Primitive | Use |
 | --- | --- |
-| `StaggeredEntrance` with `StaggerSchedule` | List and grid entrances from one controller |
+| `StaggeredEntrance` with `StaggerSchedule` | List and grid entrances from one controller; Welcome clips four hero tiles from one texture |
 | `FadeSlideIn` | One-shot fade plus slide |
 | `PopIn` | Overshoot scale entrance |
 | `PressableScale` (`lib/core/widgets/buttons`) | Press feedback |

@@ -8,7 +8,11 @@ import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/otp_verification/otp_verification_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/phone_entry/phone_entry_screen.dart';
+import 'package:jdonuts/module/auth/presentation/screens/registration_date_of_birth/registration_date_of_birth_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/registration_name/registration_name_screen.dart';
+import 'package:jdonuts/module/auth/presentation/screens/welcome/welcome_screen.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/home_screen.dart';
+import 'package:jdonuts/module/product/presentation/screens/product_detail/product_detail_screen.dart';
 
 const Duration _step = Duration(milliseconds: 100);
 const Duration _timeout = Duration(seconds: 20);
@@ -16,6 +20,8 @@ const Duration _timeout = Duration(seconds: 20);
 Finder _button(String label) => find.byWidgetPredicate(
   (widget) => widget is AppButton && widget.label == label,
 );
+
+Finder _filled(String label) => find.widgetWithText(FilledButton, label);
 
 extension on WidgetTester {
   /// Pumps frames until [finder] matches. Home runs ambient animation, so
@@ -36,29 +42,54 @@ void main() {
 
   final l10n = lookupAppLocalizations(const Locale('en'));
 
-  testWidgets('a fresh install signs up through the auth flow', (
-    tester,
-  ) async {
-    final testErrorHandler = FlutterError.onError;
-    await bootstrap();
-    FlutterError.onError = testErrorHandler;
+  testWidgets(
+    'a fresh install signs up through register, welcome, home and product',
+    (tester) async {
+      final testErrorHandler = FlutterError.onError;
+      await bootstrap();
+      FlutterError.onError = testErrorHandler;
 
-    await tester.pumpUntilFound(find.byType(OnboardingScreen));
-    await tester.tap(find.text(l10n.onboardingGetStarted));
+      await tester.pumpUntilFound(find.byType(OnboardingScreen));
+      await tester.tap(find.text(l10n.onboardingGetStarted));
 
-    await tester.pumpUntilFound(find.byType(PhoneEntryScreen));
-    await tester.enterText(find.byType(TextField), '9123456789');
-    await tester.pump();
-    await tester.tap(_button(l10n.actionContinue));
+      await tester.pumpUntilFound(find.byType(PhoneEntryScreen));
+      await tester.enterText(find.byType(TextField), '9123456789');
+      await tester.pump();
+      await tester.tap(_button(l10n.actionContinue));
 
-    final otp = find.byType(OtpVerificationScreen);
-    await tester.pumpUntilFound(otp);
-    await tester.enterText(
-      find.descendant(of: otp, matching: find.byType(TextField)),
-      FakeOtpGateway.demoCode,
-    );
-    await tester.pump();
+      final otp = find.byType(OtpVerificationScreen);
+      await tester.pumpUntilFound(otp);
+      await tester.enterText(
+        find.descendant(of: otp, matching: find.byType(TextField)),
+        FakeOtpGateway.demoCode,
+      );
+      await tester.pump();
 
-    await tester.pumpUntilFound(find.byType(RegistrationNameScreen));
-  });
+      await tester.pumpUntilFound(find.byType(RegistrationNameScreen));
+      final nameFields = find.byType(TextField);
+      await tester.enterText(nameFields.at(0), 'Ye Min');
+      await tester.enterText(nameFields.at(1), 'Phyoe Win');
+      await tester.pump();
+      await tester.tap(_button(l10n.actionContinue));
+
+      await tester.pumpUntilFound(find.byType(RegistrationDateOfBirthScreen));
+      await tester.tap(find.byType(TextField).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('May'));
+      await tester.pumpAndSettle();
+      final dobFields = find.byType(TextField);
+      await tester.enterText(dobFields.at(1), '1');
+      await tester.enterText(dobFields.at(2), '2000');
+      await tester.pump();
+      await tester.tap(_button(l10n.actionContinue));
+
+      await tester.pumpUntilFound(find.byType(WelcomeScreen));
+      await tester.tap(_filled(l10n.welcomeExplore));
+
+      await tester.pumpUntilFound(find.byType(HomeScreen));
+      await tester.pumpUntilFound(find.text('Coconut Donut'));
+      await tester.tap(find.text('Coconut Donut'));
+      await tester.pumpUntilFound(find.byType(ProductDetailScreen));
+    },
+  );
 }

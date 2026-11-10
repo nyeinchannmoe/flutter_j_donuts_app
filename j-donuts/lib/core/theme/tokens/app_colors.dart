@@ -52,7 +52,11 @@ class AppColors extends ThemeExtension<AppColors> {
     authGradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [AppPalette.blushTop, AppPalette.blushBottom],
+      colors: [
+        AppPalette.blushTop,
+        AppPalette.blushMid,
+        AppPalette.blushBottom,
+      ],
     ),
     tierColors: [
       AppPalette.orange,

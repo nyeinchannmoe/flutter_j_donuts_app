@@ -14,6 +14,7 @@ import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/welcome/welcome_bloc.dart';
 
 void registerAuthModule(GetIt locator) {
   _registerData(locator);
@@ -42,13 +43,14 @@ void _registerUseCases(GetIt locator) {
     ..registerFactory(() => RequestOtp(locator()))
     ..registerFactory(() => VerifyOtp(locator()))
     ..registerFactory(() => SaveRegistrationName(locator()))
-    ..registerFactory(() => RegisterUser(locator()))
+    ..registerFactory(() => RegisterUser(locator(), clock: locator()))
     ..registerFactory(() => SignOut(locator()));
 }
 
 void _registerBlocs(GetIt locator) {
   locator
     ..registerFactory(OnboardingBloc.new)
+    ..registerFactory(WelcomeBloc.new)
     ..registerFactory(() => PhoneEntryBloc(requestOtp: locator()))
     ..registerFactory(
       () => OtpVerificationBloc(
@@ -62,6 +64,7 @@ void _registerBlocs(GetIt locator) {
       () => RegistrationBloc(
         saveRegistrationName: locator(),
         registerUser: locator(),
+        clock: locator(),
       ),
     );
 }

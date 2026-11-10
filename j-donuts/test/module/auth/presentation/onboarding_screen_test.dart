@@ -237,8 +237,9 @@ void _expectPalette(AppColors colors) {
   expect(colors.textSecondary, const Color(0xFF2B2730));
   expect(colors.textDisabled, const Color(0xFF9C99A3));
   expect(colors.authGradient.colors, const [
+    Color(0xFFFFF8F5),
     Color(0xFFFCE4EE),
-    Color(0xFFFDEEF4),
+    Color(0xFFFCE8F0),
   ]);
 }
 

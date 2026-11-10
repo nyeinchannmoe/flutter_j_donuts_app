@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/result/result.dart';
 import 'package:jdonuts/module/auth/domain/entities/otp_verification.dart';
+import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
+import 'package:jdonuts/module/auth/domain/entities/user_profile.dart';
 import 'package:jdonuts/module/auth/domain/usecases/register_user.dart';
 import 'package:jdonuts/module/auth/domain/usecases/request_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/save_registration_name.dart';
@@ -326,6 +328,7 @@ void main() {
     RegistrationBloc build() => RegistrationBloc(
       saveRegistrationName: saveName,
       registerUser: registerUser,
+      clock: FakeClock(DateTime(2026, 11, 10)),
     );
 
     blocTest<RegistrationBloc, RegistrationState>(
@@ -417,6 +420,172 @@ void main() {
         expect(bloc.state.lastName, 'Phyoe Win');
         expect(bloc.state.nameAdvanceToken, 1);
         expect(bloc.state.canContinueName, isTrue);
+      },
+    );
+  });
+
+  group('RegistrationBloc date of birth step', () {
+    late _MockSaveRegistrationName saveName;
+    late _MockRegisterUser registerUser;
+    late FakeClock clock;
+    late Completer<Result<UserProfile>> pending;
+    final today = DateTime(2026, 11, 10);
+
+    setUp(() {
+      saveName = _MockSaveRegistrationName();
+      registerUser = _MockRegisterUser();
+      clock = FakeClock(today);
+      pending = Completer();
+      registerFallbackValue(
+        RegistrationDetails(firstName: 'Su', dateOfBirth: DateTime(2000)),
+      );
+    });
+
+    RegistrationBloc build() => RegistrationBloc(
+      saveRegistrationName: saveName,
+      registerUser: registerUser,
+      clock: clock,
+    );
+
+    RegistrationState namedDraft({
+      int? month,
+      String dayText = '',
+      String yearText = '',
+    }) => RegistrationState(
+      firstName: 'Ye Min',
+      lastName: 'Phyoe Win',
+      month: month,
+      dayText: dayText,
+      yearText: yearText,
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'selects a month and types day and year',
+      build: build,
+      seed: namedDraft,
+      act: (bloc) => bloc
+        ..add(const RegistrationMonthSelected(5))
+        ..add(const RegistrationDayChanged('1'))
+        ..add(const RegistrationYearChanged('2000')),
+      expect: () => [
+        isA<RegistrationState>()
+            .having((s) => s.month, 'month', 5)
+            .having((s) => s.dayFocusToken, 'focus', 1),
+        isA<RegistrationState>().having((s) => s.dayText, 'day', '1'),
+        isA<RegistrationState>()
+            .having((s) => s.yearText, 'year', '2000')
+            .having((s) => s.canSubmit(today), 'submit', true),
+      ],
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'reveals an error after blur of an invalid date',
+      build: build,
+      seed: () => namedDraft(month: 4, dayText: '31', yearText: '2001'),
+      act: (bloc) =>
+          bloc.add(const RegistrationDayFocusChanged(focused: false)),
+      expect: () => [
+        isA<RegistrationState>()
+            .having((s) => s.dayTouched, 'touched', true)
+            .having(
+              (s) => s.dobErrorCode(today),
+              'error',
+              AuthValidators.dobNotRealCode,
+            )
+            .having((s) => s.canSubmit(today), 'submit', false),
+      ],
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'enables Continue only for a valid date and loads on submit',
+      setUp: () => when(() => registerUser(any())).thenAnswer(
+        (_) async => Ok(
+          UserProfile(
+            id: 'u_1',
+            phoneE164: _phone,
+            firstName: 'Ye Min',
+            dateOfBirth: DateTime(2000, 5),
+          ),
+        ),
+      ),
+      build: build,
+      seed: () => namedDraft(month: 5, dayText: '1', yearText: '2000'),
+      act: (bloc) => bloc.add(const RegistrationSubmitted()),
+      expect: () => [
+        isA<RegistrationState>().having(
+          (s) => s.monthTouched && s.dayTouched && s.yearTouched,
+          'touched',
+          true,
+        ),
+        isA<RegistrationState>().having(
+          (s) => s.status,
+          'status',
+          RegistrationStatus.submitting,
+        ),
+        isA<RegistrationState>().having(
+          (s) => s.status,
+          'status',
+          RegistrationStatus.completed,
+        ),
+      ],
+      verify: (_) => verify(() => registerUser(any())).called(1),
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'ignores a second submit while one is running',
+      setUp: () =>
+          when(() => registerUser(any())).thenAnswer((_) => pending.future),
+      build: build,
+      seed: () => namedDraft(month: 5, dayText: '1', yearText: '2000'),
+      act: (bloc) async {
+        bloc.add(const RegistrationSubmitted());
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const RegistrationSubmitted());
+        await Future<void>.delayed(Duration.zero);
+        pending.complete(
+          Ok(
+            UserProfile(
+              id: 'u_1',
+              phoneE164: _phone,
+              firstName: 'Ye Min',
+              dateOfBirth: DateTime(2000, 5),
+            ),
+          ),
+        );
+      },
+      verify: (_) => verify(() => registerUser(any())).called(1),
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'reports a failure from register',
+      setUp: () => when(
+        () => registerUser(any()),
+      ).thenAnswer((_) async => const Err(NetworkFailure())),
+      build: build,
+      seed: () => namedDraft(month: 5, dayText: '1', yearText: '2000'),
+      act: (bloc) => bloc.add(const RegistrationSubmitted()),
+      expect: () => [
+        isA<RegistrationState>(),
+        isA<RegistrationState>().having(
+          (s) => s.status,
+          'status',
+          RegistrationStatus.submitting,
+        ),
+        isA<RegistrationState>()
+            .having((s) => s.status, 'status', RegistrationStatus.failed)
+            .having((s) => s.failure, 'failure', const NetworkFailure()),
+      ],
+    );
+
+    blocTest<RegistrationBloc, RegistrationState>(
+      'restores the date draft after returning',
+      build: build,
+      seed: () => namedDraft(month: 5, dayText: '1', yearText: '1980'),
+      verify: (bloc) {
+        expect(bloc.state.month, 5);
+        expect(bloc.state.dayText, '1');
+        expect(bloc.state.yearText, '1980');
+        expect(bloc.state.canSubmit(today), isTrue);
       },
     );
   });

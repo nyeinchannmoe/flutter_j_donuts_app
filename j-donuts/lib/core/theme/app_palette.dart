@@ -9,8 +9,14 @@ abstract final class AppPalette {
   static const Color brandPinkSoft = Color(0xFFFDE7F0);
   static const Color warmCream = Color(0xFFFFF8F5);
   static const Color deepPink = Color(0xFFAF2567);
-  static const Color blushTop = Color(0xFFFCE4EE);
-  static const Color blushBottom = Color(0xFFFDEEF4);
+  /// Warm near-white at the top of the auth gradient.
+  static const Color blushTop = Color(0xFFFFF8F5);
+
+  /// Soft pink mid-stop of the auth gradient.
+  static const Color blushMid = Color(0xFFFCE4EE);
+
+  /// Light pink that matches the welcome hero footer plane (#FCE8F0).
+  static const Color blushBottom = Color(0xFFFCE8F0);
   static const Color orange = Color(0xFFFF7F22);
   static const Color peach = Color(0xFFFFE3D3);
   /// Soft cream used behind the Home member header.

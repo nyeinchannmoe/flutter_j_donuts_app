@@ -25,7 +25,7 @@ abstract final class MotionTokens {
   static const Curve spring = Curves.elasticOut;
 
   /// Delay between consecutive staggered items.
-  static const Duration staggerStep = Duration(milliseconds: 70);
+  static const Duration staggerStep = Duration(milliseconds: 90);
   static const int maxStaggeredItems = 8;
   static const int reducedStaggeredItems = 3;
 
@@ -33,7 +33,7 @@ abstract final class MotionTokens {
   static const double staggerItemSpan = 0.55;
 
   /// Travel distances in logical pixels, multiplied by motionScale.
-  static const double travelMedium = 24;
+  static const double travelMedium = 32;
   static const double onboardingDiscTravel = 16;
 
   static const double pressedScale = 0.96;

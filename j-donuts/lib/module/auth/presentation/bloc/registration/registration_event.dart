@@ -32,10 +32,40 @@ final class RegistrationNameSubmitted extends RegistrationEvent {
   const RegistrationNameSubmitted();
 }
 
-final class RegistrationDateOfBirthChanged extends RegistrationEvent {
-  const RegistrationDateOfBirthChanged(this.dateOfBirth);
+final class RegistrationMonthSelected extends RegistrationEvent {
+  const RegistrationMonthSelected(this.month);
 
-  final DateTime dateOfBirth;
+  final int month;
+}
+
+final class RegistrationDayChanged extends RegistrationEvent {
+  const RegistrationDayChanged(this.value);
+
+  final String value;
+}
+
+final class RegistrationYearChanged extends RegistrationEvent {
+  const RegistrationYearChanged(this.value);
+
+  final String value;
+}
+
+final class RegistrationMonthFocusChanged extends RegistrationEvent {
+  const RegistrationMonthFocusChanged({required this.focused});
+
+  final bool focused;
+}
+
+final class RegistrationDayFocusChanged extends RegistrationEvent {
+  const RegistrationDayFocusChanged({required this.focused});
+
+  final bool focused;
+}
+
+final class RegistrationYearFocusChanged extends RegistrationEvent {
+  const RegistrationYearFocusChanged({required this.focused});
+
+  final bool focused;
 }
 
 final class RegistrationSubmitted extends RegistrationEvent {

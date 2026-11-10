@@ -1,19 +1,18 @@
 import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/result/result.dart';
+import 'package:jdonuts/core/utils/clock.dart';
 import 'package:jdonuts/module/auth/domain/entities/registration_details.dart';
 import 'package:jdonuts/module/auth/domain/entities/user_profile.dart';
 import 'package:jdonuts/module/auth/domain/repositories/auth_repository.dart';
 import 'package:jdonuts/module/auth/domain/validators/auth_validators.dart';
 
 class RegisterUser {
-  const RegisterUser(this._repository, {this._today = _now});
+  RegisterUser(this._repository, {this._clock = const SystemClock()});
 
   static const String invalidDetailsCode = 'auth.invalidRegistration';
 
   final AuthRepository _repository;
-  final DateTime Function() _today;
-
-  static DateTime _now() => DateTime.now();
+  final Clock _clock;
 
   Future<Result<UserProfile>> call(RegistrationDetails details) async {
     final firstOk = AuthValidators.validateFirstName(details.firstName) is Ok;
@@ -21,7 +20,7 @@ class RegisterUser {
         AuthValidators.validateLastName(details.lastName ?? '') is Ok;
     final dobOk = AuthValidators.isDateOfBirthValid(
       details.dateOfBirth,
-      _today(),
+      _clock.now(),
     );
     if (!firstOk || !lastOk || !dobOk) {
       return const Err(ValidationFailure(code: invalidDetailsCode));
