@@ -69,7 +69,7 @@ class _ImageErrorView extends StatelessWidget {
     child: Center(
       child: Icon(
         Icons.image_not_supported_outlined,
-        color: context.colors.textDisabled,
+        color: context.colors.textSecondary,
         size: context.iconSizes.md,
         semanticLabel: semanticLabel,
       ),

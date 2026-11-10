@@ -17,7 +17,7 @@ class EmptyStateView extends StatelessWidget {
         Icon(
           icon ?? Icons.inbox_outlined,
           size: context.iconSizes.lg,
-          color: context.colors.textDisabled,
+          color: context.colors.textSecondary,
         ),
         SizedBox(height: context.spacing.sm),
         Text(

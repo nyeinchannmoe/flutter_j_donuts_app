@@ -59,6 +59,22 @@ void main() {
       expect(result.failureOrNull?.code, FailureCodes.invalidCode);
     });
 
+    test('login with an unknown phone leaves the user signed out', () async {
+      final repository = buildRepository();
+      await repository.restoreSession();
+      final result = await repository.verifyOtp(
+        phoneE164: _phone,
+        code: FakeOtpGateway.demoCode,
+        existingAccountOnly: true,
+      );
+
+      expect(result.failureOrNull?.code, FailureCodes.accountMissing);
+      expect(
+        await repository.watchSession().first,
+        const Session.unauthenticated(),
+      );
+    });
+
     test('an unknown phone moves the session to registering', () async {
       final repository = buildRepository();
 

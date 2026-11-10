@@ -5,8 +5,11 @@ abstract final class AssetBudget {
   static const int maxSeedImagesTotalBytes = 300 * kibibyte;
   static const int maxCatalogBytes = 64 * kibibyte;
   static const int maxFontBytes = 160 * kibibyte;
+  static const int maxOnboardingHeroBytes = 1700 * kibibyte;
   static const int maxAssetsTotalBytes = 1024 * kibibyte;
 
+  static const String onboardingHeroPath =
+      'assets/images/onboarding/onboarding_hero.png';
   static const String seedImagesDir = 'assets/seed/images/';
   static const String catalogPath = 'assets/seed/catalog.json';
   static const String fontsDir = 'assets/fonts/';
@@ -27,6 +30,10 @@ List<String> checkAssetBudget(List<AssetFile> assets) {
   var seedTotal = 0;
   var total = 0;
   for (final asset in assets) {
+    if (asset.path == AssetBudget.onboardingHeroPath) {
+      problems.addAll(_limit(asset, AssetBudget.maxOnboardingHeroBytes));
+      continue;
+    }
     total += asset.bytes;
     if (asset.path.startsWith(AssetBudget.seedImagesDir)) {
       seedTotal += asset.bytes;

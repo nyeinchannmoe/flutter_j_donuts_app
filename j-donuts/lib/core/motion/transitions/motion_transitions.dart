@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/motion/motion_profile.dart';
 
 /// Profile-aware page transition builders shared by routes and tabs.
@@ -10,6 +11,7 @@ abstract final class MotionTransitions {
     required MotionProfile profile,
     required Animation<double> animation,
     required Animation<double> secondaryAnimation,
+    required BuildContext context,
     required Widget child,
   }) {
     if (!profile.animatesEntrances) return _fade(animation, child);
@@ -17,7 +19,7 @@ abstract final class MotionTransitions {
       animation: animation,
       secondaryAnimation: secondaryAnimation,
       transitionType: SharedAxisTransitionType.horizontal,
-      fillColor: Colors.transparent,
+      fillColor: context.colors.surface.withValues(alpha: 0),
       child: child,
     );
   }
@@ -26,13 +28,14 @@ abstract final class MotionTransitions {
     required MotionProfile profile,
     required Animation<double> animation,
     required Animation<double> secondaryAnimation,
+    required BuildContext context,
     required Widget child,
   }) {
     if (!profile.animatesEntrances) return _fade(animation, child);
     return FadeThroughTransition(
       animation: animation,
       secondaryAnimation: secondaryAnimation,
-      fillColor: Colors.transparent,
+      fillColor: context.colors.surface.withValues(alpha: 0),
       child: child,
     );
   }

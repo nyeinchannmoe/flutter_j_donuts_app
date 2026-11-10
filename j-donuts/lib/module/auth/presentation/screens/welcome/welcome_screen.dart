@@ -13,7 +13,7 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(gradient: context.colors.authGradient),
     child: Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.colors.surface.withValues(alpha: 0),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(context.layout.horizontalGutter),
@@ -42,7 +42,7 @@ class WelcomeScreen extends StatelessWidget {
       child: Text(
         context.l10n.welcomeTitle,
         textAlign: TextAlign.center,
-        style: context.typography.display,
+        style: context.typography.headline,
       ),
     ),
     SizedBox(height: context.spacing.xxl),

@@ -5,6 +5,7 @@ import 'package:jdonuts/l10n/generated/app_localizations.dart';
 extension FailureLocalization on AppFailure {
   String localizedMessage(AppLocalizations l10n) {
     if (code == FailureCodes.invalidCode) return l10n.failureInvalidOtp;
+    if (code == FailureCodes.accountMissing) return l10n.failureAccountMissing;
     return switch (this) {
       StorageFailure() => l10n.failureStorage,
       NetworkFailure() => l10n.failureNetwork,

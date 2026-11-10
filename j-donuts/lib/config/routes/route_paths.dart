@@ -17,6 +17,10 @@ abstract final class RoutePaths {
 
   static const String productIdParam = 'id';
   static const String phoneQueryParam = 'phone';
+  static const String authPhoneName = 'authPhone';
+  static const String authOtpName = 'authOtp';
+  static const String authModeParam = 'mode';
+  static const String loginMode = 'login';
 
   static String productDetail(String productId) =>
       '/product/${Uri.encodeComponent(productId)}';

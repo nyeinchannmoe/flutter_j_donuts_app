@@ -125,7 +125,7 @@ class _TabLabel extends StatelessWidget {
           textAlign: TextAlign.center,
           style: context.typography.bodyStrong.copyWith(
             color: selected
-                ? context.colors.onPrimary
+                ? context.colors.textPrimary
                 : context.colors.textSecondary,
           ),
         ),

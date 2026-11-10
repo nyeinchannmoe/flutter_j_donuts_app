@@ -13,6 +13,5 @@ abstract class Product with _$Product {
     required String imageAsset,
     required String description,
     String? imageUrl,
-    String? subtitle,
   }) = _Product;
 }

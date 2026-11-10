@@ -2,6 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jdonuts/core/view_state/view_state.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/welcome/welcome_screen.dart';
 import 'package:jdonuts/module/product/domain/entities/product.dart';
@@ -60,7 +61,10 @@ void main() {
     variant: DeviceMatrix.variant,
     (tester) async {
       await tester.pumpOnDevice(
-        OnboardingScreen(onGetStarted: () {}, onLogIn: () {}),
+        OnboardingScreen(onGetStarted: () async {}, onLogIn: () async {}),
+        providers: [
+          BlocProvider<OnboardingBloc>(create: (_) => OnboardingBloc()),
+        ],
       );
       await tester.pumpAndSettle();
 

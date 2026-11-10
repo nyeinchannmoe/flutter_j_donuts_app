@@ -22,21 +22,21 @@ class AppTypography extends ThemeExtension<AppTypography> {
     title: _style(_Sizes.title, FontWeight.w600, color, _Heights.normal),
     subtitle: _style(_Sizes.subtitle, FontWeight.w600, color, _Heights.normal),
     body: _style(_Sizes.body, FontWeight.w400, color, _Heights.relaxed),
-    bodyStrong: _style(_Sizes.body, FontWeight.w600, color, _Heights.relaxed),
-    caption: _style(_Sizes.caption, FontWeight.w400, color, _Heights.normal),
+    bodyStrong: _style(_Sizes.body, FontWeight.w700, color, _Heights.relaxed),
+    caption: _style(_Sizes.caption, FontWeight.w400, color, _Heights.caption),
     label: _style(_Sizes.label, FontWeight.w500, color, _Heights.normal),
     button: _style(
       _Sizes.button,
       FontWeight.w700,
       color,
-      _Heights.normal,
+      null,
     ).copyWith(letterSpacing: _buttonLetterSpacing),
     metric: _style(_Sizes.metric, FontWeight.w700, color, _Heights.tight),
   );
 
   /// The single font family token; swapping fonts is a one-line change.
   static const String fontFamily = 'Outfit';
-  static const double _buttonLetterSpacing = 1.2;
+  static const double _buttonLetterSpacing = 1;
 
   final TextStyle display;
   final TextStyle headline;
@@ -53,8 +53,9 @@ class AppTypography extends ThemeExtension<AppTypography> {
     double size,
     FontWeight weight,
     Color color,
-    double height,
+    double? height,
   ) => TextStyle(
+    inherit: false,
     fontFamily: fontFamily,
     fontSize: size,
     fontWeight: weight,
@@ -83,11 +84,11 @@ class AppTypography extends ThemeExtension<AppTypography> {
 
 abstract final class _Sizes {
   static const double display = 32;
-  static const double headline = 26;
+  static const double headline = 28;
   static const double title = 20;
   static const double subtitle = 16;
   static const double body = 14;
-  static const double caption = 12;
+  static const double caption = 11;
   static const double label = 13;
   static const double button = 14;
   static const double metric = 28;
@@ -96,5 +97,6 @@ abstract final class _Sizes {
 abstract final class _Heights {
   static const double tight = 1.15;
   static const double normal = 1.3;
+  static const double caption = 1.35;
   static const double relaxed = 1.45;
 }

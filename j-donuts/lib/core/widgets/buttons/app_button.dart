@@ -52,7 +52,8 @@ class _AppButtonState extends State<AppButton> {
   @override
   Widget build(BuildContext context) {
     final enabled = widget.onPressed != null;
-    final colors = context.colors;
+    final style = FilledButtonTheme.of(context).style!;
+    final states = enabled ? <WidgetState>{} : {WidgetState.disabled};
     return Semantics(
       button: true,
       enabled: enabled && !_busy,
@@ -61,36 +62,46 @@ class _AppButtonState extends State<AppButton> {
       child: PressableScale(
         onTap: enabled ? _handleTap : null,
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: enabled ? colors.primary : colors.border,
-            borderRadius: context.radius.pillAll,
+          decoration: ShapeDecoration(
+            color: style.backgroundColor!.resolve(states),
+            shape: style.shape!.resolve(states)!,
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: context.spacing.xl,
-              vertical: context.spacing.lg,
-            ),
-            child: _ButtonContent(
-              label: widget.label,
-              busy: _busy,
-              trailing: widget.trailing,
-            ),
-          ),
+          child: _content(style, states),
         ),
       ),
     );
   }
+
+  Widget _content(ButtonStyle style, Set<WidgetState> states) => ConstrainedBox(
+    constraints: BoxConstraints(
+      minHeight: style.minimumSize!.resolve(states)!.height,
+    ),
+    child: Padding(
+      padding: style.padding!.resolve(states)!,
+      child: Center(
+        heightFactor: 1,
+        child: _ButtonContent(
+          labelStyle: style.textStyle!.resolve(states)!,
+          label: widget.label,
+          busy: _busy,
+          trailing: widget.trailing,
+        ),
+      ),
+    ),
+  );
 }
 
 class _ButtonContent extends StatelessWidget {
   const _ButtonContent({
     required this.label,
     required this.busy,
+    required this.labelStyle,
     this.trailing,
   });
 
   final String label;
   final bool busy;
+  final TextStyle labelStyle;
   final Widget? trailing;
 
   @override
@@ -102,54 +113,30 @@ class _ButtonContent extends StatelessWidget {
             dimension: context.iconSizes.md,
             child: CircularProgressIndicator(
               strokeWidth: context.spacing.xxs,
-              color: context.colors.onPrimary,
+              color: labelStyle.color,
             ),
           )
         : _labelRow(context),
   );
 
-  Widget _labelRow(BuildContext context) {
-    final labelText = Text(
-      label.toUpperCase(),
-      style: context.typography.button.copyWith(
-        color: context.colors.onPrimary,
+  Widget _labelRow(BuildContext context) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Flexible(
+        child: Text(
+          label.toUpperCase(),
+          style: labelStyle,
+          textAlign: TextAlign.center,
+        ),
       ),
-      textAlign: TextAlign.center,
-    );
-    final trailingWidget = trailing;
-    if (trailingWidget == null) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [Flexible(child: labelText)],
-      );
-    }
-    return Row(
-      children: [
-        Expanded(child: labelText),
-        _ButtonDivider(height: context.iconSizes.md),
-        Expanded(
+      if (trailing case final trailing?)
+        Flexible(
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: trailingWidget,
+            alignment: AlignmentDirectional.centerEnd,
+            child: trailing,
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _ButtonDivider extends StatelessWidget {
-  const _ButtonDivider({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: height,
-    child: VerticalDivider(
-      width: context.spacing.lg,
-      thickness: context.spacing.xxs / 2,
-      color: context.colors.onPrimary,
-    ),
+    ],
   );
 }

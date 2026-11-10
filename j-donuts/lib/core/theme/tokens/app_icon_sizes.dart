@@ -9,6 +9,7 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
     this.lg = 32,
     this.xl = 48,
     this.avatar = 48,
+    this.brandMark = 28,
     this.illustration = 96,
   });
 
@@ -19,6 +20,7 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
   final double lg;
   final double xl;
   final double avatar;
+  final double brandMark;
   final double illustration;
 
   @override
@@ -28,6 +30,7 @@ class AppIconSizes extends ThemeExtension<AppIconSizes> {
     lg: lg,
     xl: xl,
     avatar: avatar,
+    brandMark: brandMark,
     illustration: illustration,
   );
 

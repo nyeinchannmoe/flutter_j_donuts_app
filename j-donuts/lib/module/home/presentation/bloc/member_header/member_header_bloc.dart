@@ -19,9 +19,5 @@ class MemberHeaderBloc
   Future<void> _onWatch(
     MemberHeaderEvent event,
     Emitter<ViewState<MemberProfile>> emit,
-  ) => emitViewStates(
-    emit,
-    _watchMemberProfile(),
-    nullableViewState<MemberProfile>,
-  );
+  ) => emitViewStates(emit, _watchMemberProfile(), nullableViewState);
 }

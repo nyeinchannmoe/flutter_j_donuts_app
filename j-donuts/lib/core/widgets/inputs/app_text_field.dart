@@ -56,7 +56,8 @@ class AppTextField extends StatelessWidget {
       filled: true,
       fillColor: colors.surface,
       contentPadding: EdgeInsets.all(context.spacing.lg),
-      labelStyle: context.typography.body.copyWith(color: colors.textDisabled),
+      labelStyle: context.typography.body.copyWith(color: colors.textSecondary),
+      errorStyle: context.typography.label.copyWith(color: colors.danger),
       border: idle,
       enabledBorder: idle,
       focusedBorder: _border(

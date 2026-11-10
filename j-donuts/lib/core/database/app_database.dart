@@ -25,7 +25,7 @@ part 'app_database.g.dart';
 /// Versioning constants for the local database.
 abstract final class DatabaseSchema {
   /// Bump together with a new drift_schemas dump and migration step.
-  static const int version = 3;
+  static const int version = 1;
   static const String fileName = 'jdonuts';
 }
 

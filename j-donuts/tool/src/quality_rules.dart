@@ -116,7 +116,7 @@ class QualityVisitor extends RecursiveAstVisitor<void> {
   void visitPrefixedIdentifier(PrefixedIdentifier node) {
     final prefix = node.prefix.name;
     final member = node.identifier.name;
-    if (prefix == 'Colors' && member != 'transparent' && !scope.isTheme) {
+    if (prefix == 'Colors' && !scope.isTheme) {
       _report(node, QualityRule.rawColor, 'Colors.$member outside theme');
     }
     if (prefix == 'Curves' && !scope.isMotionTokens) {

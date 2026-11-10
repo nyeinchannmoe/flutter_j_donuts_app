@@ -88,7 +88,7 @@ class _BannerContent extends StatelessWidget {
         Expanded(
           child: Text(
             context.l10n.offlineBanner,
-            style: context.typography.caption.copyWith(color: color),
+            style: context.typography.label.copyWith(color: color),
           ),
         ),
       ],

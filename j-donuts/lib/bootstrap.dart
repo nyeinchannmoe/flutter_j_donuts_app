@@ -37,6 +37,7 @@ Future<void> bootstrap() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       _installErrorHandlers(logger);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
       ]);

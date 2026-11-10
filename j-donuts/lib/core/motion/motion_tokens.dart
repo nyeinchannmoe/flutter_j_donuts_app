@@ -34,6 +34,7 @@ abstract final class MotionTokens {
 
   /// Travel distances in logical pixels, multiplied by motionScale.
   static const double travelMedium = 24;
+  static const double onboardingDiscTravel = 16;
 
   static const double pressedScale = 0.96;
   static const double popStartScale = 0.6;

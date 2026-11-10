@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:jdonuts/core/database/app_database.dart';
 import 'package:jdonuts/core/error/app_exception.dart';
 import 'package:jdonuts/core/error/app_failure.dart';
 
@@ -16,7 +15,7 @@ const String _integrityOk = 'ok';
 /// Upgrades run one schema version at a time. Each future version adds a
 /// step built from the generated schema_versions.dart helpers; see
 /// docs/DATABASE.md for the procedure.
-MigrationStrategy buildMigrationStrategy(AppDatabase database) =>
+MigrationStrategy buildMigrationStrategy(GeneratedDatabase database) =>
     MigrationStrategy(
       onCreate: (migrator) => migrator.createAll(),
       onUpgrade: (migrator, from, to) => _upgrade(database, migrator, from, to),
@@ -24,7 +23,7 @@ MigrationStrategy buildMigrationStrategy(AppDatabase database) =>
     );
 
 Future<void> _upgrade(
-  AppDatabase database,
+  GeneratedDatabase database,
   Migrator migrator,
   int from,
   int to,
@@ -32,25 +31,20 @@ Future<void> _upgrade(
   await database.customStatement('PRAGMA foreign_keys = OFF');
   await database.transaction(() async {
     for (var version = from; version < to; version++) {
-      await _runStep(database, migrator, version);
+      await _runStep(migrator, version);
     }
   });
 }
 
-Future<void> _runStep(
-  AppDatabase database,
-  Migrator migrator,
-  int fromVersion,
-) => switch (fromVersion) {
-  1 => migrator.addColumn(database.banners, database.banners.cardTone),
-  2 => migrator.addColumn(database.products, database.products.subtitle),
-  _ => throw AppException(
-    StorageFailure(
-      code: DatabaseFailureCodes.unsupportedUpgrade,
-      cause: 'No migration step from schema version $fromVersion',
-    ),
-  ),
-};
+Future<void> _runStep(Migrator migrator, int fromVersion) =>
+    switch (fromVersion) {
+      _ => throw AppException(
+        StorageFailure(
+          code: DatabaseFailureCodes.unsupportedUpgrade,
+          cause: 'No migration step from schema version $fromVersion',
+        ),
+      ),
+    };
 
 Future<void> _prepareConnection(GeneratedDatabase database) async {
   await database.customStatement('PRAGMA foreign_keys = ON');

@@ -18,6 +18,7 @@ class OtpVerificationScreen extends StatefulWidget {
     required this.phoneE164,
     required this.demoCode,
     required this.onNewMemberVerified,
+    this.existingAccountOnly = false,
     super.key,
   });
 
@@ -25,6 +26,7 @@ class OtpVerificationScreen extends StatefulWidget {
 
   /// Shown as a hint because this build uses a fake OTP provider.
   final String demoCode;
+  final bool existingAccountOnly;
   final VoidCallback onNewMemberVerified;
 
   @override
@@ -43,7 +45,11 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void _submit() {
     if (!AuthValidators.isOtpComplete(_controller.text)) return;
     context.read<OtpVerificationBloc>().add(
-      OtpCodeSubmitted(phoneE164: widget.phoneE164, code: _controller.text),
+      OtpCodeSubmitted(
+        phoneE164: widget.phoneE164,
+        code: _controller.text,
+        existingAccountOnly: widget.existingAccountOnly,
+      ),
     );
   }
 
@@ -110,7 +116,7 @@ class _OtpBody extends StatelessWidget {
         ),
         Text(
           l10n.otpDemoHint(demoCode),
-          style: context.typography.caption.copyWith(
+          style: context.typography.label.copyWith(
             color: context.colors.textSecondary,
           ),
         ),

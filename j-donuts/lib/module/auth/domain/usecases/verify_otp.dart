@@ -12,10 +12,15 @@ class VerifyOtp {
   Future<Result<OtpVerification>> call({
     required String phoneE164,
     required String code,
+    bool existingAccountOnly = false,
   }) async {
     if (!AuthValidators.isOtpComplete(code)) {
       return const Err(ValidationFailure(code: FailureCodes.invalidCode));
     }
-    return _repository.verifyOtp(phoneE164: phoneE164, code: code);
+    return _repository.verifyOtp(
+      phoneE164: phoneE164,
+      code: code,
+      existingAccountOnly: existingAccountOnly,
+    );
   }
 }

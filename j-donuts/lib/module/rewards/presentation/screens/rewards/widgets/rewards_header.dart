@@ -56,7 +56,7 @@ class _RewardsPill extends StatelessWidget {
   );
 
   Widget _label(BuildContext context) {
-    final color = context.colors.onPrimary;
+    final color = context.colors.textPrimary;
     return Row(
       mainAxisSize: MainAxisSize.min,
       spacing: context.spacing.xs,

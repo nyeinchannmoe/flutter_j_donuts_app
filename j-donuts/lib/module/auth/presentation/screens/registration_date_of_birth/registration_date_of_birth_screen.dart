@@ -74,7 +74,7 @@ class _DateOfBirthField extends StatelessWidget {
         if (failure != null)
           Text(
             failure.localizedMessage(l10n),
-            style: context.typography.caption.copyWith(
+            style: context.typography.label.copyWith(
               color: context.colors.danger,
             ),
           ),

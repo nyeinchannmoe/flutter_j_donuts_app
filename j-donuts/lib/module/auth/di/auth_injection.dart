@@ -9,6 +9,7 @@ import 'package:jdonuts/module/auth/domain/usecases/restore_session.dart';
 import 'package:jdonuts/module/auth/domain/usecases/sign_out.dart';
 import 'package:jdonuts/module/auth/domain/usecases/verify_otp.dart';
 import 'package:jdonuts/module/auth/domain/usecases/watch_session.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
@@ -30,6 +31,7 @@ void registerAuthModule(GetIt locator) {
     ..registerFactory(() => VerifyOtp(locator()))
     ..registerFactory(() => RegisterUser(locator()))
     ..registerFactory(() => SignOut(locator()))
+    ..registerFactory(OnboardingBloc.new)
     ..registerFactory(() => PhoneEntryBloc(requestOtp: locator()))
     ..registerFactory(() => OtpVerificationBloc(verifyOtp: locator()))
     ..registerFactory(() => RegistrationBloc(registerUser: locator()));

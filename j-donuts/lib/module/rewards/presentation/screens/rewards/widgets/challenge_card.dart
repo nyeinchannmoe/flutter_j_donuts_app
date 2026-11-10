@@ -93,7 +93,9 @@ class _EarnChip extends StatelessWidget {
         children: [
           Text(
             context.l10n.challengeEarn,
-            style: context.typography.label.copyWith(color: colors.accent),
+            style: context.typography.label.copyWith(
+              color: colors.textSecondary,
+            ),
           ),
           Text(
             context.l10n.challengePoints(MmkFormatter.amount(points)),

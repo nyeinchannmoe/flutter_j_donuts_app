@@ -20,6 +20,17 @@ class StaggeredEntrance extends StatefulWidget {
   final int itemCount;
   final Widget child;
 
+  /// Lets a painter join the entrance without creating another controller.
+  static Animation<double> animationFor(BuildContext context, int index) {
+    final scope = context.dependOnInheritedWidgetOfExactType<_StaggerScope>();
+    if (scope == null || !scope.schedule.isAnimated) {
+      return kAlwaysCompleteAnimation;
+    }
+    return scope.animation.drive(
+      CurveTween(curve: scope.schedule.intervalFor(index)),
+    );
+  }
+
   @override
   State<StaggeredEntrance> createState() => _StaggeredEntranceState();
 }
@@ -34,11 +45,16 @@ class _StaggeredEntranceState extends State<StaggeredEntrance>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_schedule != null) return;
+    if (_schedule != null) {
+      if (MediaQuery.disableAnimationsOf(context)) _controller.value = 1;
+      return;
+    }
     final profile = context.motion;
     final schedule = StaggerSchedule(
       itemCount: widget.itemCount,
-      maxItems: profile.maxStaggerItems,
+      maxItems: MediaQuery.disableAnimationsOf(context)
+          ? 0
+          : profile.maxStaggerItems,
     );
     _schedule = schedule;
     _controller.duration = profile.scaleDuration(schedule.totalDuration);
@@ -81,9 +97,15 @@ class _StaggerScope extends InheritedWidget {
 /// Fades and slides [child] in during slot [index] of the nearest
 /// [StaggeredEntrance]. Renders [child] unchanged when there is none.
 class StaggeredItem extends StatefulWidget {
-  const StaggeredItem({required this.index, required this.child, super.key});
+  const StaggeredItem({
+    required this.index,
+    required this.child,
+    this.horizontalDrift = false,
+    super.key,
+  });
 
   final int index;
+  final bool horizontalDrift;
   final Widget child;
 
   @override
@@ -109,7 +131,7 @@ class _StaggeredItemState extends State<StaggeredItem> {
         MotionTokens.travelMedium * LayoutMetrics.of(context).motionScale;
     _animation = animation;
     _offset = Tween<Offset>(
-      begin: Offset(0, travel),
+      begin: Offset(widget.horizontalDrift ? -travel : 0, travel),
       end: Offset.zero,
     ).animate(animation);
   }

@@ -7,7 +7,7 @@ import '../../helpers/pump_app.dart';
 
 void main() {
   group('ShellNavigationBar', () {
-    testWidgets('shows only the selected destination label', (tester) async {
+    testWidgets('shows every destination label', (tester) async {
       await tester.pumpApp(
         Scaffold(
           bottomNavigationBar: ShellNavigationBar(
@@ -18,37 +18,33 @@ void main() {
       );
 
       expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Reward'), findsNothing);
-      expect(find.text('Menu'), findsNothing);
-      expect(find.text('Orders'), findsNothing);
-      expect(find.text('Settings'), findsNothing);
+      expect(find.text('Reward'), findsOneWidget);
+      expect(find.text('Menu'), findsOneWidget);
+      expect(find.text('Orders'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
     });
 
-    testWidgets('moves the Reward label onto the selected pill', (
-      tester,
-    ) async {
-      var index = 0;
+    testWidgets('reports the tapped destination index', (tester) async {
+      var selected = 0;
       await tester.pumpApp(
         StatefulBuilder(
           builder: (context, setState) => Scaffold(
             bottomNavigationBar: ShellNavigationBar(
-              selectedIndex: index,
-              onSelected: (value) => setState(() => index = value),
+              selectedIndex: selected,
+              onSelected: (value) => setState(() => selected = value),
             ),
           ),
         ),
       );
 
-      await tester.tap(find.byKey(ShellNavigationBar.destinationKey(1)));
+      await tester.tap(find.byKey(ShellNavigationBar.destinationKey(2)));
       await tester.pumpAndSettle();
 
+      expect(selected, 2);
       expect(find.text('Reward'), findsOneWidget);
-      expect(find.text('Home'), findsNothing);
     });
 
-    testWidgets('uses primary bar, onPrimary border and accent pill', (
-      tester,
-    ) async {
+    testWidgets('uses surface bar and primary pill', (tester) async {
       await tester.pumpApp(
         Scaffold(
           bottomNavigationBar: ShellNavigationBar(
@@ -66,15 +62,11 @@ void main() {
           .toList();
 
       expect(
-        decorations.any(
-          (decoration) =>
-              decoration.color == colors.primary &&
-              decoration.border?.top.color == colors.onPrimary,
-        ),
+        decorations.any((decoration) => decoration.color == colors.surface),
         isTrue,
       );
       expect(
-        decorations.any((decoration) => decoration.color == colors.accent),
+        decorations.any((decoration) => decoration.color == colors.primary),
         isTrue,
       );
     });

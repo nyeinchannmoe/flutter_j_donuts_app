@@ -11,112 +11,34 @@ class QuantityStepper extends StatelessWidget {
   Widget build(BuildContext context) =>
       BlocBuilder<ProductDetailBloc, ProductDetailState>(
         buildWhen: (previous, current) => previous.quantity != current.quantity,
-        builder: (context, state) => _StepperShell(state: state),
+        builder: _buildStepper,
       );
-}
 
-class _StepperShell extends StatelessWidget {
-  const _StepperShell({required this.state});
-
-  final ProductDetailState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = context.spacing;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: context.radius.pillAll,
-        border: Border.all(color: context.colors.border),
-        boxShadow: context.shadows.card,
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: spacing.md,
-          vertical: spacing.sm,
-        ),
-        child: _StepperControls(state: state),
-      ),
-    );
-  }
-}
-
-class _StepperControls extends StatelessWidget {
-  const _StepperControls({required this.state});
-
-  final ProductDetailState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final bloc = context.read<ProductDetailBloc>();
+  Widget _buildStepper(BuildContext context, ProductDetailState state) {
     final l10n = context.l10n;
+    final bloc = context.read<ProductDetailBloc>();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _StepButton(
-          icon: Icons.remove,
+        IconButton(
           tooltip: l10n.productQuantityDecrease,
           onPressed: state.canDecrement
               ? () => bloc.add(const ProductQuantityDecremented())
               : null,
+          icon: const Icon(Icons.remove_circle_outline),
         ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.spacing.lg),
-          child: AnimatedQuantityText(
-            value: state.quantity,
-            style: context.typography.title,
-          ),
+        AnimatedQuantityText(
+          value: state.quantity,
+          style: context.typography.title,
         ),
-        _StepButton(
-          icon: Icons.add,
+        IconButton(
           tooltip: l10n.productQuantityIncrease,
           onPressed: state.canIncrement
               ? () => bloc.add(const ProductQuantityIncremented())
               : null,
+          icon: const Icon(Icons.add_circle_outline),
         ),
       ],
-    );
-  }
-}
-
-class _StepButton extends StatelessWidget {
-  const _StepButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final enabled = onPressed != null;
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      label: tooltip,
-      child: Tooltip(
-        message: tooltip,
-        child: Material(
-          color: enabled ? colors.primary : colors.border,
-          shape: const CircleBorder(),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onPressed,
-            child: SizedBox.square(
-              dimension: context.iconSizes.lg,
-              child: Icon(
-                icon,
-                size: context.iconSizes.sm,
-                color: colors.onPrimary,
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

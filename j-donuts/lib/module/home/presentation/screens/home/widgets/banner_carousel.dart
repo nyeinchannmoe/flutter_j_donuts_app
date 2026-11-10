@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
+import 'package:jdonuts/core/images/app_image.dart';
+import 'package:jdonuts/core/images/image_ref.dart';
 import 'package:jdonuts/core/motion/motion_scope.dart';
 import 'package:jdonuts/core/motion/primitives/auto_play_carousel_controller.dart';
 import 'package:jdonuts/core/view_state/view_state.dart';
@@ -8,13 +10,9 @@ import 'package:jdonuts/core/view_state/view_state_builder.dart';
 import 'package:jdonuts/core/widgets/skeleton/skeleton_block.dart';
 import 'package:jdonuts/module/home/domain/entities/home_banner.dart';
 import 'package:jdonuts/module/home/presentation/bloc/banners/banners_bloc.dart';
-import 'package:jdonuts/module/home/presentation/screens/home/widgets/banner_card.dart';
 
-/// Banner width to height ratio from the design (near-square cards).
-const double _bannerAspectRatio = 1.02;
-
-/// Leaves a peek of the next banner when more than one exists.
-const double _bannerViewportFraction = 0.86;
+/// Banner width to height ratio from the design.
+const double _bannerAspectRatio = 16 / 9;
 
 class BannerCarousel extends StatelessWidget {
   const BannerCarousel({super.key});
@@ -47,7 +45,6 @@ class _BannerPager extends StatefulWidget {
 class _BannerPagerState extends State<_BannerPager> {
   late final AutoPlayCarouselController _carousel = AutoPlayCarouselController(
     pageCount: widget.banners.length,
-    viewportFraction: _bannerViewportFraction,
   );
 
   @override
@@ -77,9 +74,46 @@ class _BannerPagerState extends State<_BannerPager> {
         child: PageView.builder(
           controller: _carousel.pageController,
           itemCount: widget.banners.length,
-          padEnds: false,
           itemBuilder: (context, index) =>
-              BannerCard(banner: widget.banners[index]),
+              _BannerCard(banner: widget.banners[index]),
         ),
       );
+}
+
+class _BannerCard extends StatelessWidget {
+  const _BannerCard({required this.banner});
+
+  final HomeBanner banner;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: context.layout.horizontalGutter),
+    child: ClipRRect(
+      borderRadius: context.radius.xlAll,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AppImage(
+            image: ImageRef.fromSources(
+              asset: banner.imageAsset,
+              url: banner.imageUrl,
+            ),
+            semanticLabel: banner.title,
+          ),
+          Align(
+            alignment: AlignmentDirectional.bottomStart,
+            child: Padding(
+              padding: EdgeInsets.all(context.spacing.lg),
+              child: Text(
+                banner.title,
+                style: context.typography.headline.copyWith(
+                  color: context.colors.onPrimary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

@@ -30,6 +30,7 @@ class OtpVerificationBloc
     final result = await _verifyOtp(
       phoneE164: event.phoneE164,
       code: event.code,
+      existingAccountOnly: event.existingAccountOnly,
     );
     emit(switch (result) {
       Ok(:final value) => OtpVerificationState.verified(

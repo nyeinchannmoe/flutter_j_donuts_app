@@ -24,7 +24,11 @@ class SlidingPillIndicator extends StatelessWidget {
       alignment: Alignment(x, 0),
       duration: profile.scaleDuration(MotionTokens.standard),
       curve: MotionTokens.emphasizedCurve,
-      child: FractionallySizedBox(widthFactor: 1 / slotCount, child: pill),
+      child: FractionallySizedBox(
+        widthFactor: 1 / slotCount,
+        heightFactor: 1,
+        child: pill,
+      ),
     );
   }
 }

@@ -2,12 +2,46 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jdonuts/core/extensions/build_context_x.dart';
 import 'package:jdonuts/core/widgets/buttons/app_button.dart';
 
 import '../../helpers/pump_app.dart';
 
 void main() {
   group('AppButton', () {
+    testWidgets('shares the filled button style and distinguishes disabled', (
+      tester,
+    ) async {
+      for (final enabled in [true, false]) {
+        await tester.pumpApp(
+          Center(
+            child: AppButton(
+              label: 'Continue',
+              onPressed: enabled ? () {} : null,
+            ),
+          ),
+        );
+        final button = find.byType(AppButton);
+        final colors = tester.element(button).colors;
+        final surface = find.descendant(
+          of: button,
+          matching: find.byType(DecoratedBox),
+        );
+        final decoration =
+            tester.widget<DecoratedBox>(surface).decoration as ShapeDecoration;
+        expect(tester.getSize(surface).height, 52);
+        expect(
+          tester.widget<Text>(find.text('CONTINUE')).style?.color,
+          colors.onPrimary,
+        );
+        if (enabled) {
+          expect(decoration.color, colors.primary);
+        } else {
+          expect(decoration.color, isNot(colors.primary));
+        }
+      }
+    });
+
     testWidgets('ignores taps while an async action runs', (tester) async {
       final pending = Completer<void>();
       var taps = 0;

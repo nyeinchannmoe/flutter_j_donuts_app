@@ -10,8 +10,6 @@ class Products extends Table {
   TextColumn get imageUrl => text().nullable()();
   TextColumn get imageAsset => text()();
   TextColumn get description => text()();
-  /// Optional second line under the product name on Home seasonal tiles.
-  TextColumn get subtitle => text().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

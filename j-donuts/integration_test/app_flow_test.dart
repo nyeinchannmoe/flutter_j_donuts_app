@@ -44,7 +44,7 @@ void main() {
     FlutterError.onError = testErrorHandler;
 
     await tester.pumpUntilFound(find.byType(OnboardingScreen));
-    await tester.tap(_button(l10n.onboardingGetStarted));
+    await tester.tap(find.text(l10n.onboardingGetStarted));
 
     await tester.pumpUntilFound(find.byType(PhoneEntryScreen));
     await tester.enterText(find.byType(TextField), '9123456789');

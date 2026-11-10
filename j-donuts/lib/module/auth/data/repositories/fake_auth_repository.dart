@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:jdonuts/core/database/daos/local_users_dao.dart';
+import 'package:jdonuts/core/error/app_exception.dart';
 import 'package:jdonuts/core/error/app_failure.dart';
 import 'package:jdonuts/core/error/guard.dart';
 import 'package:jdonuts/core/logging/app_logger.dart';
@@ -74,6 +75,7 @@ class FakeAuthRepository implements AuthRepository {
   Future<Result<OtpVerification>> verifyOtp({
     required String phoneE164,
     required String code,
+    bool existingAccountOnly = false,
   }) async {
     final accepted = await _guard(() => _otpGateway.verifyCode(code));
     return switch (accepted) {
@@ -81,13 +83,26 @@ class FakeAuthRepository implements AuthRepository {
       Ok(value: false) => const Err(
         AuthFailure(code: FailureCodes.invalidCode),
       ),
-      Ok() => _guard(() => _completeVerification(phoneE164)),
+      Ok() => _guard(
+        () => _completeVerification(
+          phoneE164,
+          existingAccountOnly: existingAccountOnly,
+        ),
+      ),
     };
   }
 
-  Future<OtpVerification> _completeVerification(String phoneE164) async {
+  Future<OtpVerification> _completeVerification(
+    String phoneE164, {
+    required bool existingAccountOnly,
+  }) async {
     final user = await _usersDao.findByPhone(phoneE164);
     if (user == null) {
+      if (existingAccountOnly) {
+        throw const AppException(
+          AuthFailure(code: FailureCodes.accountMissing),
+        );
+      }
       _publish(Session.registering(phoneE164: phoneE164));
       return const OtpVerification(isRegistered: false);
     }

@@ -48,15 +48,15 @@ class _SeasonalBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
       _TileImage(
         product: product,
         width: width,
         height: width * _seasonalImageHeightFactor,
         radius: context.radius.xlAll,
       ),
-      SizedBox(height: context.spacing.sm),
+          SizedBox(height: context.spacing.sm),
       _SeasonalLabels(product: product),
     ],
   );
@@ -68,32 +68,14 @@ class _SeasonalLabels extends StatelessWidget {
   final SectionProduct product;
 
   @override
-  Widget build(BuildContext context) {
-    final subtitle = product.subtitle;
-    final hasSubtitle = subtitle != null && subtitle.isNotEmpty;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          product.name,
-          style: context.typography.subtitle.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        if (hasSubtitle)
-          Text(
-            subtitle,
-            style: context.typography.body.copyWith(
-              color: context.colors.textPrimary,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Text(
+    product.name,
+    style: context.typography.subtitle.copyWith(
+      fontWeight: FontWeight.w700,
+    ),
+    maxLines: 2,
+    overflow: TextOverflow.ellipsis,
+  );
 }
 
 class _CatalogBody extends StatelessWidget {
@@ -125,11 +107,11 @@ class _CatalogBody extends StatelessWidget {
             ),
             SizedBox(height: spacing.sm),
             _ProductName(name: product.name),
-          ],
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _ProductName extends StatelessWidget {

@@ -29,9 +29,9 @@ class AuthStepScaffold extends StatelessWidget {
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(gradient: context.colors.authGradient),
     child: Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.colors.surface.withValues(alpha: 0),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: context.colors.surface.withValues(alpha: 0),
         leading: BackButton(color: context.colors.textPrimary),
         actions: [_StepRing(step: step, completed: completed)],
       ),

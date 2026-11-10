@@ -19,6 +19,7 @@ abstract interface class AuthRepository {
   Future<Result<OtpVerification>> verifyOtp({
     required String phoneE164,
     required String code,
+    bool existingAccountOnly = false,
   });
 
   /// Completes registration for the phone number verified last.

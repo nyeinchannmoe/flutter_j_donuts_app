@@ -6,11 +6,12 @@ import 'package:jdonuts/core/responsive/layout_metrics.dart';
 import 'package:jdonuts/module/home/domain/entities/home_section.dart';
 import 'package:jdonuts/module/home/presentation/bloc/home_refresh/home_refresh_bloc.dart';
 import 'package:jdonuts/module/home/presentation/bloc/home_section/home_section_bloc.dart';
-import 'package:jdonuts/module/home/presentation/screens/home/widgets/home_header_band.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/widgets/banner_carousel.dart';
+import 'package:jdonuts/module/home/presentation/screens/home/widgets/member_header.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/nearby_shops.dart';
 import 'package:jdonuts/module/home/presentation/screens/home/widgets/product_rail.dart';
 
-/// Home: curved member header with banners, product rails and nearby shops.
+/// Home: member header, banners, three product rails and nearby shops.
 ///
 /// Each section listens to its own Bloc. Rails get theirs from
 /// [sectionBlocFactory] because the same Bloc type appears three times.
@@ -34,23 +35,21 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sections = [
-      const HomeHeaderBand(),
+      const _Gutter(child: MemberHeader()),
+      const BannerCarousel(),
       for (final kind in HomeSectionKind.values)
         BlocProvider<HomeSectionBloc>(
           key: ValueKey(kind),
           create: (_) => sectionBlocFactory(kind),
           child: ProductRail(onProductSelected: onProductSelected),
         ),
-      // Full-bleed cyan band; insets live inside NearbyShops.
-      const NearbyShops(),
+      const _Gutter(child: NearbyShops()),
     ];
     return Scaffold(
-      backgroundColor: context.colors.surface,
+      backgroundColor: context.colors.background,
       body: SafeArea(
-        top: false,
         child: RefreshIndicator(
           onRefresh: () => _refresh(context),
-          edgeOffset: MediaQuery.paddingOf(context).top,
           child: _SectionList(sections: sections),
         ),
       ),
@@ -75,12 +74,9 @@ class _SectionList extends StatelessWidget {
           ),
           child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: spacing.lg),
+            padding: EdgeInsets.symmetric(vertical: spacing.lg),
             itemCount: sections.length,
-            separatorBuilder: (_, index) {
-              final gap = index == 0 ? spacing.md : spacing.xl;
-              return SizedBox(height: gap);
-            },
+            separatorBuilder: (_, _) => SizedBox(height: spacing.xl),
             itemBuilder: (context, index) =>
                 StaggeredItem(index: index, child: sections[index]),
           ),
@@ -88,4 +84,17 @@ class _SectionList extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Rails and banners scroll edge to edge; other sections sit in the gutter.
+class _Gutter extends StatelessWidget {
+  const _Gutter({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(horizontal: context.layout.horizontalGutter),
+    child: child,
+  );
 }

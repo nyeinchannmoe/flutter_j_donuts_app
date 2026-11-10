@@ -67,6 +67,36 @@ class AppColors extends ThemeExtension<AppColors> {
     promoSky: AppPalette.skyBlue,
   );
 
+  static const _gradientMidpoint = 0.5;
+
+  Color get illustrationPlum => AppPalette.deepPink;
+
+  Color authGradientColorAt(double fraction) {
+    final colors = authGradient.colors;
+    return fraction <= _gradientMidpoint
+        ? Color.lerp(colors.first, colors[1], fraction / _gradientMidpoint)!
+        : Color.lerp(
+            colors[1],
+            colors.last,
+            (fraction - _gradientMidpoint) / _gradientMidpoint,
+          )!;
+  }
+
+  ColorScheme toColorScheme() => ColorScheme.fromSeed(
+    seedColor: primary,
+    primary: primary,
+    onPrimary: onPrimary,
+    secondary: accent,
+    tertiary: highlight,
+    surface: surface,
+    error: danger,
+    shadow: AppPalette.shadow,
+    scrim: AppPalette.scrim,
+  );
+
+  Color illustrationTint(Color color, double amount) =>
+      Color.lerp(color, surface, amount)!;
+
   final Color primary;
   final Color onPrimary;
   final Color accent;

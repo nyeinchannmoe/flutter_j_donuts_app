@@ -18,7 +18,7 @@ class BuildErrorView extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.broken_image_outlined,
-          color: colors.textDisabled,
+          color: colors.textSecondary,
           semanticLabel: l10n?.screenErrorMessage,
         ),
       ),

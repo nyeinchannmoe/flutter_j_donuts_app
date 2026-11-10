@@ -27,7 +27,7 @@ class SeedService {
   });
 
   /// Bump when assets/seed/catalog.json changes.
-  static const int seedVersion = 4;
+  static const int seedVersion = 2;
 
   final AppMetaDao _appMetaDao;
   final SeedBundleLoader _loader;

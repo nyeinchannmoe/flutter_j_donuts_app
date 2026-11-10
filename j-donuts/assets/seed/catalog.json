@@ -49,8 +49,7 @@
     {
       "id": "p_mistletoe_box",
       "code": "JD090101",
-      "name": "Mistletoe",
-      "subtitle": "Romance box",
+      "name": "Mistletoe Romance box",
       "priceMmk": 18000,
       "isNew": true,
       "imageUrl": null,
@@ -60,8 +59,7 @@
     {
       "id": "p_christmas_family_box",
       "code": "JD090102",
-      "name": "Christmas",
-      "subtitle": "Family box",
+      "name": "Christmas Family box",
       "priceMmk": 26000,
       "isNew": true,
       "imageUrl": null,

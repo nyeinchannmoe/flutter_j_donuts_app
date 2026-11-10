@@ -4,9 +4,11 @@ import 'package:jdonuts/config/routes/route_paths.dart';
 import 'package:jdonuts/config/routes/route_transitions.dart';
 import 'package:jdonuts/core/di/injector.dart';
 import 'package:jdonuts/module/auth/data/datasources/fake_otp_gateway.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/otp_verification/otp_verification_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/phone_entry/phone_entry_bloc.dart';
 import 'package:jdonuts/module/auth/presentation/bloc/registration/registration_bloc.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_entry.dart';
 import 'package:jdonuts/module/auth/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/otp_verification/otp_verification_screen.dart';
 import 'package:jdonuts/module/auth/presentation/screens/phone_entry/phone_entry_screen.dart';
@@ -28,22 +30,37 @@ GoRoute _onboardingRoute() => GoRoute(
   pageBuilder: (context, state) => RouteTransitions.fadeThrough(
     context,
     state,
-    OnboardingScreen(
-      onGetStarted: () => context.push(RoutePaths.authPhone),
-      onLogIn: () => context.push(RoutePaths.authPhone),
+    OnboardingEntry(
+      child: BlocProvider(
+        create: (_) => getIt<OnboardingBloc>(),
+        child: OnboardingScreen(
+          onGetStarted: () => context.pushNamed<void>(RoutePaths.authPhoneName),
+          onLogIn: () => context.pushNamed<void>(
+            RoutePaths.authPhoneName,
+            queryParameters: {RoutePaths.authModeParam: RoutePaths.loginMode},
+          ),
+        ),
+      ),
     ),
   ),
 );
 
 GoRoute _phoneRoute() => GoRoute(
   path: RoutePaths.authPhone,
+  name: RoutePaths.authPhoneName,
   pageBuilder: (context, state) => RouteTransitions.sharedAxis(
     context,
     state,
     BlocProvider(
       create: (_) => getIt<PhoneEntryBloc>(),
       child: PhoneEntryScreen(
-        onCodeSent: (phone) => context.push(RoutePaths.otpFor(phone)),
+        onCodeSent: (phone) => context.pushNamed<void>(
+          RoutePaths.authOtpName,
+          queryParameters: {
+            ...state.uri.queryParameters,
+            RoutePaths.phoneQueryParam: phone,
+          },
+        ),
       ),
     ),
   ),
@@ -51,6 +68,7 @@ GoRoute _phoneRoute() => GoRoute(
 
 GoRoute _otpRoute() => GoRoute(
   path: RoutePaths.authOtp,
+  name: RoutePaths.authOtpName,
   redirect: (context, state) =>
       state.uri.queryParameters[RoutePaths.phoneQueryParam] == null
       ? RoutePaths.authPhone
@@ -63,6 +81,9 @@ GoRoute _otpRoute() => GoRoute(
       child: OtpVerificationScreen(
         phoneE164: state.uri.queryParameters[RoutePaths.phoneQueryParam]!,
         demoCode: FakeOtpGateway.demoCode,
+        existingAccountOnly:
+            state.uri.queryParameters[RoutePaths.authModeParam] ==
+            RoutePaths.loginMode,
         onNewMemberVerified: () => context.push(RoutePaths.authName),
       ),
     ),

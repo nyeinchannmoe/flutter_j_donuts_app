@@ -93,6 +93,7 @@ abstract final class FailureCodes {
   static const String auth = 'auth';
   static const String unexpected = 'unexpected';
   static const String invalidCode = 'auth.invalidCode';
+  static const String accountMissing = 'auth.accountMissing';
   static const String seed = 'storage.seed';
   static const String envelope = 'network.envelope';
 }

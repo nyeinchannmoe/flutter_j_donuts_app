@@ -1,8 +1,18 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:jdonuts/core/extensions/build_context_x.dart';
-import 'package:jdonuts/core/motion/primitives/pop_in.dart';
 import 'package:jdonuts/core/motion/primitives/staggered_entrance.dart';
-import 'package:jdonuts/core/widgets/buttons/app_button.dart';
+import 'package:jdonuts/core/theme/app_theme.dart';
+import 'package:jdonuts/module/auth/presentation/bloc/onboarding/onboarding_bloc.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/legal_footer.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_actions.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_hero.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_login_prompt.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/onboarding_title.dart';
+import 'package:jdonuts/module/auth/presentation/screens/onboarding/widgets/social_login_row.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({
@@ -11,102 +21,154 @@ class OnboardingScreen extends StatelessWidget {
     super.key,
   });
 
-  final VoidCallback onGetStarted;
-  final VoidCallback onLogIn;
+  final Future<void> Function() onGetStarted;
+  final Future<void> Function() onLogIn;
+
+  Future<void> _open(OnboardingBloc bloc, OnboardingOpening opening) async {
+    try {
+      await switch (opening.action) {
+        OnboardingAction.register => onGetStarted(),
+        OnboardingAction.login => onLogIn(),
+      };
+    } finally {
+      if (!bloc.isClosed) bloc.add(const OnboardingReturned());
+    }
+  }
 
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(gradient: context.colors.authGradient),
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(context.layout.horizontalGutter),
-          child: StaggeredEntrance(
-            itemCount: _OnboardingBody.itemCount,
-            child: _OnboardingBody(
-              onGetStarted: onGetStarted,
-              onLogIn: onLogIn,
+  Widget build(BuildContext context) =>
+      BlocListener<OnboardingBloc, OnboardingState>(
+        listener: (context, state) {
+          if (state is OnboardingOpening) {
+            unawaited(_open(context.read<OnboardingBloc>(), state));
+          }
+        },
+        child: AnnotatedRegion(
+          value: AppTheme.lightSystemBars,
+          child: Scaffold(
+            backgroundColor: context.colors.surface.withValues(alpha: 0),
+            extendBody: true,
+            extendBodyBehindAppBar: true,
+            body: DecoratedBox(
+              decoration: BoxDecoration(gradient: context.colors.authGradient),
+              child: const StaggeredEntrance(
+                itemCount: _OnboardingLayout.itemCount,
+                child: _OnboardingLayout(),
+              ),
             ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 }
 
-class _OnboardingBody extends StatelessWidget {
-  const _OnboardingBody({required this.onGetStarted, required this.onLogIn});
+class _OnboardingLayout extends StatelessWidget {
+  const _OnboardingLayout();
 
-  static const int itemCount = 3;
-
-  final VoidCallback onGetStarted;
-  final VoidCallback onLogIn;
+  static const itemCount = 8;
+  static const _heroFraction = 0.56;
+  static const _maxHeroHeight = 560.0;
+  static const _minimumControlsHeight = 268.0;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final spacing = context.spacing;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) =>
+        _placeContent(context, constraints.maxHeight),
+  );
+
+  Widget _placeContent(BuildContext context, double viewport) {
+    final height = _heroHeight(context, viewport);
+    final safeTop = MediaQuery.paddingOf(context).top;
+    return Stack(
+      fit: StackFit.expand,
       children: [
-        const Expanded(
-          child: Center(child: PopIn(child: _DonutMark())),
-        ),
-        StaggeredItem(
-          index: 0,
-          child: Text(
-            l10n.onboardingTitle,
-            textAlign: TextAlign.center,
-            style: context.typography.display,
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: height,
+          child: OnboardingHero(
+            backgroundAtEdge: context.colors.authGradientColorAt(
+              height / viewport,
+            ),
           ),
         ),
-        SizedBox(height: spacing.xxl),
-        StaggeredItem(
-          index: 1,
-          child: AppButton(
-            label: l10n.onboardingGetStarted,
-            onPressed: onGetStarted,
-          ),
+        Positioned.fill(
+          top: math.max(safeTop, height - context.spacing.sm),
+          child: const SafeArea(top: false, child: _OnboardingControls()),
         ),
-        SizedBox(height: spacing.md),
-        StaggeredItem(index: 2, child: _LogInPrompt(onLogIn: onLogIn)),
       ],
+    );
+  }
+
+  double _heroHeight(BuildContext context, double viewport) {
+    final safe = MediaQuery.paddingOf(context);
+    final reserve = MediaQuery.textScalerOf(context).scale(
+      _minimumControlsHeight,
+    );
+    final desired = math.min(
+      viewport * _heroFraction,
+      _maxHeroHeight,
+    );
+    return math.min(
+      desired,
+      math.max(safe.top, viewport - safe.bottom - reserve),
     );
   }
 }
 
-class _DonutMark extends StatelessWidget {
-  const _DonutMark();
+class _OnboardingControls extends StatelessWidget {
+  const _OnboardingControls();
+
+  void _select(BuildContext context, OnboardingAction action) =>
+      context.read<OnboardingBloc>().add(OnboardingActionSelected(action));
+
+  void _showPlaceholder(BuildContext context) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.onboardingComingSoon)),
+      );
+  }
 
   @override
-  Widget build(BuildContext context) => Icon(
-    Icons.donut_large_rounded,
-    size: context.iconSizes.illustration,
-    color: context.colors.accent,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: context.spacing.xl),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: constraints.maxHeight),
+        child: IntrinsicHeight(child: _content(context)),
+      ),
+    ),
   );
-}
 
-class _LogInPrompt extends StatelessWidget {
-  const _LogInPrompt({required this.onLogIn});
-
-  final VoidCallback onLogIn;
-
-  @override
-  Widget build(BuildContext context) => Wrap(
-    alignment: WrapAlignment.center,
-    crossAxisAlignment: WrapCrossAlignment.center,
+  Widget _content(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Text(context.l10n.onboardingHaveAccount, style: context.typography.body),
-      TextButton(
-        onPressed: onLogIn,
-        child: Text(
-          context.l10n.onboardingLogIn,
-          style: context.typography.bodyStrong.copyWith(
-            color: context.colors.accent,
-          ),
+      const StaggeredItem(index: 3, child: OnboardingTitle()),
+      const Spacer(flex: 3),
+      StaggeredItem(
+        index: 4,
+        child: OnboardingActions(
+          onPressed: () => _select(context, OnboardingAction.register),
         ),
       ),
+      StaggeredItem(
+        index: 5,
+        child: OnboardingLoginPrompt(
+          onLogIn: () => _select(context, OnboardingAction.login),
+        ),
+      ),
+      SizedBox(height: context.spacing.md),
+      StaggeredItem(
+        index: 6,
+        child: SocialLoginRow(onUnavailable: () => _showPlaceholder(context)),
+      ),
+      const Spacer(flex: 2),
+      StaggeredItem(
+        index: 7,
+        child: LegalFooter(onUnavailable: () => _showPlaceholder(context)),
+      ),
+      SizedBox(height: context.spacing.lg),
     ],
   );
 }

@@ -32,6 +32,7 @@ abstract final class RouteTransitions {
     state,
     child,
     ({
+      required context,
       required profile,
       required animation,
       required secondaryAnimation,
@@ -48,6 +49,7 @@ abstract final class RouteTransitions {
     GoRouterState state,
     Widget child,
     Widget Function({
+      required BuildContext context,
       required MotionProfile profile,
       required Animation<double> animation,
       required Animation<double> secondaryAnimation,
@@ -65,6 +67,7 @@ abstract final class RouteTransitions {
       child: child,
       transitionsBuilder: (context, animation, secondaryAnimation, child) =>
           transition(
+            context: context,
             profile: context.motion,
             animation: animation,
             secondaryAnimation: secondaryAnimation,

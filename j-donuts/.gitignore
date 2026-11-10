@@ -94,3 +94,6 @@ ios/ServiceDefinitions.json
 .env
 .env.*
 !.env.example
+
+
+pubspec.lock

@@ -15,7 +15,6 @@ extension BannerDtoMapper on BannerDto {
     title: title,
     imageUrl: Value(imageUrl),
     imageAsset: imageAsset,
-    cardTone: Value(cardTone),
     sortOrder: sortOrder,
   );
 }
@@ -27,7 +26,6 @@ extension BannerRowMapper on BannerRow {
     tag: tag,
     imageAsset: imageAsset,
     imageUrl: imageUrl,
-    cardTone: cardTone,
   );
 }
 
@@ -90,7 +88,6 @@ extension SectionWithItemsMapper on SectionWithItems {
           priceMmk: entry.product.priceMmk,
           imageAsset: entry.product.imageAsset,
           imageUrl: entry.product.imageUrl,
-          subtitle: entry.product.subtitle,
           discountPercent: entry.item.discountPercent,
         ),
     ],
